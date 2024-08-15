@@ -20,4 +20,4 @@ The roles will be session based so after every CICD run they will be removed fro
 For now we can only destroy manually
 1. Run `terraform init -backend-config=backend/backend-[environment].hcl`
 2. Run `terraform destroy -auto-approve`
-3. (Optional) Go to AWS Console and delete the terraform state bucket (and the contents inside it)
+3. (Optional) Go to AWS Console and delete the `s3` terraform state bucket (and the contents inside it) and the `dynamodb table`
