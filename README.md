@@ -26,3 +26,7 @@ For now we can only destroy manually
 1. Run `terraform init -backend-config=backend/backend-[environment].hcl`
 2. Run `terraform destroy -auto-approve`
 3. (Optional) Go to AWS Console and delete the `s3` terraform state bucket (and the contents inside it) and the `dynamodb table`
+
+
+#### Note
+If bucket or dynamodb table creation fails because it already exists (and not owned by you), make TF_VAR_organization more unique
