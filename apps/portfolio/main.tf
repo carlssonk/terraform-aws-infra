@@ -1,3 +1,6 @@
+variable "organization" {}
+variable "environment" {}
+
 module "s3" {
   source = "../../modules/s3"
   bucket_name = "${var.organization}-portfolio-${var.environment}"
