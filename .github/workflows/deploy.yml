@@ -43,14 +43,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Bootstrap
-        run: |
-          cd bootstrap
-          terraform init
-          terraform apply -auto-approve
-        env:
-          TF_VAR_environment: ${{ vars.ENVIRONMENT }}
-
       - name: Terraform Apply
         run: |
           terraform init -backend-config=backend/backend-${{ vars.ENVIRONMENT }}.hcl

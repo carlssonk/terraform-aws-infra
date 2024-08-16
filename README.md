@@ -10,11 +10,16 @@ The roles will be session based so after every CICD run they will be removed fro
 
 ## Guide
 
-### Create infra on a new environment
-1. Create a new GHA workflow file in .github/workflows
-2. Add a new backend hcl file in backend/ folder
-3. Create a new branch and push changes to that branch
-4. Done.
+### Set up and create infra on a new environment
+1. Create new AWS account for the new environment
+2. Create a new IAM user
+3. Set up a new repository environment in github
+4. Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets and a `ENVIRONMENT` variable in the repository environment
+5. Add a new .hcl file in the backend/ folder. CD into the folder and run `terraform init` and `terraform apply -auto-approve` (TODO: Create a cli instead that bootstraps a new environmnet)
+6. Create a new branch and limit the repository enviroment to that branch in github environment settings
+7. In deploy.yml, reference the repository environment by adding a new if statement in `set-environment`, make sure to set it to the correct environment name
+8. Push changes to new branch
+9. Done
 
 ### Destroy infra for an environment
 For now we can only destroy manually
