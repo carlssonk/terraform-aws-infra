@@ -29,7 +29,27 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Apply
+      - name: Check if Terraform backend exists
+        id: check_backend
+        run: |
+          BUCKET_NAME="${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}"
+          TABLE_NAME="${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
+          
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null && \
+             aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
+            echo "backend_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bootstrap Backend
+        if: steps.check_backend.outputs.backend_exists == 'false'
+        run: |
+          cd bootstrap
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Init and Apply
         run: |
           terraform init \
             -backend-config=backend-config.hcl \
