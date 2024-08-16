@@ -1,3 +1,7 @@
+variable "environment" {}
+variable "region" {}
+variable "organization" {}
+
 terraform {
   backend "s3" {}
 }

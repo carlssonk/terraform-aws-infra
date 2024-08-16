@@ -1,5 +1,9 @@
 // Bootstraps terraform backend for a new environment
 
+variable "environment" {}
+variable "region" {}
+variable "organization" {}
+
 provider "aws" {
   region = var.region
 }
