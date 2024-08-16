@@ -31,5 +31,9 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          terraform init -backend-config=backend-config.hcl -backend-config="org=${{ env.TF_VAR_organization }}" -backend-config="env=${{ env.TF_VAR_environment }}"
+          terraform init \
+            -backend-config=backend-config.hcl \
+            -backend-config="region=${{ env.TF_VAR_region }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
           terraform apply -auto-approve
