@@ -11,54 +11,58 @@ env:
 
 jobs:
   bootstrap:
+    name: Bootstrap
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.BOOTSTRAP_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BOOTSTRAP_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.TF_VAR_region }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Check if Terraform backend exists
+        id: check_backend
+        run: |
+          BUCKET_NAME="${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}"
+          TABLE_NAME="${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
+          
+          if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null && \
+              aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
+            echo "backend_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend_exists=false" >> $GITHUB_OUTPUT
+          fi
     
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.BOOTSTRAP_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.BOOTSTRAP_AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.TF_VAR_region }}
-    
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      - name: Setup Backend
+        if: steps.check_backend.outputs.backend_exists == 'false'
+        run: |
+          terraform init
+          terraform apply -auto-approve
+        working-directory: ./bootstrap/setup-backend
 
-    - name: Check if Terraform backend exists
-      id: check_backend
-      run: |
-        BUCKET_NAME="${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}"
-        TABLE_NAME="${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
-        
-        if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null && \
-            aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
-          echo "backend_exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "backend_exists=false" >> $GITHUB_OUTPUT
-        fi
-  
-    - name: Setup Backend
-      if: steps.check_backend.outputs.backend_exists == 'false'
-      run: |
-        terraform init
-        terraform apply -auto-approve
-      working-directory: ./bootstrap/setup-backend
+      - name: Setup OIDC
+        run: |
+          terraform init \
+            -backend-config=../../backend-config.hcl \
+            -backend-config="region=${{ env.TF_VAR_region }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
+          terraform apply -auto-approve
+        working-directory: ./bootstrap/setup-oidc
 
-    - name: Setup OIDC
-      run: |
-        terraform init \
-          -backend-config=../../backend-config.hcl \
-          -backend-config="region=${{ env.TF_VAR_region }}" \
-          -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}" \
-          -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
-        terraform apply -auto-approve
-      working-directory: ./bootstrap/setup-oidc
-
-    - name: Store Role ARN
-      run: |
-        ROLE_ARN=$(terraform output -raw terraform_execution_role_arn)
-        echo $ROLE_ARN | gh secret set TERRAFORM_EXECUTION_ROLE_ARN
-      env:
-        GH_TOKEN: ${{ secrets.GH_PAT }}
-      working-directory: ./bootstrap/setup-oidc
+      - name: Store Role ARN
+        run: |
+          ROLE_ARN=$(terraform output -raw terraform_execution_role_arn)
+          echo $ROLE_ARN | gh secret set TERRAFORM_EXECUTION_ROLE_ARN
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        working-directory: ./bootstrap/setup-oidc
