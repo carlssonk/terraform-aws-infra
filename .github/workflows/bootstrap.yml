@@ -4,6 +4,7 @@ on:
   workflow_dispatch: # Manual trigger
 
 env:
+  GH_TOKEN: ${{ github.token }}
   TF_VAR_region: eu-north-1
   TF_VAR_organization: carlssonk
   TF_VAR_repository: terraform-aws-infra
@@ -57,12 +58,4 @@ jobs:
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TF_VAR_environment }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TF_VAR_environment }}"
           terraform apply -auto-approve
-        working-directory: ./bootstrap/setup-oidc
-
-      - name: Store Role ARN
-        run: |
-          ROLE_ARN=$(terraform output -raw terraform_execution_role_arn)
-          echo $ROLE_ARN | gh secret set TERRAFORM_EXECUTION_ROLE_ARN
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
         working-directory: ./bootstrap/setup-oidc
