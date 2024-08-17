@@ -1,12 +1,9 @@
 # This repo is in progress...
 
 TODO
-We will create one aws account per environemnt for all my portfolio projects, we merge these accounts with an AWS organization or AWS Control Tower Factory for terraform.
-Per account we only need to create one IAM user that will be used in CI/CD.
-
-Each resource or app will have its own role, that will be assigned to the CICD user during a run.
-The roles will be session based so after every CICD run they will be removed from the user.
-
+Use OIDC for security
+Have one role for my whole infra arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/TerraformExecutionRole
+In the future we can separate roles by application
 
 ## Guide
 
@@ -24,7 +21,3 @@ For now we can only destroy manually
 1. Run `terraform init -backend-config=backend/backend-[environment].hcl`
 2. Run `terraform destroy -auto-approve`
 3. (Optional) Go to AWS Console and delete the `s3` terraform state bucket (and the contents inside it) and the `dynamodb table`
-
-
-#### Note
-If bucket or dynamodb table creation fails because it already exists (and not owned by you), make `TF_VAR_organization` more unique
