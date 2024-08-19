@@ -10,7 +10,7 @@ module "portfolio" {
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
-  depends_on = [aws_iam_policy.terraform_execution_policy, aws_iam_role_policy_attachment.terraform_execution_policy]
+  depends_on  = [time_sleep.wait_5_seconds]
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -50,4 +50,10 @@ resource "aws_iam_policy" "terraform_execution_policy" {
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.terraform_execution_policy.arn
+}
+
+# Add a time_sleep resource
+resource "time_sleep" "wait_5_seconds" {
+  depends_on = [aws_iam_policy.terraform_execution_policy, aws_iam_role_policy_attachment.terraform_execution_policy]
+  create_duration = "5s"
 }
