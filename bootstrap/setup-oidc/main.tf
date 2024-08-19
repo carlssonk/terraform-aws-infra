@@ -95,7 +95,10 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Effect: "Allow",
         Action: [
             "iam:CreatePolicy",
-            "iam:GetPolicy"
+            "iam:GetPolicy",
+            "iam:ListPolicyVersions",
+            "iam:GetPolicyVersion",
+            "iam:CreatePolicyVersion"
         ],
         Resource: "arn:aws:iam::*:policy/terraform-execution-policy"
       },
