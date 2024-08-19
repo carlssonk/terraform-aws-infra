@@ -2,9 +2,7 @@
 
 Replace `ENVIRONMENT` with your environment (same as branch name and repo environment)
 
-> If you're using this terraform config in another repository, you also need to replace `carlssonk` with your organization name
-
-> If you're using another region than `eu-north-1` it also needs to be replaced
+> These may need to be changed based on your variables in the workflow files: `carlssonk`, `eu-north-1`, `terraform-state-bucket`, `terraform-lock-table`
 
 ```json
 {
@@ -62,7 +60,7 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
             ]
         },
         {
-            "Sid": "IAMSelfUpdatePolicyForTerraformExecutionRole",
+            "Sid": "IAMBasePolicyForTerraformExecutionRole",
             "Effect": "Allow",
             "Action": [
                 "iam:CreatePolicy",
@@ -71,7 +69,7 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
                 "iam:DeletePolicy",
                 "iam:ListPolicyVersions"
             ],
-            "Resource": "arn:aws:iam::*:policy/terraform-self-update-policy"
+            "Resource": "arn:aws:iam::*:policy/terraform-base-policy"
         },
         {
             "Sid": "IAMPassRole",

@@ -1,4 +1,7 @@
+variable "backend_bucket_name" {}
+variable "backend_table_name" {}
 variable "organization" {}
+variable "environment" {}
 variable "repository" {}
 
 terraform {
@@ -34,14 +37,38 @@ resource "aws_iam_role" "terraform_execution_role" {
   })
 }
 
-resource "aws_iam_policy" "terraform_self_update_policy" {
-  name = "terraform-self-update-policy"
+resource "aws_iam_policy" "terraform_base_policy" {
+  name = "terraform-base-policy"
   description = "Policy for initial setup and self-update capabilities"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        // Required for backend management
+        Effect: "Allow",
+        Action: [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        Resource: [
+          "arn:aws:s3:::${var.organization}-${var.backend_bucket_name}-${var.environment}",
+          "arn:aws:s3:::${var.organization}-${var.backend_bucket_name}-${var.environment}/*"
+        ]
+      },
+      {
+        // Required for backend management
+        Effect: "Allow",
+        Action: [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem"
+        ],
+        Resource: "arn:aws:dynamodb:*:*:table/${var.organization}-${var.backend_table_name}-${var.environment}"
+      },
+      {
+        // Enables user to update itself with new policies
         Effect = "Allow"
         Action = [
           "iam:GetRole",
@@ -57,6 +84,6 @@ resource "aws_iam_policy" "terraform_self_update_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
-  policy_arn = aws_iam_policy.terraform_self_update_policy.arn
+  policy_arn = aws_iam_policy.terraform_base_policy.arn
   role = aws_iam_role.terraform_execution_role.name
 }
