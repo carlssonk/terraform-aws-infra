@@ -13,6 +13,17 @@ module "portfolio" {
   depends_on = [aws_iam_role_policy_attachment.terraform_execution_policy]
 }
 
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::carlssonk-terraform-state-bucket-prod",
+      "arn:aws:s3:::carlssonk-terraform-state-bucket-prod/*"
+    ]
+    effect = "Allow"
+  }
+}
+
 resource "aws_iam_policy" "terraform_execution_policy" {
   name        = "terraform-execution-policy"
   description = "Composite policy for Terraform execution role"
@@ -20,7 +31,7 @@ resource "aws_iam_policy" "terraform_execution_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = concat(
-      jsondecode(module.portfolio.policy_json).Statement,
+      jsondecode(data.aws_iam_policy_document.bucket_policy.json).Statement,
     )
   })
 }

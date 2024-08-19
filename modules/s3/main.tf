@@ -56,18 +56,3 @@ resource "aws_s3_bucket_policy" "this" {
     aws_s3_bucket_public_access_block.this
   ]
 }
-
-data "aws_iam_policy_document" "bucket_policy" {
-  statement {
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.this.arn,
-      "${aws_s3_bucket.this.arn}/*"
-    ]
-    effect = "Allow"
-  }
-}
-
-output "bucket_policy_json" {
-  value = data.aws_iam_policy_document.bucket_policy.json
-}
