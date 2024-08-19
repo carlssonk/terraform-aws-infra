@@ -94,7 +94,8 @@ resource "aws_iam_policy" "terraform_base_policy" {
         // Enables policy to create and manage terraform-execution-policy
         Effect: "Allow",
         Action: [
-            "iam:CreatePolicy"
+            "iam:CreatePolicy",
+            "iam:GetPolicy"
         ],
         Resource: "arn:aws:iam::*:policy/terraform-execution-policy"
       },
