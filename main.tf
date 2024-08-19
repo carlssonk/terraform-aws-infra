@@ -15,7 +15,13 @@ module "portfolio" {
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
-    actions = ["s3:CreateBucket"]
+    actions = [
+      "s3:CreateBucket",
+      "s3:ListBucket",
+      "s3:GetBucketLocation",
+      "s3:ListAllMyBuckets",
+      "s3:HeadBucket"
+    ]
     resources = ["arn:aws:s3:::*"]
     effect = "Allow"
   }
