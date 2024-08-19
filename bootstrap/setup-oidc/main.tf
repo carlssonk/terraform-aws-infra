@@ -81,10 +81,12 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource: "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
       },
       {
-        // Enables policy to get itself
+        // Enables policy to manage itself
         Effect: "Allow",
         Action: [
-          "iam:GetPolicy",
+            "iam:GetPolicy",
+            "iam:GetPolicyVersion",
+            "iam:ListPolicyVersions"
         ],
         Resource: "arn:aws:iam::*:policy/${local.terraform_base_policy}"
       },
