@@ -10,7 +10,7 @@ module "portfolio" {
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
-  depends_on = [aws_iam_role_policy_attachment.terraform_execution_policy]
+  depends_on = [aws_iam_policy.terraform_execution_policy, aws_iam_role_policy_attachment.terraform_execution_policy]
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
