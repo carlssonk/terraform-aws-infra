@@ -7,10 +7,10 @@ terraform {
 }
 
 module "portfolio" {
+  count = 0
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
-  depends_on  = [null_resource.policy_update]
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -51,16 +51,4 @@ resource "aws_iam_policy" "terraform_execution_policy" {
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.terraform_execution_policy.arn
-}
-
-# Add a time_sleep resource
-resource "null_resource" "policy_update" {
-  triggers = {
-    policy_id = aws_iam_policy.terraform_execution_policy.id
-    attachment_id = aws_iam_role_policy_attachment.terraform_execution_policy.id
-  }
-
-  provisioner "local-exec" {
-    command = "sleep 30"
-  }
 }
