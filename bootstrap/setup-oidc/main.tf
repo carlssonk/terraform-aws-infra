@@ -35,7 +35,7 @@ resource "aws_iam_role" "terraform_execution_role" {
           "${local.oidc_domain}:aud": "sts.amazonaws.com"
         }
         StringLike = {
-          "${local.oidc_domain}.com:sub": "repo:${var.organization}/${var.repository}:*"
+          "${local.oidc_domain}:sub": "repo:${var.organization}/${var.repository}:*"
         }
       }
     }]

@@ -52,7 +52,8 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
                 "iam:AttachRolePolicy",
                 "iam:DetachRolePolicy",
                 "iam:ListAttachedRolePolicies",
-                "iam:ListRolePolicies"
+                "iam:ListRolePolicies",
+                "iam:UpdateAssumeRolePolicy"
             ],
             "Resource": [
                 "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com",
