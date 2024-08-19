@@ -1,6 +1,6 @@
 ## Bootstrap user IAM policy
 
-Replace `ENVIRONMENT` and `AWS_ACCOUNT_ID`
+Replace `ENVIRONMENT` with your environment (same as branch name and repo environment)
 
 > If you're using this terraform config in another repository, you also need to replace `carlssonk` with your organization name
 
@@ -37,10 +37,10 @@ Replace `ENVIRONMENT` and `AWS_ACCOUNT_ID`
                 "dynamodb:DescribeTimeToLive",
                 "dynamodb:ListTagsOfResource"
             ],
-            "Resource": "arn:aws:dynamodb:eu-north-1:AWS_ACCOUNT_ID:table/carlssonk-terraform-lock-table-ENVIRONMENT"
+            "Resource": "arn:aws:dynamodb:eu-north-1:*:table/carlssonk-terraform-lock-table-ENVIRONMENT"
         },
         {
-            "Sid": "IAMManagement",
+            "Sid": "CreateIAMOpenIdConnectProviderAndTerraformExecutionRole",
             "Effect": "Allow",
             "Action": [
                 "iam:CreateOpenIDConnectProvider",
@@ -57,15 +57,27 @@ Replace `ENVIRONMENT` and `AWS_ACCOUNT_ID`
                 "iam:ListRolePolicies"
             ],
             "Resource": [
-                "arn:aws:iam::AWS_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com",
-                "arn:aws:iam::AWS_ACCOUNT_ID:role/terraform-execution-role"
+                "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com",
+                "arn:aws:iam::*:role/terraform-execution-role"
             ]
+        },
+        {
+            "Sid": "CreateIAMSelfUpdatePolicyForTerraformExecutionRole",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreatePolicy",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:DeletePolicy",
+                "iam:ListPolicyVersions"
+            ],
+            "Resource": "arn:aws:iam::*:policy/terraform-self-update-policy"
         },
         {
             "Sid": "IAMPassRole",
             "Effect": "Allow",
             "Action": "iam:PassRole",
-            "Resource": "arn:aws:iam::AWS_ACCOUNT_ID:role/terraform-execution-role",
+            "Resource": "arn:aws:iam::*:role/terraform-execution-role",
             "Condition": {
                 "StringEquals": {
                     "iam:PassedToService": "sts.amazonaws.com"

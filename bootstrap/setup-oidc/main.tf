@@ -34,8 +34,8 @@ resource "aws_iam_role" "terraform_execution_role" {
   })
 }
 
-resource "aws_iam_policy" "terraform_bootstrap_policy" {
-  name        = "terraform-bootstrap-policy"
+resource "aws_iam_policy" "terraform_self_update_policy" {
+  name = "terraform-self-update-policy"
   description = "Policy for initial setup and self-update capabilities"
 
   policy = jsonencode({
@@ -48,8 +48,7 @@ resource "aws_iam_policy" "terraform_bootstrap_policy" {
           "iam:UpdateAssumeRolePolicy",
           "iam:UpdateRole",
           "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy",
-          "iam:CreatePolicy"
+          "iam:DetachRolePolicy"
         ]
         Resource = aws_iam_role.terraform_execution_role.arn
       }
@@ -58,6 +57,6 @@ resource "aws_iam_policy" "terraform_bootstrap_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
-  policy_arn = aws_iam_policy.terraform_bootstrap_policy.arn
-  role       = aws_iam_role.terraform_execution_role.name
+  policy_arn = aws_iam_policy.terraform_self_update_policy.arn
+  role = aws_iam_role.terraform_execution_role.name
 }
