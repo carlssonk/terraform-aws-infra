@@ -8,3 +8,7 @@ module "s3" {
   organization = var.organization
   environment = var.environment
 }
+
+output "policy_json" {
+  value = module.s3.bucket_policy_json
+}

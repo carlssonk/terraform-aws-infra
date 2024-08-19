@@ -19,7 +19,7 @@ resource "aws_iam_policy" "terraform_execution_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = concat(
-      jsondecode(module.portfolio.bucket_policy_json).Statement,
+      jsondecode(module.portfolio.policy_json).Statement,
     )
   })
 }
