@@ -10,7 +10,7 @@ module "portfolio" {
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
-  depends_on  = [time_sleep.wait_30_seconds]
+  depends_on  = [null_resource.policy_update]
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
@@ -54,7 +54,13 @@ resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
 }
 
 # Add a time_sleep resource
-resource "time_sleep" "wait_30_seconds" {
-  depends_on = [aws_iam_policy.terraform_execution_policy, aws_iam_role_policy_attachment.terraform_execution_policy]
-  create_duration = "30s"
+resource "null_resource" "policy_update" {
+  triggers = {
+    policy_id = aws_iam_policy.terraform_execution_policy.id
+    attachment_id = aws_iam_role_policy_attachment.terraform_execution_policy.id
+  }
+
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
 }
