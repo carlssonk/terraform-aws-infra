@@ -10,10 +10,14 @@ provider "aws" {
 
 module "s3" {
   source = "../../modules/s3"
-  bucket_name = "${var.organization}-terraform-state-bucket-${var.environment}"
+  bucket_name = "terraform-state-bucket"
+  environment = var.environment
+  organization = var.organization
 }
 
 module "dynamodb" {
   source = "../../modules/dynamodb"
-  table_name = "${var.organization}-terraform-lock-table-${var.environment}"
+  table_name = "terraform-lock-table"
+  environment = var.environment
+  organization = var.organization
 }

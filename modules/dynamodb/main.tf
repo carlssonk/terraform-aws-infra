@@ -1,9 +1,14 @@
-variable table_name {
-  type = string
+variable table_name {}
+variable "organization" {}
+variable "environment" {}
+
+locals {
+  full_table_name = "${var.organization}-${var.table_name}-${var.environment}"
 }
 
+
 resource "aws_dynamodb_table" "table" {
-  name = var.table_name
+  name = local.full_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "LockID"
 
@@ -11,4 +16,19 @@ resource "aws_dynamodb_table" "table" {
     name = "LockID"
     type = "S"
   }
+}
+
+data "aws_iam_policy_document" "table_policy" {
+  statement {
+    actions = ["dynamodb:*"]
+    resources = [
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*"
+    ]
+    effect = "Allow"
+  }
+}
+
+output "table_policy_json" {
+  value = data.aws_iam_policy_document.table_policy.json
 }

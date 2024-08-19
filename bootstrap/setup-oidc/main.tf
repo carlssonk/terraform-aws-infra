@@ -34,12 +34,29 @@ resource "aws_iam_role" "terraform_execution_role" {
   })
 }
 
-# Attach necessary policies to the role
-resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/PowerUserAccess"  # TODO give a more restrictive custom policy
-  role       = aws_iam_role.terraform_execution_role.name
+resource "aws_iam_policy" "terraform_bootstrap_policy" {
+  name        = "terraform-bootstrap-policy"
+  description = "Policy for initial setup and self-update capabilities"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:GetRole",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:UpdateRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy"
+        ]
+        Resource = aws_iam_role.terraform_execution_role.arn
+      }
+    ]
+  })
 }
 
-output "terraform_execution_role_arn" {
-  value = aws_iam_role.terraform_execution_role.arn
+resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
+  policy_arn = aws_iam_policy.terraform_custom_policy.arn
+  role       = aws_iam_role.terraform_execution_role.name
 }
