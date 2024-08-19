@@ -10,7 +10,7 @@ terraform {
 
 locals {
   oidc_domain = "token.actions.githubusercontent.com"
-  terraform_base_policy = "terraform_base_policy"
+  terraform_base_policy = "terraform-base-policy"
 }
 
 resource "aws_iam_openid_connect_provider" "github_actions" {
