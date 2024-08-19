@@ -20,7 +20,8 @@ data "aws_iam_policy_document" "bucket_policy" {
       "s3:ListBucket",
       "s3:GetBucketLocation",
       "s3:ListAllMyBuckets",
-      "s3:HeadBucket"
+      "s3:HeadBucket",
+      "s3:GetBucketPolicy"
     ]
     resources = ["arn:aws:s3:::*"]
     effect = "Allow"
