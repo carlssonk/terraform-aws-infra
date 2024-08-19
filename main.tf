@@ -10,6 +10,7 @@ module "portfolio" {
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
+  depends_on = [aws_iam_role_policy_attachment.terraform_execution_policy]
 }
 
 resource "aws_iam_policy" "terraform_execution_policy" {

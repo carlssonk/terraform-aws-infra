@@ -67,7 +67,8 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
                 "iam:GetPolicy",
                 "iam:GetPolicyVersion",
                 "iam:DeletePolicy",
-                "iam:ListPolicyVersions"
+                "iam:ListPolicyVersions",
+                "iam:CreatePolicyVersion"
             ],
             "Resource": "arn:aws:iam::*:policy/terraform-base-policy"
         },
