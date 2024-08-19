@@ -81,7 +81,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource: "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
       },
       {
-        // Enables policy to manage itself
+        // Enables policy to read itself
         Effect: "Allow",
         Action: [
             "iam:GetPolicy",
@@ -89,6 +89,14 @@ resource "aws_iam_policy" "terraform_base_policy" {
             "iam:ListPolicyVersions"
         ],
         Resource: "arn:aws:iam::*:policy/${local.terraform_base_policy}"
+      },
+      {
+        // Enables policy to create and manage terraform-execution-policy
+        Effect: "Allow",
+        Action: [
+            "iam:CreatePolicy"
+        ],
+        Resource: "arn:aws:iam::*:policy/terraform-execution-policy"
       },
       {
         // Enables role to add policies to itself
