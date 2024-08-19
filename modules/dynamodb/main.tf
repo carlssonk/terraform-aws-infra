@@ -7,7 +7,7 @@ locals {
 }
 
 
-resource "aws_dynamodb_table" "table" {
+resource "aws_dynamodb_table" "this" {
   name = local.full_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "LockID"
@@ -22,8 +22,8 @@ data "aws_iam_policy_document" "table_policy" {
   statement {
     actions = ["dynamodb:*"]
     resources = [
-      aws_s3_bucket.this.arn,
-      "${aws_s3_bucket.this.arn}/*"
+      aws_dynamodb_table.this.arn,
+      "${aws_dynamodb_table.this.arn}/*"
     ]
     effect = "Allow"
   }
