@@ -48,7 +48,8 @@ resource "aws_iam_policy" "terraform_bootstrap_policy" {
           "iam:UpdateAssumeRolePolicy",
           "iam:UpdateRole",
           "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy"
+          "iam:DetachRolePolicy",
+          "iam:CreatePolicy"
         ]
         Resource = aws_iam_role.terraform_execution_role.arn
       }
