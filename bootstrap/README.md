@@ -40,7 +40,7 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
             "Resource": "arn:aws:dynamodb:eu-north-1:*:table/carlssonk-terraform-lock-table-ENVIRONMENT"
         },
         {
-            "Sid": "CreateIAMOpenIdConnectProviderAndTerraformExecutionRole",
+            "Sid": "IAMOpenIdConnectProviderAndTerraformExecutionRole",
             "Effect": "Allow",
             "Action": [
                 "iam:CreateOpenIDConnectProvider",
@@ -62,7 +62,7 @@ Replace `ENVIRONMENT` with your environment (same as branch name and repo enviro
             ]
         },
         {
-            "Sid": "CreateIAMSelfUpdatePolicyForTerraformExecutionRole",
+            "Sid": "IAMSelfUpdatePolicyForTerraformExecutionRole",
             "Effect": "Allow",
             "Action": [
                 "iam:CreatePolicy",
