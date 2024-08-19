@@ -15,6 +15,11 @@ module "portfolio" {
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
+    actions = ["s3:CreateBucket"]
+    resources = ["arn:aws:s3:::*"]
+    effect = "Allow"
+  }
+  statement {
     actions = ["s3:*"]
     resources = [
       "arn:aws:s3:::carlssonk-terraform-state-bucket-prod",
