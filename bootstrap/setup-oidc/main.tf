@@ -9,11 +9,12 @@ terraform {
 }
 
 locals {
-  domain = "token.actions.githubusercontent.com"
+  oidc_domain = "token.actions.githubusercontent.com"
+  terraform_base_policy = "terraform_base_policy"
 }
 
 resource "aws_iam_openid_connect_provider" "github_actions" {
-  url             = "https://${local.domain}"
+  url             = "https://${local.oidc_domain}"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
@@ -31,10 +32,10 @@ resource "aws_iam_role" "terraform_execution_role" {
       }
       Condition = {
         StringEquals = {
-          "${local.domain}:aud": "sts.amazonaws.com"
+          "${local.oidc_domain}:aud": "sts.amazonaws.com"
         }
         StringLike = {
-          "${local.domain}.com:sub": "repo:${var.organization}/${var.repository}:*"
+          "${local.oidc_domain}.com:sub": "repo:${var.organization}/${var.repository}:*"
         }
       }
     }]
@@ -42,7 +43,7 @@ resource "aws_iam_role" "terraform_execution_role" {
 }
 
 resource "aws_iam_policy" "terraform_base_policy" {
-  name = "terraform-base-policy"
+  name = local.terraform_base_policy
   description = "Policy for initial setup and self-update capabilities"
 
   policy = jsonencode({
@@ -77,7 +78,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Action: [
           "iam:GetOpenIDConnectProvider",
         ],
-        Resource: "arn:aws:iam::*:oidc-provider/${local.domain}"
+        Resource: "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
       },
       {
         // Enables policy to get itself
@@ -85,7 +86,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Action: [
           "iam:GetPolicy",
         ],
-        Resource: self.arn
+        Resource: "arn:aws:iam::*:policy/${local.terraform_base_policy}"
       },
       {
         // Enables role to add policies to itself
