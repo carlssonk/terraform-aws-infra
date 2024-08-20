@@ -1,9 +1,9 @@
-# This repo is in progress...
+# TODO
 
-TODO
-Use OIDC for security
-Have one role for my whole infra arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/TerraformExecutionRole
-In the future we can separate roles by application
+IAM Policy management proof of concept
+Create a second state key for terraform-execution-role policies, this will be run before the main terraform config is run
+It will still be runned in root but we will set count = 0 to modules so only the policy resources are managed
+This should prevent terraform from looking up existing resources, and allow us to customize our policy withouth AccessDenied hassle because of the chicken and the egg issues
 
 ## Guide
 

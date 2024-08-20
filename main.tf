@@ -1,19 +1,22 @@
 variable "environment" {}
 variable "region" {}
 variable "organization" {}
+variable "run_infrastructure" {}
+variable "run_permissions" {}
 
 terraform {
   backend "s3" {}
 }
 
 module "portfolio" {
-  count = 0
+  count = var.run_infrastructure ? 1 : 0
   source = "./apps/portfolio"
   environment = var.environment
   organization = var.organization
 }
 
 data "aws_iam_policy_document" "bucket_policy" {
+  count = var.run_permissions ? 1 : 0
   statement {
     actions = [
       "s3:CreateBucket",
@@ -37,7 +40,8 @@ data "aws_iam_policy_document" "bucket_policy" {
 }
 
 resource "aws_iam_policy" "terraform_execution_policy" {
-  name        = "terraform-execution-policy"
+  count = var.run_permissions ? 1 : 0
+  name = "terraform-execution-policy"
   description = "Composite policy for Terraform execution role"
 
   policy = jsonencode({
@@ -49,6 +53,7 @@ resource "aws_iam_policy" "terraform_execution_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
-  role       = "terraform-execution-role"
+  count = var.run_permissions ? 1 : 0
+  role = "terraform-execution-role"
   policy_arn = aws_iam_policy.terraform_execution_policy.arn
 }

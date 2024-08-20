@@ -1,8 +1,9 @@
 name: Upsert Infrastructure
 
 on:
-  push:
-    branches: [prod, dev]
+  workflow_dispatch: # Manual trigger
+  # push:
+    # branches: [prod, dev]
 
 env:
   TF_VAR_region: eu-north-1
@@ -33,12 +34,26 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Init and Apply
+      - name: Run Permissions
+        env:
+          TF_VAR_run_permissions: true
+        run: |
+        terraform init \
+          -backend-config=backend-config.hcl \
+          -backend-config="region=${{ env.TF_VAR_region }}" \
+          -backend-config="bucket=${{ env.TF_VAR_organization }}-${{ env.backend_bucket_name }}-${{ env.TF_VAR_environment }}" \
+          -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-${{ env.backend_table_name }}-${{ env.TF_VAR_environment }}" \
+          -backend-config="key=permissions/terraform.tfstate"
+        terraform apply -auto-approve
+
+      - name: Run Infrastructure
+        env:
+          TF_VAR_run_infrastructure: true
         run: |
           terraform init \
             -backend-config=backend-config.hcl \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-${{ env.backend_bucket_name }}-${{ env.TF_VAR_environment }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-${{ env.backend_table_name }}-${{ env.TF_VAR_environment }}" \
-            -backend-config="key=main/terraform.tfstate"
+            -backend-config="key=infra/terraform.tfstate"
           terraform apply -auto-approve
