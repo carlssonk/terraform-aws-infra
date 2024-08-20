@@ -1,9 +1,9 @@
 name: Upsert Infrastructure
 
 on:
-  workflow_dispatch: # Manual trigger
-  # push:
-    # branches: [prod, dev]
+  # workflow_dispatch: # Manual trigger
+  push:
+    branches: [prod, dev]
 
 env:
   TF_VAR_region: eu-north-1
