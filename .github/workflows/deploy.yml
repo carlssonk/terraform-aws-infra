@@ -46,6 +46,9 @@ jobs:
             -backend-config="key=permissions/terraform.tfstate"
           terraform apply -auto-approve
 
+      - name: Delay for 5 seconds
+        run: sleep 5
+
       - name: Run Infrastructure
         env:
           TF_VAR_run_infrastructure: true

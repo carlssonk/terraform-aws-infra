@@ -52,9 +52,9 @@ jobs:
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
-      - name: Delay for 10 seconds
+      - name: Delay for 5 seconds
         if: steps.check_backend.outputs.backend_exists == 'false'
-        run: sleep 10
+        run: sleep 5
 
       - name: Setup OIDC
         run: |

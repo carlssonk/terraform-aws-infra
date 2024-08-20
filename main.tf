@@ -24,6 +24,7 @@ data "aws_iam_policy_document" "bucket_policy" {
       "s3:ListBucket",
       "s3:ListAllMyBuckets",
       "s3:HeadBucket",
+      "s3:Put*",
       "s3:Get*"
     ]
     resources = ["arn:aws:s3:::*"]
