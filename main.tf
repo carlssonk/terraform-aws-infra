@@ -20,6 +20,7 @@ data "aws_iam_policy_document" "bucket_policy" {
   statement {
     actions = [
       "s3:CreateBucket",
+      "s3:DeleteBucket",
       "s3:ListBucket",
       "s3:ListAllMyBuckets",
       "s3:HeadBucket",
