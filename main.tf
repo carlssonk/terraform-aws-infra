@@ -1,8 +1,8 @@
 variable "environment" {}
 variable "region" {}
 variable "organization" {}
-variable "run_infrastructure" {}
-variable "run_permissions" {}
+variable "run_infrastructure" { default = false }
+variable "run_permissions" { default = false }
 
 terraform {
   backend "s3" {}
@@ -47,7 +47,7 @@ resource "aws_iam_policy" "terraform_execution_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = concat(
-      jsondecode(data.aws_iam_policy_document.bucket_policy.json).Statement,
+      jsondecode(data.aws_iam_policy_document.bucket_policy[count.index].json).Statement,
     )
   })
 }
@@ -55,5 +55,5 @@ resource "aws_iam_policy" "terraform_execution_policy" {
 resource "aws_iam_role_policy_attachment" "terraform_execution_policy" {
   count = var.run_permissions ? 1 : 0
   role = "terraform-execution-role"
-  policy_arn = aws_iam_policy.terraform_execution_policy.arn
+  policy_arn = aws_iam_policy.terraform_execution_policy[count.index].arn
 }
