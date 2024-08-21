@@ -2,17 +2,7 @@ variable "name" {}
 variable "policy_document" {}
 
 data "aws_iam_policy" "existing_policy" {
-  count = can(data.aws_iam_policy_document.policy_exists.json) ? 1 : 0
-  name  = var.name
-}
-
-data "aws_iam_policy_document" "policy_exists" {
-  statement {
-    sid       = "CheckIfPolicyExists"
-    effect    = "Allow"
-    actions   = ["iam:GetPolicy"]
-    resources = ["arn:aws:iam::*:policy/terraform-${var.name}-policy"]
-  }
+  name  = "terraform-${var.name}-policy"
 }
 
 locals {
