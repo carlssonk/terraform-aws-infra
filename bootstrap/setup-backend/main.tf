@@ -16,5 +16,4 @@ module "s3" {
 module "dynamodb" {
   source = "../../modules/dynamodb"
   table_name = "terraform-lock-table"
-  organization = var.organization
 }

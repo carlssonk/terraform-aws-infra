@@ -88,7 +88,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource: "arn:aws:iam::*:policy/${local.terraform_base_policy}"
       },
       {
-        // Enables policy to create and manage terraform-execution-policy
+        // Enables policy to create and manage terraform-*-policy
         Effect: "Allow",
         Action: [
             "iam:CreatePolicy",
@@ -97,7 +97,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
             "iam:GetPolicyVersion",
             "iam:CreatePolicyVersion"
         ],
-        Resource: "arn:aws:iam::*:policy/terraform-execution-policy"
+        Resource: "arn:aws:iam::*:policy/terraform-*-policy"
       },
       {
         // Enables role to add policies to itself

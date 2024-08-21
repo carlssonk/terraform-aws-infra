@@ -1,33 +1,31 @@
-variable table_name {}
-variable "organization" {}
+variable "is_bootstrap_user" { 
+  default = false
+}
+
+module "globals" {
+  source = "../../global_constants"
+}
 
 locals {
-  full_table_name = "${var.organization}-${var.table_name}-${terraform.workspace}"
+  table_name_full = "${module.globals.organization}-${var.table_name}-${terraform.workspace}"
 }
 
+module "iam" {
+  count = var.is_bootstrap_user ? 0 : 1 // Bootstrap has its own iam policy
+  source = "./iam"
 
-resource "aws_dynamodb_table" "this" {
-  name = local.full_table_name
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
+  table_name_full = local.table_name_full
 }
 
-data "aws_iam_policy_document" "table_policy" {
-  statement {
-    actions = ["dynamodb:*"]
-    resources = [
-      aws_dynamodb_table.this.arn,
-      "${aws_dynamodb_table.this.arn}/*"
-    ]
-    effect = "Allow"
-  }
+resource "time_sleep" "wait_15_seconds" {
+  count = var.is_bootstrap_user ? 0 : 1
+  depends_on = [module.iam]
+  create_duration = "15s"
 }
 
-output "table_policy_json" {
-  value = data.aws_iam_policy_document.table_policy.json
+module "resources" {
+  source = "./resources"
+  depends_on = [time_sleep.wait_15_seconds]
+
+  table_name_full = local.table_name_full
 }
