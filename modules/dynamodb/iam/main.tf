@@ -19,8 +19,6 @@ data "aws_iam_policy_document" "this" {
   }
 }
 
-module "create_and_attatch_policy" {
-  source = "../../iam"
-  name = "dynamodb"
-  policy_document = data.aws_iam_policy_document.this.json
+output "policy_document" {
+  value = data.aws_iam_policy_document.this.json
 }

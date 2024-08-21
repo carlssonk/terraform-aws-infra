@@ -1,35 +1,21 @@
 variable "name" {}
-variable "policy_document" {}
-
-data "aws_iam_policy" "existing_policy" {
-  name  = "terraform-${var.name}-policy"
-}
+variable "policy_documents" {}
 
 locals {
-  existing_policy = try(data.aws_iam_policy.existing_policy.policy, "{}")
-  new_policy      = var.policy_document
-  
-  existing_policy_doc = jsondecode(local.existing_policy)
-  new_policy_doc      = jsondecode(local.new_policy)
-  
-  merged_statements = distinct(concat(
-    try(local.existing_policy_doc.Statement, []),
-    try(local.new_policy_doc.Statement, [])
-  ))
-  
-  merged_policy = jsonencode({
-    Version   = "2012-10-17"
-    Statement = local.merged_statements
-  })
+  combined_policy = {
+    Version = "2012-10-17"
+    Statement = flatten([
+      for doc in var.policy_documents : jsondecode(doc).Statement
+    ])
+  }
 }
 
 resource "aws_iam_policy" "policy" {
   name   = "terraform-${var.name}-policy"
-  policy = local.merged_policy
-
-   lifecycle {
-    create_before_destroy = true
-  }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = jsonencode(local.combined_policy)
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "attachment" {
