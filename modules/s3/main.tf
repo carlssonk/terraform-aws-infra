@@ -1,3 +1,7 @@
+module "globals" {
+  source = "../../global_variables"
+}
+
 module "iam" {
   source = "./iam"
 }
@@ -9,8 +13,7 @@ resource "time_sleep" "wait_5_seconds" {
 
 module "resources" {
   source = "./resources"
-  bucket_name = var.bucket_name
+  bucket_name_full = "${module.globals.organization}-${var.bucket_name}-${terraform.workspace}"
   is_public_website = var.is_public_website
   depends_on = [time_sleep.wait_5_seconds]
 }
-

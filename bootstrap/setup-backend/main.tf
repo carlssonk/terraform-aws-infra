@@ -2,7 +2,6 @@
 
 variable "backend_bucket_name" {}
 variable "backend_table_name" {}
-variable "environment" {}
 variable "region" {}
 variable "organization" {}
 
@@ -18,6 +17,5 @@ module "s3" {
 module "dynamodb" {
   source = "../../modules/dynamodb"
   table_name = var.backend_table_name
-  environment = var.environment
   organization = var.organization
 }

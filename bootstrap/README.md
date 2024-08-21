@@ -1,6 +1,6 @@
 ## Bootstrap user IAM policy
 
-Replace `ENVIRONMENT` with your environment (same as branch name and repo environment)
+Replace `ENVIRONMENT` with your environment/workspace (same as branch name and repo environment)
 
 > These may need to be changed based on your variables in the workflow files: `carlssonk`, `eu-north-1`, `terraform-state-bucket`, `terraform-lock-table`
 

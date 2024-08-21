@@ -1,14 +1,8 @@
-variable "organization" { default = null }
-variable "environment" { default = null }
-variable "bucket_name" {}
+variable "bucket_name_full" {}
 variable "is_public_website" {}
 
-locals {
-  full_bucket_name = "${var.organization}-${var.bucket_name}-${var.environment}"
-}
-
 resource "aws_s3_bucket" "this" {
-  bucket = local.full_bucket_name
+  bucket = var.bucket_name_full
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {

@@ -4,11 +4,11 @@ on:
   workflow_dispatch: # Manual trigger
 
 env:
+  workspace: ${{ github.ref_name }}
   GH_TOKEN: ${{ github.token }}
   TF_VAR_region: eu-north-1
   TF_VAR_organization: carlssonk
   TF_VAR_repository: terraform-aws-infra
-  TF_VAR_environment: ${{ github.ref_name }}
   TF_VAR_backend_bucket_name: terraform-state-bucket
   TF_VAR_backend_table_name: terraform-lock-table
 
@@ -16,7 +16,7 @@ jobs:
   bootstrap:
     name: Bootstrap
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
+    environment: ${{ env.workspace }}
 
     steps:
       - name: Checkout
@@ -35,8 +35,8 @@ jobs:
       - name: Check if Terraform backend exists
         id: check_backend
         run: |
-          BUCKET_NAME="${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_bucket_name }}-${{ env.TF_VAR_environment }}"
-          TABLE_NAME="${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_table_name }}-${{ env.TF_VAR_environment }}"
+          BUCKET_NAME="${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_bucket_name }}-${{ env.workspace }}"
+          TABLE_NAME="${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_table_name }}-${{ env.workspace }}"
           
           if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null && \
               aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
@@ -49,6 +49,7 @@ jobs:
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: |
           terraform init
+          terraform workspace new ${{ env.workspace }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
@@ -61,8 +62,9 @@ jobs:
           terraform init \
             -backend-config=../../backend-config.hcl \
             -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_bucket_name }}-${{ env.TF_VAR_environment }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_table_name }}-${{ env.TF_VAR_environment }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_bucket_name }}-${{ env.workspace }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-${{ env.TF_VAR_backend_table_name }}-${{ env.workspace }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
+          terraform workspace new ${{ env.workspace }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc

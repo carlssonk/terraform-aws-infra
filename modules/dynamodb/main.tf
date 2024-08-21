@@ -1,9 +1,8 @@
 variable table_name {}
 variable "organization" {}
-variable "environment" {}
 
 locals {
-  full_table_name = "${var.organization}-${var.table_name}-${var.environment}"
+  full_table_name = "${var.organization}-${var.table_name}-${terraform.workspace}"
 }
 
 
