@@ -46,22 +46,9 @@ jobs:
       - name: Setup Backend
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: |
-          set -e
-          echo "Initializing Terraform..."
-          terraform init || { echo "Terraform init failed"; exit 1; }
-          
-          echo "Checking for existing workspace..."
-          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
-          if [ $WORKSPACE_EXISTS -eq 0 ]; then
-            echo "Creating new workspace: ${{ env.WORKSPACE }}"
-            terraform workspace new "${{ env.WORKSPACE }}" || { echo "Workspace creation failed"; exit 1; }
-          else
-            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
-            terraform workspace select "${{ env.WORKSPACE }}" || { echo "Workspace selection failed"; exit 1; }
-          fi
-          
-          echo "Applying Terraform configuration..."
-          terraform apply -auto-approve || { echo "Terraform apply failed"; exit 1; }
+          terraform init
+          terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
+          terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
       - name: Delay for 5 seconds
@@ -76,13 +63,6 @@ jobs:
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
-          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
-          if [ $WORKSPACE_EXISTS -eq 0 ]; then
-            echo "Creating new workspace: ${{ env.WORKSPACE }}"
-            terraform workspace new "${{ env.WORKSPACE }}"
-          else
-            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
-            terraform workspace select "${{ env.WORKSPACE }}"
-          fi
+          terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc

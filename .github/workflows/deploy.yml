@@ -41,15 +41,7 @@ jobs:
             -backend-config="key=infra/terraform.tfstate"
 
       - name: Prepare Terraform Workspace
-        run: |
-          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
-          if [ $WORKSPACE_EXISTS -eq 0 ]; then
-            echo "Creating new workspace: ${{ env.WORKSPACE }}"
-            terraform workspace new "${{ env.WORKSPACE }}"
-          else
-            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
-            terraform workspace select "${{ env.WORKSPACE }}"
-          fi
+        run: terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
