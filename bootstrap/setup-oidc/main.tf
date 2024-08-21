@@ -47,10 +47,11 @@ resource "aws_iam_policy" "terraform_base_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        // iam/ module is required to read policies for all resources
+        
         Effect: "Allow",
         Action: [
-          "iam:ListPolicies",
+          "iam:ListPolicies", // iam/ module is required to read policies for all resources
+          "s3:HeadBucket"
         ],
         Resource: "*"
       },

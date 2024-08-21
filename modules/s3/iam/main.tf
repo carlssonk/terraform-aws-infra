@@ -7,7 +7,6 @@ data "aws_iam_policy_document" "this" {
       [
         "s3:CreateBucket",
         "s3:DeleteBucket",
-        "s3:HeadBucket",
         "s3:Get*",
         "s3:List*"
       ],
