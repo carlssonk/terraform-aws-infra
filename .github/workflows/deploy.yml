@@ -41,7 +41,7 @@ jobs:
             -backend-config="key=infra/terraform.tfstate"
 
       - name: Prepare Terraform Workspace
-        run: terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
+        run: terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve

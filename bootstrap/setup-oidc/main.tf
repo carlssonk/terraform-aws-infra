@@ -56,7 +56,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         ],
         Resource: [
           "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}",
-          "arn:aws:s3:::${var.organization}-terraform-lock-table-${terraform.workspace}/*"
+          "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}/*"
         ]
       },
       {

@@ -47,7 +47,7 @@ jobs:
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: |
           terraform init
-          terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
+          terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
@@ -63,6 +63,6 @@ jobs:
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
-          terraform workspace select ${{ github.ref_name }} || terraform workspace new ${{ github.ref_name }}
+          terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc
