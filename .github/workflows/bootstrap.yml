@@ -47,7 +47,14 @@ jobs:
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: |
           terraform init
-          terraform workspace new ${{ env.WORKSPACE }}
+          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
+          if [ $WORKSPACE_EXISTS -eq 0 ]; then
+            echo "Creating new workspace: ${{ env.WORKSPACE }}"
+            terraform workspace new "${{ env.WORKSPACE }}"
+          else
+            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
+            terraform workspace select "${{ env.WORKSPACE }}"
+          fi
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
@@ -63,6 +70,13 @@ jobs:
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
-          terraform workspace new ${{ env.WORKSPACE }}
+          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
+          if [ $WORKSPACE_EXISTS -eq 0 ]; then
+            echo "Creating new workspace: ${{ env.WORKSPACE }}"
+            terraform workspace new "${{ env.WORKSPACE }}"
+          else
+            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
+            terraform workspace select "${{ env.WORKSPACE }}"
+          fi
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc

@@ -1,7 +1,6 @@
 name: Upsert Infrastructure
 
 on:
-  # workflow_dispatch: # Manual trigger
   push:
     branches: [prod, dev]
 
@@ -32,13 +31,25 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Run Infrastructure
+      - name: Terraform Init
         run: |
-          terraform init -reconfigure \
+          terraform init \
             -backend-config=backend-config.hcl \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=infra/terraform.tfstate"
-          terraform workspace new ${{ env.WORKSPACE }}
-          terraform apply -auto-approve
+
+      - name: Prepare Terraform Workspace
+        run: |
+          WORKSPACE_EXISTS=$(terraform workspace list | grep -c "${{ env.WORKSPACE }}")
+          if [ $WORKSPACE_EXISTS -eq 0 ]; then
+            echo "Creating new workspace: ${{ env.WORKSPACE }}"
+            terraform workspace new "${{ env.WORKSPACE }}"
+          else
+            echo "Selecting existing workspace: ${{ env.WORKSPACE }}"
+            terraform workspace select "${{ env.WORKSPACE }}"
+          fi
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
