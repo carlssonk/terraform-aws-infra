@@ -12,16 +12,16 @@ module "iam" {
   table_name_full = local.table_name_full
 }
 
-resource "time_sleep" "wait_for_iam" {
-  create_duration = "15s"
-}
+# resource "time_sleep" "wait_for_iam" {
+#   create_duration = "15s"
+# }
 
-module "resources" {
-  source = "./resources"
-  depends_on = [time_sleep.wait_for_iam]
+# module "resources" {
+#   source = "./resources"
+#   depends_on = [time_sleep.wait_for_iam]
 
-  table_name_full = local.table_name_full
-}
+#   table_name_full = local.table_name_full
+# }
 
 output "policy_document" {
   value = module.iam.policy_document
