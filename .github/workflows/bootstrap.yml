@@ -16,7 +16,7 @@ jobs:
   bootstrap:
     name: Bootstrap
     runs-on: ubuntu-latest
-    environment: ${{ env.workspace }}
+    environment: ${{ github.ref_name }}
 
     steps:
       - name: Checkout
