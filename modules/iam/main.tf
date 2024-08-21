@@ -34,7 +34,7 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  name   = var.name
+  name   = "terraform-${var.name}-policy"
   policy = local.merged_policy
 
    lifecycle {
