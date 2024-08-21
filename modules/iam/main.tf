@@ -3,23 +3,17 @@ variable "policy_document" {}
 
 data "aws_iam_policy" "existing" {
   name = "terraform-${var.name}-policy"
-  count = 0
 }
 
 locals {
-  existing_policy = try(data.aws_iam_policy.existing[0].policy, "")
-  policy_exists = length(local.existing_policy) > 0
-}
-
-data "aws_iam_policy_document" "new" {
-  source_policy_documents = [var.policy_document]
+  policy_exists = data.aws_iam_policy.existing.arn != ""
 }
 
 data "aws_iam_policy_document" "merged" {
-  source_policy_documents = compact([
-    local.policy_exists ? local.existing_policy : null,
-    data.aws_iam_policy_document.new.json
-  ])
+  source_policy_documents = [
+    local.policy_exists ? data.aws_iam_policy.existing.policy : null,
+    var.policy_document
+  ]
 }
 
 resource "aws_iam_policy" "this" {
@@ -27,9 +21,8 @@ resource "aws_iam_policy" "this" {
   description = "Composite policy for Terraform execution role"
   policy      = data.aws_iam_policy_document.merged.json
 
-  # Use lifecycle rule to ignore changes to the description
   lifecycle {
-    ignore_changes = [description]
+    create_before_destroy = true
   }
 }
 
