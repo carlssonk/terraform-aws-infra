@@ -6,7 +6,7 @@ data "aws_iam_policy" "existing_policy" {
 }
 
 locals {
-  existing_policy = try(data.aws_iam_policy.existing_policy[0].policy, "{}")
+  existing_policy = try(data.aws_iam_policy.existing_policy.policy, "{}")
   new_policy      = var.policy_document
   
   existing_policy_doc = jsondecode(local.existing_policy)
