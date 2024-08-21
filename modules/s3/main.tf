@@ -1,4 +1,6 @@
-variable "is_bootstrap_user" { default = false }
+variable "is_bootstrap_user" { 
+  default = false
+}
 
 module "globals" {
   source = "../../global_constants"
@@ -9,14 +11,14 @@ module "iam" {
   source = "./iam"
 }
 
-resource "time_sleep" "wait_5_seconds" {
+resource "time_sleep" "wait_15_seconds" {
   depends_on = [module.iam]
-  create_duration = "5s"
+  create_duration = "15s"
 }
 
 module "resources" {
   source = "./resources"
   bucket_name_full = "${module.globals.organization}-${var.bucket_name}-${terraform.workspace}"
   is_public_website = var.is_public_website
-  depends_on = [time_sleep.wait_5_seconds]
+  depends_on = [time_sleep.wait_15_seconds]
 }
