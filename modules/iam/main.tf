@@ -12,10 +12,7 @@ locals {
 
 resource "aws_iam_policy" "policy" {
   name   = "terraform-${var.name}-policy"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = jsonencode(local.combined_policy)
-  })
+  policy = jsonencode(local.combined_policy)
 }
 
 resource "aws_iam_role_policy_attachment" "attachment" {
