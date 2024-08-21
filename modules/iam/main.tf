@@ -3,9 +3,12 @@ variable "policy_document" {}
 
 data "aws_iam_policy" "existing" {
   name = "terraform-${var.name}-policy"
-  
-  # Makes so it wont cause error if policy does not exist
-  count = length(data.aws_iam_policy_document.merged.*.json) > 0 ? 1 : 0
+  count = 0
+}
+
+locals {
+  existing_policy = try(data.aws_iam_policy.existing[0].policy, "")
+  policy_exists = length(local.existing_policy) > 0
 }
 
 data "aws_iam_policy_document" "new" {
@@ -13,10 +16,10 @@ data "aws_iam_policy_document" "new" {
 }
 
 data "aws_iam_policy_document" "merged" {
-  source_policy_documents = [
-    length(data.aws_iam_policy.existing) > 0 ? data.aws_iam_policy.existing[0].policy : null,
+  source_policy_documents = compact([
+    local.policy_exists ? local.existing_policy : null,
     data.aws_iam_policy_document.new.json
-  ]
+  ])
 }
 
 resource "aws_iam_policy" "this" {
