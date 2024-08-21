@@ -13,8 +13,6 @@ provider "aws" {
 module "s3" {
   source = "../../modules/s3"
   bucket_name = var.backend_bucket_name
-  environment = var.environment
-  organization = var.organization
 }
 
 module "dynamodb" {

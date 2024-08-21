@@ -1,58 +1,23 @@
-variable "bucket_name" {}
-variable "organization" {}
-variable "environment" {}
-
-variable "is_public_website" {
-  description = "Will configure bucket to be a public website"
-  type = bool
-  default = false
+module "iam" {
+  source = "./iam"
 }
 
-locals {
-  full_bucket_name = "${var.organization}-${var.bucket_name}-${var.environment}"
-}
-
-resource "aws_s3_bucket" "this" {
-  bucket = local.full_bucket_name
-}
-
-resource "aws_s3_bucket_website_configuration" "this" {
-  count = var.is_public_website ? 1 : 0
-  bucket = aws_s3_bucket.this.id
-
-  index_document {
-    suffix = "index.html"
+resource "null_resource" "iam_change_trigger" {
+  triggers = {
+    iam_module_output = jsonencode(module.iam)
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "this" {
-  count = var.is_public_website ? 1 : 0
-  bucket = aws_s3_bucket.this.id
-
-  block_public_acls = false
-  block_public_policy = false
-  ignore_public_acls = false
-  restrict_public_buckets = false
+resource "time_sleep" "wait_5_seconds" {
+  count = null_resource.iam_change_trigger.triggers != null_resource.iam_change_trigger.triggers_old ? 1 : 0
+  depends_on = [module.iam]
+  create_duration = "5s"
 }
 
-resource "aws_s3_bucket_policy" "this" {
-  count = var.is_public_website ? 1 : 0
-  bucket = aws_s3_bucket.this.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = "*"
-        Action = "s3:GetObject"
-        Resource = "${aws_s3_bucket.this.arn}/*"
-      }
-    ]
-  })
-
-  depends_on = [
-    aws_s3_bucket.this,
-    aws_s3_bucket_public_access_block.this
-  ]
+module "main" {
+  source = "./main"
+  bucket_name = var.bucket_name
+  is_public_website = var.is_public_website
+  depends_on = [time_sleep.wait_5_seconds]
 }
+
