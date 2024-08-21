@@ -14,8 +14,8 @@ resource "time_sleep" "wait_5_seconds" {
   create_duration = "5s"
 }
 
-module "main" {
-  source = "./main"
+module "resources" {
+  source = "./resources"
   bucket_name = var.bucket_name
   is_public_website = var.is_public_website
   depends_on = [time_sleep.wait_5_seconds]

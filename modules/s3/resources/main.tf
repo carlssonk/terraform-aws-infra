@@ -1,5 +1,5 @@
-variable "organization" {}
-variable "environment" {}
+variable "organization" { default = null }
+variable "environment" { default = null }
 variable "bucket_name" {}
 variable "is_public_website" {}
 
