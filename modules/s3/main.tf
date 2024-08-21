@@ -1,8 +1,11 @@
+variable "is_bootstrap_user" { default = false }
+
 module "globals" {
   source = "../../global_constants"
 }
 
 module "iam" {
+  count = var.is_bootstrap_user ? 0 : 1 // Bootstrap has its own iam policy
   source = "./iam"
 }
 

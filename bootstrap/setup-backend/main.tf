@@ -10,6 +10,7 @@ provider "aws" {
 module "s3" {
   source = "../../modules/s3"
   bucket_name = "terraform-state-bucket"
+  is_bootstrap_user = true
 }
 
 module "dynamodb" {
