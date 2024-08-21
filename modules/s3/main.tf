@@ -2,14 +2,7 @@ module "iam" {
   source = "./iam"
 }
 
-resource "null_resource" "iam_change_trigger" {
-  triggers = {
-    iam_module_output = jsonencode(module.iam)
-  }
-}
-
 resource "time_sleep" "wait_5_seconds" {
-  count = null_resource.iam_change_trigger.triggers != null_resource.iam_change_trigger.triggers_old ? 1 : 0
   depends_on = [module.iam]
   create_duration = "5s"
 }
