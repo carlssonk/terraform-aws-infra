@@ -1,5 +1,5 @@
 module "globals" {
-  source = "../../global_variables"
+  source = "../../global_constants"
 }
 
 module "iam" {
