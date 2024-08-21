@@ -100,6 +100,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Effect: "Allow",
         Action: [
             "iam:CreatePolicy",
+            "iam:DeletePolicy",
             "iam:GetPolicy",
             "iam:ListPolicyVersions",
             "iam:GetPolicyVersion",
