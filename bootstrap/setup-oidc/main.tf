@@ -1,5 +1,3 @@
-variable "backend_bucket_name" {}
-variable "backend_table_name" {}
 variable "organization" {}
 variable "repository" {}
 
@@ -57,8 +55,8 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "s3:ListBucket"
         ],
         Resource: [
-          "arn:aws:s3:::${var.organization}-${var.backend_bucket_name}-${terraform.workspace}",
-          "arn:aws:s3:::${var.organization}-${var.backend_bucket_name}-${terraform.workspace}/*"
+          "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}",
+          "arn:aws:s3:::${var.organization}-terraform-lock-table-${terraform.workspace}/*"
         ]
       },
       {
@@ -69,7 +67,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "dynamodb:PutItem",
           "dynamodb:DeleteItem"
         ],
-        Resource: "arn:aws:dynamodb:*:*:table/${var.organization}-${var.backend_table_name}-${terraform.workspace}"
+        Resource: "arn:aws:dynamodb:*:*:table/${var.organization}-terraform-lock-table-${terraform.workspace}"
       },
       {
         // Required for communicating with OpenID Connect Provider

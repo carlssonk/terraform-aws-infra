@@ -1,7 +1,5 @@
 // Bootstraps terraform backend for a new environment
 
-variable "backend_bucket_name" {}
-variable "backend_table_name" {}
 variable "region" {}
 variable "organization" {}
 
@@ -11,11 +9,11 @@ provider "aws" {
 
 module "s3" {
   source = "../../modules/s3"
-  bucket_name = var.backend_bucket_name
+  bucket_name = "terraform-state-bucket"
 }
 
 module "dynamodb" {
   source = "../../modules/dynamodb"
-  table_name = var.backend_table_name
+  table_name = "terraform-lock-table"
   organization = var.organization
 }

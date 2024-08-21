@@ -6,9 +6,7 @@ on:
     branches: [prod, dev]
 
 env:
-  workspace: ${{ github.ref_name }}
-  backend_bucket_name: terraform-state-bucket
-  backend_table_name: terraform-lock-table
+  WORKSPACE: ${{ github.ref_name }}
   TF_VAR_region: eu-north-1
   TF_VAR_organization: carlssonk
 
@@ -39,8 +37,8 @@ jobs:
           terraform init -reconfigure \
             -backend-config=backend-config.hcl \
             -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-${{ env.backend_bucket_name }}-${{ env.workspace }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-${{ env.backend_table_name }}-${{ env.workspace }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=infra/terraform.tfstate"
-          terraform workspace new ${{ env.workspace }}
+          terraform workspace new ${{ env.WORKSPACE }}
           terraform apply -auto-approve
