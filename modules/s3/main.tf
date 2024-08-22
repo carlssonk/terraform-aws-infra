@@ -1,12 +1,15 @@
-module "globals" {
-  source = "../../global_constants"
+data "local_file" "globals" {
+  filename = "${path.root}/globals.json"
 }
 
 locals {
-  bucket_name_full = "${module.globals.organization}-${var.bucket_name}-${terraform.workspace}"
+  globals = jsondecode(data.local_file.globals.content)
+  workflow_step = local.globals.workflow_step
+  bucket_name_full = "${local.globals.organization}-${var.bucket_name}-${terraform.workspace}"
 }
 
-module "iam" {
+module "generate_policy_document" {
+  count = local.workflow_step == "iam" ? 1 : 0
   source = "./iam"
 
   bucket_name_full = local.bucket_name_full
@@ -17,11 +20,8 @@ output "policy_document" {
   value = module.iam.policy_document
 }
 
-resource "time_sleep" "wait_for_iam" {
-  create_duration = "15s"
-}
-
 module "resources" {
+  count = local.workflow_step == "resources" ? 1 : 0
   source = "./resources"
   depends_on = [time_sleep.wait_for_iam]
 
