@@ -3,9 +3,9 @@ module "globals" {
 }
 
 locals {
-  globals = module.globals.workflow_step
+  globals = module.globals.var.workflow_step
   workflow_step = local.globals.workflow_step
-  table_name_full = "${module.globals.organization}-${var.table_name}-${terraform.workspace}"
+  table_name_full = "${module.globals.var.organization}-${var.table_name}-${terraform.workspace}"
 }
 
 module "generate_policy_document" {
