@@ -2,7 +2,13 @@ name: Destroy Infrastructure
 
 on:
   push:
-    branches: [prod-destroy, dev-destroy]
+    branches:
+      - [prod, dev]
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: 'Type "DESTROY" to confirm infrastructure destruction'
+        required: true
 
 env:
   WORKSPACE: ${{ github.ref_name }}
@@ -11,9 +17,13 @@ env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
-  deploy:
-    name: Deploy
+  destroy:
+    name: Destroy
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[DESTROY]')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_destroy == 'DESTROY')
+
     environment: ${{ github.ref_name }}
     permissions:
       id-token: write
