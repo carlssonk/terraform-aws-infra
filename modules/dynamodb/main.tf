@@ -3,8 +3,7 @@ module "globals" {
 }
 
 locals {
-  globals = module.globals.var.workflow_step
-  workflow_step = local.globals.workflow_step
+  workflow_step = module.globals.var.workflow_step
   table_name_full = "${module.globals.var.organization}-${var.table_name}-${terraform.workspace}"
 }
 
