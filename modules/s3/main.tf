@@ -23,5 +23,5 @@ module "resources" {
 }
 
 output "policy_document" {
-  value = module.generate_policy_document[0].policy_document
+  value = module.generate_policy_document.policy_document
 }
