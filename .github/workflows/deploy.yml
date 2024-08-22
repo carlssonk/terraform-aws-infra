@@ -38,7 +38,7 @@ jobs:
           for step in iam resources; do
             echo "Running Terraform for $step"
             
-            terraform init \
+            terraform init -reconfigure \
               -backend-config="encrypt=true" \
               -backend-config="region=${{ env.TF_VAR_region }}" \
               -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
