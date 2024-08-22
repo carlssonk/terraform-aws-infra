@@ -1,8 +1,9 @@
 name: Upsert Infrastructure
 
 on:
-  push:
-    branches: [prod, dev]
+  workflow_dispatch: # Manual trigger
+  # push:
+  #   branches: [prod, dev]
 
 env:
   WORKSPACE: ${{ github.ref_name }}

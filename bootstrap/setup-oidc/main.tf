@@ -96,7 +96,8 @@ resource "aws_iam_policy" "terraform_base_policy" {
             "iam:GetPolicy",
             "iam:ListPolicyVersions",
             "iam:GetPolicyVersion",
-            "iam:CreatePolicyVersion"
+            "iam:CreatePolicyVersion",
+            "iam:DeletePolicyVersion"
         ],
         Resource: "arn:aws:iam::*:policy/terraform-*-policy"
       },
