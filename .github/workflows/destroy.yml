@@ -2,8 +2,7 @@ name: Destroy Infrastructure
 
 on:
   push:
-    branches:
-      - [prod, dev]
+    branches: [prod, dev]
   workflow_dispatch:
     inputs:
       confirm_destroy:
