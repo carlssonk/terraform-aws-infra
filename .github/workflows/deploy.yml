@@ -49,5 +49,8 @@ jobs:
             python create_globals.py '${{ toJson(env) }}' workflow_step=$step
             
             chmod +x retry_command.sh
-            ./retry_command.sh terraform apply -auto-approve
+            if ! ./retry_command.sh "terraform apply -auto-approve"; then
+              echo "Terraform apply failed after all retry attempts"
+              exit 1
+            fi
           done
