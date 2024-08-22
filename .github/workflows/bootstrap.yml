@@ -51,7 +51,7 @@ jobs:
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
-      - name: Delay for 15 seconds
+      - name: Sleep 15 seconds
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: sleep 15
 
