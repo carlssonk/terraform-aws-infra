@@ -51,18 +51,20 @@ jobs:
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
-      - name: Delay for 5 seconds
+      - name: Delay for 15 seconds
         if: steps.check_backend.outputs.backend_exists == 'false'
-        run: sleep 5
+        run: sleep 15
 
       - name: Setup OIDC
         run: |
           terraform init \
-            -backend-config=../../backend-config.hcl \
+            -backend-config="encrypt=true" \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
+
           terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
+
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc
