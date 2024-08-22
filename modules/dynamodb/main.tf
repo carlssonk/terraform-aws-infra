@@ -1,5 +1,5 @@
 module "globals" {
-  source = "${path.root}/globals"
+  source = "../../globals"
 }
 
 locals {
