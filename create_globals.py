@@ -7,10 +7,8 @@ def remove_tf_var_prefix(key):
     return key
 
 def merge_json_with_args(env_json, additional_args):
-    # Parse the env_json string into a Python dictionary
     env_dict = json.loads(env_json)
     
-    # Merge additional arguments into the dictionary
     for arg in additional_args:
         key, value = arg.split('=')
         env_dict[key] = value
