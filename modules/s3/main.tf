@@ -4,7 +4,7 @@ module "globals" {
 
 locals {
   workflow_step = module.globals.var.workflow_step
-  bucket_name_full = "${local.globals.organization}-${var.bucket_name}-${terraform.workspace}"
+  bucket_name_full = "${module.globals.var.organization}-${var.bucket_name}-${terraform.workspace}"
 }
 
 module "generate_policy_document" {
