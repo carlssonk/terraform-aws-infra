@@ -28,7 +28,7 @@ jobs:
 
   deploy:
     name: Deploy
-    needs: check_destroy_condition
+    needs: check_deploy_condition
     if: needs.check_deploy_condition.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
