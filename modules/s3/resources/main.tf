@@ -9,7 +9,6 @@ variable "is_public_website" {
   default     = false
 }
 
-
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name_full
 }
@@ -55,6 +54,6 @@ resource "aws_s3_bucket_policy" "this" {
   ]
 }
 
-output "bucket_regional_domain_name" {
-  value = aws_s3_bucket.this.bucket_regional_domain_name
+output "website_endpoint" {
+  value = aws_s3_bucket.this.website_endpoint
 }

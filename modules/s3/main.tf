@@ -24,6 +24,6 @@ output "policy_document" {
   value = try(module.generate_policy_document[0].policy_document, null)
 }
 
-output "bucket_regional_domain_name" {
-  value = try(module.resources[0].bucket_regional_domain_name, null)
+output "website_endpoint" {
+  value = try(module.resources[0].website_endpoint, null)
 }
