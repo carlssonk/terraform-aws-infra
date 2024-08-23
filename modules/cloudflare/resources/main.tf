@@ -13,23 +13,6 @@ variable "domain_zone_id" {
   type        = string
 }
 
-module "globals" {
-  source = "../../../globals"
-}
-
-terraform {
-  required_providers {
-    cloudflare = {
-      source  = "cloudflare/cloudflare"
-      version = "~> 4.0"
-    }
-  }
-}
-
-provider "cloudflare" {
-  api_token = module.globals.var.cloudflare_api_token
-}
-
 resource "cloudflare_record" "www_cname" {
   zone_id = var.domain_zone_id
   name    = var.domain_name
