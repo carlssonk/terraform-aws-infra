@@ -1,5 +1,13 @@
-variable "bucket_name_full" {}
-variable "is_public_website" {}
+variable "bucket_name_full" {
+  description = "Name of S3 Bucket prefixed with organization and suffixed with envrionment"
+  type        = string
+}
+
+variable "is_public_website" {
+  description = "Will configure bucket to be publicly accessible"
+  type        = string
+  default     = false
+}
 
 data "aws_iam_policy_document" "this" {
   statement {

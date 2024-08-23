@@ -1,7 +1,12 @@
 // Bootstraps terraform backend for a new environment
-
-variable "region" {}
-variable "organization" {}
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
 
 provider "aws" {
   region = var.region
@@ -12,9 +17,9 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_dynamodb_table" "this" {
-  name = "${var.organization}-terraform-lock-table-${terraform.workspace}"
+  name         = "${var.organization}-terraform-lock-table-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key = "LockID"
+  hash_key     = "LockID"
 
   attribute {
     name = "LockID"
