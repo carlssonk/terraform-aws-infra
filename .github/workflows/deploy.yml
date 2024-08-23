@@ -65,6 +65,8 @@ jobs:
             terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
             
             python create_globals.py '${{ toJson(env) }}' workflow_step=$step
+
+            terraform providers
             
             chmod +x retry_command.sh
             if ! ./retry_command.sh "terraform apply -auto-approve"; then
