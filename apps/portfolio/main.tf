@@ -1,16 +1,17 @@
-module "globals" {
-  source = "../../globals"
-}
-
-module "s3_bucket" {
-  source = "../../modules/s3"
-  bucket_name = "portfolio"
+module "s3" {
+  source            = "../../modules/s3"
+  bucket_name       = "portfolio"
   is_public_website = true
 }
 
-module "policy" {
-  count = module.globals.var.workflow_step == "iam" ? 1 : 0
-  source = "../../modules/iam"
-  name = "portfolio"
-  policy_documents = [module.s3_bucket.policy_document]
+module "cloudflare" {
+  source              = "../../modules/cloudflare"
+  domain_name         = "carlssonk.com"
+  s3_website_endpoint = module.s3.bucket_regional_domain_name
+}
+
+module "iam_policy" {
+  source           = "../../iam_policy"
+  name             = "portfolio"
+  policy_documents = [module.s3.policy_document]
 }
