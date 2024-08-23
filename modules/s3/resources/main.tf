@@ -86,7 +86,7 @@ locals {
 
 resource "aws_s3_bucket_policy" "this" {
   count  = local.policy_statement != null ? 1 : 0
-  bucket = aws_s3_bucket.website_bucket.id
+  bucket = aws_s3_bucket.this.id
 
   policy = jsonencode({
     Version   = "2012-10-17"
@@ -95,5 +95,5 @@ resource "aws_s3_bucket_policy" "this" {
 }
 
 output "website_endpoint" {
-  value = aws_s3_bucket.this.website_endpoint
+  value = aws_s3_bucket_website_configuration.this.website_endpoint
 }
