@@ -44,11 +44,17 @@ resource "aws_s3_bucket_public_access_block" "this" {
 data "http" "cloudflare_ips_v4" {
   count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
   url   = "https://www.cloudflare.com/ips-v4"
+  request_headers = {
+    Accept = "text/plain"
+  }
 }
 
 data "http" "cloudflare_ips_v6" {
   count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
   url   = "https://www.cloudflare.com/ips-v6"
+  request_headers = {
+    Accept = "text/plain"
+  }
 }
 
 locals {
@@ -67,8 +73,8 @@ locals {
       Condition = {
         NotIpAddress = {
           "aws:SourceIp" = concat(
-            split("\n", chomp(try(data.http.cloudflare_ips_v4.body, ""))),
-            split("\n", chomp(try(data.http.cloudflare_ips_v6.body, "")))
+            split("\n", chomp(try(data.http.cloudflare_ips_v4[0].response_body, ""))),
+            split("\n", chomp(try(data.http.cloudflare_ips_v6[0].response_body, "")))
           )
         }
       }

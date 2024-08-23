@@ -18,7 +18,6 @@ data "cloudflare_zone" "domain" {
   name = var.root_domain
 }
 
-
 resource "cloudflare_record" "www" {
   zone_id = data.cloudflare_zone.domain.id
   name    = "www"
