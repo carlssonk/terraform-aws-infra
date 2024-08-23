@@ -6,33 +6,31 @@ terraform {
   }
 }
 
-variable "domain_name" {
-  description = "The domain name to route to the S3 bucket"
-  type        = string
+variable "root_domain" {
+  description = "The root domain name to route to the S3 bucket"
 }
 
 variable "s3_website_endpoint" {
   description = "The S3 bucket website endpoint"
-  type        = string
 }
 
-variable "domain_zone_id" {
-  description = "Zone ID for domain name"
-  type        = string
+data "cloudflare_zone" "domain" {
+  name = var.root_domain
 }
 
-resource "cloudflare_record" "cname" {
-  zone_id = var.domain_zone_id
-  name    = var.domain_name
+
+resource "cloudflare_record" "www" {
+  zone_id = data.cloudflare_zone.domain.id
+  name    = "www"
   value   = var.s3_website_endpoint
   type    = "CNAME"
   ttl     = 1
   proxied = true
 }
 
-resource "cloudflare_record" "www_cname" {
-  zone_id = var.domain_zone_id
-  name    = "www.${var.domain_name}"
+resource "cloudflare_record" "root" {
+  zone_id = data.cloudflare_zone.domain.id
+  name    = "@"
   value   = var.s3_website_endpoint
   type    = "CNAME"
   ttl     = 1

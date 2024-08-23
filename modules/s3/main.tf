@@ -2,22 +2,20 @@ module "globals" {
   source = "../../globals"
 }
 
-locals {
-  bucket_name_full = "${module.globals.var.organization}-${var.bucket_name}-${terraform.workspace}"
-}
-
 module "generate_policy_document" {
-  count             = module.globals.run_iam
-  source            = "./iam"
-  bucket_name_full  = local.bucket_name_full
-  is_public_website = var.is_public_website
+  count                    = module.globals.run_iam
+  source                   = "./iam"
+  bucket_name              = var.bucket_name
+  bucket_access_and_policy = var.bucket_access_and_policy
+  website_config           = var.website_config
 }
 
 module "resources" {
-  count             = module.globals.run_resources
-  source            = "./resources"
-  bucket_name_full  = local.bucket_name_full
-  is_public_website = var.is_public_website
+  count                    = module.globals.run_resources
+  source                   = "./resources"
+  bucket_name              = var.bucket_name
+  bucket_access_and_policy = var.bucket_access_and_policy
+  website_config           = var.website_config
 }
 
 output "policy_document" {

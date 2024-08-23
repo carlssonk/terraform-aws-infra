@@ -1,29 +1,38 @@
-variable "bucket_name_full" {
-  description = "Name of S3 Bucket prefixed with organization and suffixed with envrionment"
-  type        = string
+variable "bucket_name" {
+  description = "Name of S3 Bucket"
 }
-
-variable "is_public_website" {
-  description = "Will configure bucket to be publicly accessible"
-  type        = string
-  default     = false
+variable "bucket_access_and_policy" {
+  description = "Specify who can access the bucket. Can one of 'public', 'cloudflare'"
+}
+variable "website_config" {
+  description = "Website configuration"
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = var.bucket_name_full
+  bucket = var.bucket_name
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {
-  count  = var.is_public_website ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
-  index_document {
-    suffix = "index.html"
+  dynamic "index_document" {
+    for_each = var.website_config.is_website ? [1] : []
+    content {
+      suffix = "index.html"
+    }
+  }
+
+  dynamic "redirect_all_requests_to" {
+    for_each = var.website_config.redirect_to != null ? [1] : []
+    content {
+      host_name = var.website_config.redirect_to
+      protocol  = "https"
+    }
   }
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
-  count  = var.is_public_website ? 1 : 0
+  count  = var.bucket_access_and_policy == "public" ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   block_public_acls       = false
@@ -32,26 +41,51 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = false
 }
 
+data "http" "cloudflare_ips_v4" {
+  count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
+  url   = "https://www.cloudflare.com/ips-v4"
+}
+
+data "http" "cloudflare_ips_v6" {
+  count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
+  url   = "https://www.cloudflare.com/ips-v6"
+}
+
+locals {
+  policy_types = {
+    public = {
+      Effect    = "Allow"
+      Principal = "*"
+      Action    = "s3:GetObject"
+      Resource  = "${aws_s3_bucket.this.arn}/*"
+    },
+    cloudflare = {
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:GetObject"
+      Resource  = "${aws_s3_bucket.this.arn}/*"
+      Condition = {
+        NotIpAddress = {
+          "aws:SourceIp" = concat(
+            split("\n", chomp(try(data.http.cloudflare_ips_v4.body, ""))),
+            split("\n", chomp(try(data.http.cloudflare_ips_v6.body, "")))
+          )
+        }
+      }
+    }
+  }
+
+  policy_statement = lookup(local.policy_types, var.bucket_access_and_policy, null)
+}
+
 resource "aws_s3_bucket_policy" "this" {
-  count  = var.is_public_website ? 1 : 0
-  bucket = aws_s3_bucket.this.id
+  count  = local.policy_statement != null ? 1 : 0
+  bucket = aws_s3_bucket.website_bucket.id
 
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.this.arn}/*"
-      }
-    ]
+    Version   = "2012-10-17"
+    Statement = [local.policy_statement]
   })
-
-  depends_on = [
-    aws_s3_bucket.this,
-    aws_s3_bucket_public_access_block.this
-  ]
 }
 
 output "website_endpoint" {

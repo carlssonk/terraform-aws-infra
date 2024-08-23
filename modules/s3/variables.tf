@@ -3,8 +3,21 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "is_public_website" {
-  description = "Will configure bucket to be publicly accessible"
+variable "website_config" {
+  description = "Website configuration"
+  type = object({
+    redirect_to = optional(string) // Will include a index.html document
+    is_website  = optional(bool)   // Specify if bucket should redirect to another bucket
+  })
+  default = {
+    redirect_to = null
+    is_website  = false
+  }
+}
+
+variable "bucket_access_and_policy" {
+  description = "Specify who can access the bucket. Can one of 'public', 'cloudflare'"
   type        = string
-  default     = false
+  default     = null
+  nullable    = true
 }

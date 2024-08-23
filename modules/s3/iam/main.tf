@@ -1,12 +1,11 @@
-variable "bucket_name_full" {
-  description = "Name of S3 Bucket prefixed with organization and suffixed with envrionment"
-  type        = string
+variable "bucket_name" {
+  description = "Name of S3 Bucket"
 }
-
-variable "is_public_website" {
-  description = "Will configure bucket to be publicly accessible"
-  type        = string
-  default     = false
+variable "bucket_access_and_policy" {
+  description = "Specify who can access the bucket. Can one of 'public', 'cloudflare'"
+}
+variable "website_config" {
+  description = "Website configuration"
 }
 
 data "aws_iam_policy_document" "this" {
@@ -19,15 +18,17 @@ data "aws_iam_policy_document" "this" {
         "s3:Get*",
         "s3:List*"
       ],
-      var.is_public_website ? [
+      var.website_config.is_website || var.website_config.redirect_to != null ? [
         "s3:*BucketWebsite",
+      ] : [],
+      var.bucket_access_and_policy != null ? [
         "s3:*PublicAccessBlock",
         "s3:*BucketPolicy"
       ] : []
     )
     resources = [
-      "arn:aws:s3:::${var.bucket_name_full}",
-      "arn:aws:s3:::${var.bucket_name_full}/*"
+      "arn:aws:s3:::${var.bucket_name}",
+      "arn:aws:s3:::${var.bucket_name}/*"
     ]
     effect = "Allow"
   }

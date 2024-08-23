@@ -1,6 +1,5 @@
 variable "table_name_full" {
   description = "Name of dynamodb table prefixed with organization and suffixed with environment"
-  type        = string
 }
 
 resource "aws_dynamodb_table" "this" {
