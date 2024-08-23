@@ -61,12 +61,12 @@ locals {
   ])
 
   grouped_statements = {
-    for statement in merged_statements :
+    for statement in local.merged_statements :
     "${lower(statement.Effect)}-${jsonencode(sort([for action in tolist(statement.Action) : lower(action)]))}" => statement...
   }
 
   combined_statements = [
-    for key, statements in grouped_statements : {
+    for key, statements in local.grouped_statements : {
       Effect   = statements[0].Effect
       Action   = statements[0].Action
       Resource = distinct(flatten([for s in statements : s.Resource]))
