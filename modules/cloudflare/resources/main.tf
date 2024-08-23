@@ -13,6 +13,10 @@ variable "domain_zone_id" {
   type        = string
 }
 
+module "globals" {
+  source = "../../../globals"
+}
+
 terraform {
   required_providers {
     cloudflare = {
@@ -20,6 +24,10 @@ terraform {
       version = "~> 4.0"
     }
   }
+}
+
+provider "cloudflare" {
+  api_token = module.globals.var.cloudflare_api_token
 }
 
 resource "cloudflare_record" "www_cname" {
