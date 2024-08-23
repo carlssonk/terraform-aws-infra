@@ -13,6 +13,15 @@ variable "domain_zone_id" {
   type        = string
 }
 
+terraform {
+  required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
+    }
+  }
+}
+
 resource "cloudflare_record" "www_cname" {
   zone_id = var.domain_zone_id
   name    = var.domain_name
