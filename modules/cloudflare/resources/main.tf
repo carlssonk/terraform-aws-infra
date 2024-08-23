@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+    }
+  }
+}
+
 variable "domain_name" {
   description = "The domain name to route to the S3 bucket"
   type        = string

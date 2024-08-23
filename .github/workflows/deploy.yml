@@ -54,6 +54,8 @@ jobs:
         run: |
           for step in iam resources; do
             echo "Running Terraform for $step"
+
+            terraform providers
             
             terraform init -reconfigure \
               -backend-config="encrypt=true" \
