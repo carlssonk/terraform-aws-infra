@@ -24,5 +24,5 @@ resource "aws_iam_policy" "policy" {
 resource "aws_iam_role_policy_attachment" "attachment" {
   count      = module.globals.run_iam
   role       = "terraform-execution-role"
-  policy_arn = aws_iam_policy[0].policy.arn
+  policy_arn = aws_iam_policy.policy[0].arn
 }
