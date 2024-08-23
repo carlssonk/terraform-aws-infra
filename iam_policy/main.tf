@@ -1,5 +1,12 @@
-variable "name" {}
-variable "policy_documents" {}
+variable "name" {
+  description = "Policy name"
+  type        = string
+}
+
+variable "policy_documents" {
+  description = "List of policy documents"
+  type        = list(string)
+}
 
 module "globals" {
   source = "../globals"
@@ -10,7 +17,7 @@ locals {
   combined_policy = {
     Version = "2012-10-17"
     Statement = flatten([
-      for doc in coalesce(var.policy_documents, []) : jsondecode(doc).Statement
+      for doc in var.policy_documents : try(jsondecode(doc).Statement, null)
     ])
   }
 }
