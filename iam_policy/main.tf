@@ -10,7 +10,7 @@ locals {
   combined_policy = {
     Version = "2012-10-17"
     Statement = flatten([
-      for doc in var.policy_documents : jsondecode(doc).Statement
+      for doc in coalesce(var.policy_documents, []) : jsondecode(doc).Statement
     ])
   }
 }
