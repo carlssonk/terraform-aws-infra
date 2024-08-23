@@ -26,6 +26,6 @@ resource "cloudflare_record" "www_cname" {
   name    = var.domain_name
   value   = var.s3_website_endpoint
   type    = "CNAME"
-  ttl     = 3600
+  ttl     = 1
   proxied = true
 }
