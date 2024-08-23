@@ -21,9 +21,18 @@ variable "domain_zone_id" {
   type        = string
 }
 
-resource "cloudflare_record" "www_cname" {
+resource "cloudflare_record" "cname" {
   zone_id = var.domain_zone_id
   name    = var.domain_name
+  value   = var.s3_website_endpoint
+  type    = "CNAME"
+  ttl     = 1
+  proxied = true
+}
+
+resource "cloudflare_record" "www_cname" {
+  zone_id = var.domain_zone_id
+  name    = "www.${var.domain_name}"
   value   = var.s3_website_endpoint
   type    = "CNAME"
   ttl     = 1
