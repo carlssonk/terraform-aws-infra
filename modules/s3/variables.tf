@@ -6,13 +6,10 @@ variable "bucket_name" {
 variable "website_config" {
   description = "Website configuration"
   type = object({
-    redirect_to = optional(string) // Will include a index.html document
-    is_website  = optional(bool)   // Specify if bucket should redirect to another bucket
+    redirect_to = optional(string)      // Will include a index.html document
+    is_website  = optional(bool, false) // Specify if bucket should redirect to another bucket
   })
-  default = {
-    redirect_to = null
-    is_website  = false
-  }
+  default = {}
 }
 
 variable "bucket_access_and_policy" {
