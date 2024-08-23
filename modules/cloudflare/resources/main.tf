@@ -8,15 +8,14 @@ variable "s3_website_endpoint" {
   type        = string
 }
 
-data "cloudflare_zones" "domain_zone" {
-  filter {
-    name = var.domain_name
-  }
+variable "domain_zone_id" {
+  description = "Zone ID for domain name"
+  type        = string
 }
 
 resource "cloudflare_record" "www_cname" {
-  zone_id = data.cloudflare_zones.domain_zone.zones[0].id
-  name    = ar.domain_name
+  zone_id = var.domain_zone_id
+  name    = var.domain_name
   value   = var.s3_website_endpoint
   type    = "CNAME"
   ttl     = 3600

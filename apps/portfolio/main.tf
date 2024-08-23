@@ -8,6 +8,7 @@ module "cloudflare" {
   source              = "../../modules/cloudflare"
   domain_name         = "carlssonk.com"
   s3_website_endpoint = module.s3.bucket_regional_domain_name
+  domain_zone_id      = "5b869b9d7f7b447b870967d819ec76dd"
 }
 
 module "iam_policy" {
