@@ -75,7 +75,7 @@ locals {
 
   combined_policy = {
     Version   = "2012-10-17"
-    Statement = combined_statements
+    Statement = local.combined_statements
   }
 
   # combined_policy = local.transition_complete ? local.final_policy : local.transition_policy
