@@ -24,7 +24,7 @@ data "terraform_remote_state" "previous" {
 
 locals {
   // If cleanup_policies is true we ignore previous policies
-  previous_policy_document = module.globals.var.cleanup_policies ? [] : try(data.terraform_remote_state.previous[0].outputs.current_policy_document, [])
+  previous_policy_document = module.globals.var.cleanup_policies ? [] : try(data.terraform_remote_state.previous[0].outputs["${var.name}_policy"], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -68,16 +68,7 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   policy_arn = aws_iam_policy.policy[0].arn
 }
 
-output "current_policy_document" {
+output "policy_document" {
   value       = local.current_policy_document
   description = "The current set of policies, including both old and new"
-}
-
-output "previous_policy_document" {
-  value = try({
-    bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
-    key    = "env:/${terraform.workspace}/iam/terraform.tfstate"
-    region = module.globals.var.region
-  }, "no way")
-  description = "The previous set of policies"
 }
