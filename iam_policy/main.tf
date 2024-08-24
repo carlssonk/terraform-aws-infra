@@ -72,3 +72,8 @@ output "current_policy_document" {
   value       = local.current_policy_document
   description = "The current set of policies, including both old and new"
 }
+
+output "previous_policy_document" {
+  value       = local.previous_policy_document
+  description = "The previous set of policies"
+}

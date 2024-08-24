@@ -57,3 +57,8 @@ output "current_policy_document" {
   value       = module.iam_policy.current_policy_document
   description = "The current set of policies, including both old and new"
 }
+
+output "previous_policy_document" {
+  value       = module.iam_policy.previous_policy_document
+  description = "The previous set of policies"
+}
