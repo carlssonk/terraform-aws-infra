@@ -24,7 +24,7 @@ data "terraform_remote_state" "previous" {
 
 locals {
   // If cleanup_policies is true we ignore previous policies
-  previous_policy_document = module.globals.var.cleanup_policies ? [] : try(data.terraform_remote_state[0].previous.outputs.current_policy_document, [])
+  previous_policy_document = module.globals.var.cleanup_policies ? [] : try(data.terraform_remote_state.previous[0].outputs.current_policy_document, [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
