@@ -40,7 +40,7 @@ data "aws_iam_policy" "previous" {
 }
 
 locals {
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.aws_iam_policy.previous.policy], [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.aws_iam_policy.previous[0].policy], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
