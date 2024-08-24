@@ -14,7 +14,7 @@ module "one" {
 
 module "two" {
   source      = "../../modules/s3"
-  bucket_name = "carlssonk-portfolio12345-prod"
+  bucket_name = "carlssonk-portfolio123456789-prod"
   website_config = {
     is_website = true
   }
