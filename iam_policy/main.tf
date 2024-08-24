@@ -1,3 +1,5 @@
+variable "workflow_step" {}
+
 variable "name" {
   description = "Policy name"
   type        = string
@@ -55,13 +57,13 @@ locals {
 }
 
 resource "aws_iam_policy" "policy" {
-  count  = module.globals.run_iam
+  count  = var.workflow_step == "iam" ? 1 : 0
   name   = "terraform-${var.name}-policy"
   policy = jsonencode(local.current_policy_document)
 }
 
 resource "aws_iam_role_policy_attachment" "attachment" {
-  count      = module.globals.run_iam
+  count      = var.workflow_step == "iam" ? 1 : 0
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.policy[0].arn
 }

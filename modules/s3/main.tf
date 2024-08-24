@@ -1,9 +1,7 @@
-module "globals" {
-  source = "../../globals"
-}
+variable "workflow_step" {}
 
 module "generate_policy_document" {
-  count                    = module.globals.run_iam
+  count                    = var.workflow_step == "iam" ? 1 : 0
   source                   = "./iam"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
@@ -11,7 +9,7 @@ module "generate_policy_document" {
 }
 
 module "resources" {
-  count                    = module.globals.run_resources
+  count                    = var.workflow_step == "resources" ? 1 : 0
   source                   = "./resources"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy

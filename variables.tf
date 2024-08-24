@@ -1,3 +1,8 @@
+variable "workflow_step" {
+  description = "Type of workflow: iam, resources"
+  type        = string
+}
+
 variable "region" {
   description = "AWS Region"
   type        = string
