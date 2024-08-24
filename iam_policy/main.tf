@@ -74,6 +74,6 @@ output "current_policy_document" {
 }
 
 output "previous_policy_document" {
-  value       = try(data.terraform_remote_state.previous[0].outputs.current_policy_document, "no way")
+  value       = try(data.terraform_remote_state.previous[0].outputs, "no way")
   description = "The previous set of policies"
 }
