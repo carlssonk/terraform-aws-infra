@@ -18,26 +18,26 @@ env:
   TF_VAR_cleanup_policies: ${{ github.event_name == 'schedule' }}
 
 jobs:
-  check_deploy_condition:
-    name: Should Deploy Condition
+  check_run:
+    name: Should run condition
     runs-on: ubuntu-latest
     outputs:
-      should_deploy: ${{ steps.check.outputs.should_deploy }}
+      should_run: ${{ steps.check.outputs.should_run }}
     steps:
       - id: check
         run: |
           if [[ "${{ github.event_name }}" == "push" && "${{ !contains(github.event.head_commit.message, '[DESTROY]') }}" == "true" ]]; then
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
           else
-            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "should_run=false" >> $GITHUB_OUTPUT
           fi
 
   deploy:
     name: Deploy
-    needs: check_deploy_condition
-    if: needs.check_deploy_condition.outputs.should_deploy == 'true'
+    needs: check_run
+    if: needs.check_run.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
     permissions:
