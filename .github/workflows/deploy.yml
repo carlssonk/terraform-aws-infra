@@ -11,7 +11,6 @@ on:
 
 env:
   TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
-  WORKSPACE: ${{ env.TARGET_BRANCH }}
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   TF_VAR_region: eu-north-1
   TF_VAR_organization: carlssonk
@@ -67,11 +66,11 @@ jobs:
             terraform init -reconfigure \
               -backend-config="encrypt=true" \
               -backend-config="region=${{ env.TF_VAR_region }}" \
-              -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
-              -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
+              -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+              -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
               -backend-config="key=${step}/terraform.tfstate"
             
-            terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
+            terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
             
             python create_globals.py '${{ toJson(env) }}' workflow_step=$step
             
