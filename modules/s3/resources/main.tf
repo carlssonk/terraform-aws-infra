@@ -79,9 +79,10 @@ locals {
         }
       }
     }
+    default = null
   }
 
-  policy_statement = lookup(local.policy_types, var.bucket_access_and_policy, null)
+  policy_statement = lookup(local.policy_types, coalesce(var.bucket_access_and_policy, "default"), null)
 }
 
 resource "aws_s3_bucket_policy" "this" {
