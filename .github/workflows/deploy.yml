@@ -58,7 +58,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Run Terraform for IAM and Resources
+      - name: ${{ (github.event_name == 'pull_request' && 'Plan') || 'Apply' }}
         run: |
           for step in iam resources; do
             echo "RUNNING $step"
@@ -85,7 +85,3 @@ jobs:
               fi
             fi
           done
-
-      - name: Show Terraform Outputs
-        if: github.event_name == 'pull_request'
-        run: terraform output
