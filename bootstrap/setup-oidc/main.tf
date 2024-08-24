@@ -132,6 +132,22 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListPolicies"
         ]
         Resource = "*"
+      },
+      {
+        "Action" : [
+          "s3:List*",
+          "s3:Get*",
+          "s3:DeleteBucket",
+          "s3:CreateBucket",
+          "s3:*PublicAccessBlock",
+          "s3:*BucketWebsite",
+          "s3:*BucketPolicy"
+        ],
+        "Effect" : "Allow",
+        "Resource" : [
+          "arn:aws:s3:::carlssonk-portfoliohaha-prod/*",
+          "arn:aws:s3:::carlssonk-portfoliohaha-prod",
+        ]
       }
     ]
   })
