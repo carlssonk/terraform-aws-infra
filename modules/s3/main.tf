@@ -8,6 +8,7 @@ module "generate_policy_document" {
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
   website_config           = var.website_config
+  depends_on               = [module.globals]
 }
 
 module "resources" {
@@ -16,6 +17,7 @@ module "resources" {
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
   website_config           = var.website_config
+  depends_on               = [module.globals]
 }
 
 output "policy_document" {
