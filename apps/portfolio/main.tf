@@ -50,7 +50,7 @@ module "one" {
 module "iam_policy" {
   source           = "../../iam_policy"
   name             = "portfolio"
-  policy_documents = [module.one.policy_document, module.two.policy_document]
+  policy_documents = [module.one.policy_document]
 }
 
 output "policy_document" {
