@@ -34,8 +34,12 @@ data "local_file" "policy_exists" {
   depends_on = [null_resource.policy_check]
 }
 
+locals {
+  policy_exists = tobool(trimspace(data.local_file.policy_exists.content))
+}
+
 data "aws_iam_policy" "previous" {
-  count = tobool(trimspace(data.local_file.policy_exists.content)) ? 1 : 0
+  count = local.policy_exists ? 1 : 0
   name  = "terraform-${var.name}-policy"
 }
 
