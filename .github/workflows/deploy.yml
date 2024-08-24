@@ -87,4 +87,5 @@ jobs:
           done
 
       - name: Show Terraform Outputs
-        run: terraform show -json
+        if: github.event_name == 'pull_request'
+        run: terraform output

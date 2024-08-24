@@ -30,3 +30,8 @@ terraform {
 module "portfolio" {
   source = "./apps/portfolio"
 }
+
+output "current_policy_document" {
+  value       = module.portfolio.current_policy_document
+  description = "The current set of policies, including both old and new"
+}

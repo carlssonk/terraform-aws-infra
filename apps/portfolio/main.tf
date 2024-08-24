@@ -52,3 +52,8 @@ module "iam_policy" {
   name             = "portfolio"
   policy_documents = [module.one.policy_document, module.two.policy_document]
 }
+
+output "current_policy_document" {
+  value       = module.iam_policy.current_policy_document
+  description = "The current set of policies, including both old and new"
+}
