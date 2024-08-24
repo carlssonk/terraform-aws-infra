@@ -12,14 +12,14 @@ module "one" {
   bucket_access_and_policy = "public"
 }
 
-module "two" {
-  source      = "../../modules/s3"
-  bucket_name = "carlssonk-portfolio123456789-prod"
-  website_config = {
-    is_website = true
-  }
-  bucket_access_and_policy = "public"
-}
+# module "two" {
+#   source      = "../../modules/s3"
+#   bucket_name = "carlssonk-portfolio123456789-prod"
+#   website_config = {
+#     is_website = true
+#   }
+#   bucket_access_and_policy = "public"
+# }
 
 
 # module "subdomain_bucket" {
