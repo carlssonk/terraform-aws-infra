@@ -16,7 +16,7 @@ data "terraform_remote_state" "previous" {
   backend = "s3"
   config = {
     bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
-    key    = "env:/${terraform.workspace}/terraform.tfstate"
+    key    = "env:/${terraform.workspace}/iam/terraform.tfstate"
     region = module.globals.var.region
   }
 }
