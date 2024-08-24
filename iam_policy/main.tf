@@ -73,3 +73,8 @@ output "current_policy_document" {
   description = "The current set of policies, including both old and new"
 }
 
+// Temporary
+output "combined_statements_json" {
+  value       = jsonencode(local.combined_statements)
+  description = "The combined IAM policy statements in JSON format"
+}

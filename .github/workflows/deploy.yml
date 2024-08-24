@@ -77,10 +77,8 @@ jobs:
             chmod +x retry_command.sh
 
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-              if ! ./retry_command.sh "terraform plan"; then
-                echo "Terraform plan failed after all retry attempts"
-                exit 1
-              fi
+              terraform plan
+              terraform show
             else
               if ! ./retry_command.sh "terraform apply -auto-approve"; then
                 echo "Terraform apply failed after all retry attempts"
