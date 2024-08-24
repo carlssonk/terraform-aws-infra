@@ -2,22 +2,28 @@ module "globals" {
   source = "../../globals"
 }
 
+resource "terraform_data" "run_iam" {
+  input = module.globals.run_iam
+}
+resource "terraform_data" "run_resources" {
+  input = module.globals.run_resources
+}
+
+
 module "generate_policy_document" {
-  count                    = module.globals.run_iam
+  count                    = terraform_data.run_iam.output
   source                   = "./iam"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
   website_config           = var.website_config
-  depends_on               = [module.globals]
 }
 
 module "resources" {
-  count                    = module.globals.run_resources
+  count                    = terraform_data.run_resources
   source                   = "./resources"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
   website_config           = var.website_config
-  depends_on               = [module.globals]
 }
 
 output "policy_document" {
