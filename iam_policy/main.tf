@@ -17,7 +17,6 @@ data "aws_iam_policy" "previous_policy" {
 }
 
 locals {
-  // If cleanup_policies is true we ignore previous policies
   previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.aws_iam_policy.previous_policy.policy], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
@@ -60,13 +59,4 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   count      = module.globals.run_iam
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.policy[0].arn
-}
-
-output "policy_document" {
-  value = {
-    hej   = [jsondecode(data.aws_iam_policy.previous_policy.policy)]
-    heej  = [data.aws_iam_policy.previous_policy.policy]
-    heeej = local.current_policy_document
-  }
-  description = "The current set of policies, including both old and new"
 }

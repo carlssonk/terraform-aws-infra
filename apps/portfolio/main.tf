@@ -52,7 +52,3 @@ module "iam_policy" {
   name             = "portfolio"
   policy_documents = [module.one.policy_document]
 }
-
-output "policy_document" {
-  value = module.iam_policy.policy_document
-}
