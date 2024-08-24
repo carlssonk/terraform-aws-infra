@@ -13,10 +13,6 @@ def merge_json_with_args(env_json, additional_args):
     
     for arg in additional_args:
         key, value = arg.split('=')
-        if value.lower() == 'true':
-            value = True
-        elif value.lower() == 'false':
-            value = False
         env_dict[key] = value
 
     
