@@ -18,7 +18,7 @@ data "aws_iam_policy" "previous_policy" {
 
 locals {
   // If cleanup_policies is true we ignore previous policies
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try(tolist(jsonencode(jsondecode(data.aws_iam_policy.previous_policy.policy).Statement)), [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : jsonencode(item)], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -65,7 +65,4 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 output "policy_document" {
   value       = local.current_policy_document
   description = "The current set of policies, including both old and new"
-}
-output "output_lol" {
-  value = { helllo = try(tolist(jsondecode(data.aws_iam_policy.previous_policy.policy).Statement), "2"), goodbye = var.policy_documents }
 }

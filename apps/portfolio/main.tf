@@ -56,7 +56,3 @@ module "iam_policy" {
 output "policy_document" {
   value = module.iam_policy.policy_document
 }
-
-output "output_lol" {
-  value = module.iam_policy.output_lol
-}
