@@ -27,9 +27,7 @@ data "aws_iam_policy_document" "this" {
     )
     resources = [
       "arn:aws:s3:::${var.bucket_name}",
-      "arn:aws:s3:::${var.bucket_name}/*",
-      "arn:aws:s3:::carlssonk-portfolio-prod/*",
-      "arn:aws:s3:::carlssonk-portfolio-prod",
+      "arn:aws:s3:::${var.bucket_name}/*"
     ]
     effect = "Allow"
   }
