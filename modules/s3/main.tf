@@ -1,12 +1,9 @@
-# module "globals" {
-#   source = "../../globals"
-# }
-resource "terraform_data" "workflow_step" {
-  input = jsondecode(file("${path.root}/globals.json")).workflow_step
+module "globals" {
+  source = "../../globals"
 }
 
 module "generate_policy_document" {
-  count                    = terraform_data.workflow_step.output == "iam" ? 1 : 0
+  count                    = module.globals.run_iam
   source                   = "./iam"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
@@ -14,7 +11,7 @@ module "generate_policy_document" {
 }
 
 module "resources" {
-  count                    = terraform_data.workflow_step.output == "resources" ? 1 : 0
+  count                    = module.globals.run_resources
   source                   = "./resources"
   bucket_name              = var.bucket_name
   bucket_access_and_policy = var.bucket_access_and_policy
