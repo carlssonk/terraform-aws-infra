@@ -14,17 +14,33 @@ module "globals" {
   source = "../globals"
 }
 
-data "terraform_remote_state" "previous" {
-  backend = "s3"
-  config = {
-    bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
-    key    = "env:/${terraform.workspace}/iam/terraform.tfstate"
-    region = module.globals.var.region
+resource "null_resource" "policy_check" {
+  triggers = {
+    policy_name = "terraform-${var.name}-policy"
   }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      if aws iam get-policy --policy-arn arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:policy/${"terraform-${var.name}-policy"} >/dev/null 2>&1; then
+        echo "true" > ${path.module}/policy_exists.txt
+      else
+        echo "false" > ${path.module}/policy_exists.txt
+      fi
+    EOT
+  }
+}
+data "local_file" "policy_exists" {
+  filename   = "${path.module}/policy_exists.txt"
+  depends_on = [null_resource.policy_check]
+}
+
+data "aws_iam_policy" "previous" {
+  count = tobool(trimspace(data.local_file.policy_exists.content)) ? 1 : 0
+  name  = "terraform-${var.name}-policy"
 }
 
 locals {
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous.outputs["${var.name}_policy"]], [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.aws_iam_policy.previous.policy], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -66,8 +82,4 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   count      = var.workflow_step == "iam" ? 1 : 0
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.policy[0].arn
-}
-
-output "policy_document" {
-  value = jsonencode(local.current_policy_document)
 }

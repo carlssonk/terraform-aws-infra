@@ -27,7 +27,3 @@ module "portfolio" {
   source        = "./apps/portfolio"
   workflow_step = var.workflow_step
 }
-
-output "portfolio_policy" {
-  value = module.portfolio.policy_document
-}
