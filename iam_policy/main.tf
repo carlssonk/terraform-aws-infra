@@ -67,5 +67,5 @@ output "policy_document" {
   description = "The current set of policies, including both old and new"
 }
 output "output_lol" {
-  value = try(data.aws_iam_policy.previous_policy.policy, "1")
+  value = try(jsondecode(data.aws_iam_policy.previous_policy.policy).Statement, "2")
 }
