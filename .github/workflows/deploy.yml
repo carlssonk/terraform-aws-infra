@@ -4,8 +4,8 @@ on:
   workflow_dispatch: # Manual trigger
   schedule:
   - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up potential old policies
-  push:
-    branches: [prod, dev]
+  # push:
+    # branches: [prod, dev]
   pull_request:
     branches: [prod, dev]
 

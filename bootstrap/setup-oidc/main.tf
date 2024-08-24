@@ -124,6 +124,14 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListAttachedRolePolicies"
         ]
         Resource = aws_iam_role.terraform_execution_role.arn
+      },
+      {
+        // Used when fetching a policy
+        Effect = "Allow"
+        Action = [
+          "iam:ListPolicies"
+        ]
+        Resource = "*"
       }
     ]
   })
