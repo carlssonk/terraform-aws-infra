@@ -13,12 +13,16 @@ def merge_json_with_args(env_json, additional_args):
     
     for arg in additional_args:
         key, value = arg.split('=')
+        if value.lower() == 'true':
+            value = True
+        elif value.lower() == 'false':
+            value = False
         env_dict[key] = value
 
-    # Remove 'TF_VAR_' and 'AWS_' prefix from existing keys in env_dict
+    
     cleaned_env_dict = {}
     for key, value in env_dict.items():
-        cleaned_key = remove_prefix(key)
+        cleaned_key = remove_prefix(key) # Remove 'TF_VAR_' and 'AWS_' prefix from existing keys in env_dict
         cleaned_env_dict[cleaned_key] = value
     
     return cleaned_env_dict
