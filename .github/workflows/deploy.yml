@@ -73,6 +73,7 @@ jobs:
             terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
             
             python create_globals.py '${{ toJson(env) }}' workflow_step=$step
+            export TF_VAR_workflow_step=$step
             
             chmod +x retry_command.sh
 
