@@ -12,12 +12,17 @@ module "globals" {
   source = "../globals"
 }
 
-data "aws_iam_policy" "previous_policy" {
-  name = "terraform-${var.name}-policy"
+data "terraform_remote_state" "previous" {
+  backend = "s3"
+  config = {
+    bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
+    key    = "env:/${terraform.workspace}/terraform.tfstate"
+    region = module.globals.var.region
+  }
 }
 
 locals {
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.aws_iam_policy.previous_policy.policy], [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous.outputs["${var.name}_policy"]], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -59,4 +64,8 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   count      = module.globals.run_iam
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.policy[0].arn
+}
+
+output "policy_document" {
+  value = jsonencode(local.current_policy_document)
 }

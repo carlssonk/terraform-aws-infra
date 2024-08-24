@@ -26,3 +26,7 @@ terraform {
 module "portfolio" {
   source = "./apps/portfolio"
 }
+
+output "portfolio_policy" {
+  value = module.portfolio.policy_document
+}

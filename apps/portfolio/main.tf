@@ -39,3 +39,6 @@ module "iam_policy" {
   policy_documents = [module.subdomain_bucket.policy_document, module.apex_bucket.policy_document]
 }
 
+output "policy_document" {
+  value = module.iam_policy.policy_document
+}
