@@ -13,6 +13,7 @@ module "globals" {
 }
 
 data "terraform_remote_state" "previous" {
+  count   = module.globals.run_iam
   backend = "s3"
   config = {
     bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
