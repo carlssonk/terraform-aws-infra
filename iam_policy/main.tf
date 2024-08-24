@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 
 output "policy_document" {
   value = {
-
+    hej   = [jsondecode(data.aws_iam_policy.previous_policy.policy)]
     one   = tobool(module.globals.var.cleanup_policies),
     two   = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : jsonencode(item)], []),
     three = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : item], []),
