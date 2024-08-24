@@ -68,7 +68,7 @@ output "policy_document" {
     one   = tobool(module.globals.var.cleanup_policies),
     two   = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : jsonencode(item)], []),
     three = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : item], []),
-    four  = policies
+    four  = local.policies
 
   }
   description = "The current set of policies, including both old and new"
