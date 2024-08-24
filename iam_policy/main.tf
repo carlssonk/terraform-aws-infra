@@ -65,11 +65,8 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 output "policy_document" {
   value = {
     hej   = [jsondecode(data.aws_iam_policy.previous_policy.policy)]
-    one   = tobool(module.globals.var.cleanup_policies),
-    two   = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : jsonencode(item)], []),
-    three = try([for item in jsondecode(data.aws_iam_policy.previous_policy.policy) : item], []),
-    four  = local.policies
-
+    heej  = [data.aws_iam_policy.previous_policy.policy]
+    heeej = var.policy_documents
   }
   description = "The current set of policies, including both old and new"
 }
