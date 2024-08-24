@@ -74,6 +74,10 @@ output "current_policy_document" {
 }
 
 output "previous_policy_document" {
-  value       = try(data.terraform_remote_state.previous[0].outputs, "no way")
+  value = try({
+    bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
+    key    = "env:/${terraform.workspace}/iam/terraform.tfstate"
+    region = module.globals.var.region
+  }, "no way")
   description = "The previous set of policies"
 }
