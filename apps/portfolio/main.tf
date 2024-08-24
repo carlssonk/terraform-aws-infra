@@ -3,52 +3,33 @@ locals {
   domain_name = "www.${local.root_domain}"
 }
 
-module "one" {
+module "subdomain_bucket" {
   source      = "../../modules/s3"
-  bucket_name = "carlssonk-portfolio-prod"
+  bucket_name = local.domain_name
   website_config = {
     is_website = true
   }
-  bucket_access_and_policy = "public"
+  bucket_access_and_policy = "cloudflare"
 }
 
-# module "two" {
-#   source      = "../../modules/s3"
-#   bucket_name = "carlssonk-portfolio123456789-prod"
-#   website_config = {
-#     is_website = true
-#   }
-#   bucket_access_and_policy = "public"
-# }
+// The apex bucket will be used to redirect to the main subdomain_bucket
+module "apex_bucket" {
+  source      = "../../modules/s3"
+  bucket_name = local.root_domain
+  website_config = {
+    redirect_to = local.domain_name
+  }
+  depends_on = [module.subdomain_bucket]
+}
 
-
-# module "subdomain_bucket" {
-#   source      = "../../modules/s3"
-#   bucket_name = local.domain_name
-#   website_config = {
-#     is_website = true
-#   }
-#   bucket_access_and_policy = "cloudflare"
-# }
-
-# // The apex bucket will be used to redirect to the main subdomain_bucket
-# module "apex_bucket" {
-#   source      = "../../modules/s3"
-#   bucket_name = local.root_domain
-#   website_config = {
-#     redirect_to = local.domain_name
-#   }
-#   depends_on = [module.subdomain_bucket]
-# }
-
-# module "cloudflare" {
-#   source              = "../../modules/cloudflare"
-#   root_domain         = local.root_domain
-#   s3_website_endpoint = module.subdomain_bucket.website_endpoint
-# }
+module "cloudflare" {
+  source              = "../../modules/cloudflare"
+  root_domain         = local.root_domain
+  s3_website_endpoint = module.subdomain_bucket.website_endpoint
+}
 
 module "iam_policy" {
   source           = "../../iam_policy"
   name             = "portfolio"
-  policy_documents = [module.one.policy_document]
+  policy_documents = [module.subdomain_bucket.policy_document, module.apex_bucket.policy_document]
 }
