@@ -3,6 +3,11 @@ locals {
   domain_name = "www.${local.root_domain}"
 }
 
+module "test_bucket" {
+  source      = "../../modules/s3"
+  bucket_name = "carlssonk-test-bucket"
+}
+
 module "subdomain_bucket" {
   source      = "../../modules/s3"
   bucket_name = local.domain_name
