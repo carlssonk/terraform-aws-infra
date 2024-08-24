@@ -33,3 +33,4 @@ module "iam_policy" {
   name             = "portfolio"
   policy_documents = [module.subdomain_bucket.policy_document, module.apex_bucket.policy_document]
 }
+
