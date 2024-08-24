@@ -66,3 +66,6 @@ output "policy_document" {
   value       = local.current_policy_document
   description = "The current set of policies, including both old and new"
 }
+output "output_lol" {
+  value = try(tolist(jsonencode(jsondecode(data.aws_iam_policy.previous_policy.policy).Statement)), [])
+}

@@ -33,3 +33,7 @@ module "portfolio" {
 output "portfolio_policy" {
   value = module.portfolio.policy_document
 }
+
+output "output_lol" {
+  value = module.portfolio.output_lol
+}
