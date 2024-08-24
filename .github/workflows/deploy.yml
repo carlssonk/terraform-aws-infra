@@ -61,7 +61,7 @@ jobs:
       - name: Run Terraform for IAM and Resources
         run: |
           for step in iam resources; do
-            echo "Running Terraform for $step"
+            echo "RUNNING $step"
             
             terraform init -reconfigure \
               -backend-config="encrypt=true" \
@@ -78,7 +78,6 @@ jobs:
 
             if [[ "${{ github.event_name }}" == "pull_request" ]]; then
               terraform plan
-              terraform output
             else
               if ! ./retry_command.sh "terraform apply -auto-approve"; then
                 echo "Terraform apply failed after all retry attempts"
@@ -86,3 +85,7 @@ jobs:
               fi
             fi
           done
+
+      - name: Show Terraform Outputs
+        if: github.event_name == "pull_request"
+        run: terraform show -json
