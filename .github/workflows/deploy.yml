@@ -10,7 +10,8 @@ on:
     branches: [prod, dev]
 
 env:
-  WORKSPACE: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+  TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+  WORKSPACE: ${{ env.TARGET_BRANCH }}
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   TF_VAR_region: eu-north-1
   TF_VAR_organization: carlssonk
@@ -39,7 +40,7 @@ jobs:
     needs: check_run
     if: needs.check_run.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
+    environment: ${{ env.TARGET_BRANCH }}
     permissions:
       id-token: write
       contents: read
