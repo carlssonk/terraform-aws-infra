@@ -8,63 +8,39 @@ variable "policy_documents" {
   type        = list(string)
 }
 
-variable "transition_period" {
-  description = "Number of days to keep the old policy"
-  type        = number
-  default     = 30
-}
-
 module "globals" {
   source = "../globals"
 }
 
-resource "time_rotating" "policy_rotation" {
-  rotation_days = var.transition_period
+data "terraform_remote_state" "previous" {
+  backend = "s3"
+  config = {
+    bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
+    key    = "iam/terraform.tfstate"
+    region = module.globals.var.region
+  }
 }
 
-# data "terraform_remote_state" "previous" {
-#   backend = "s3"
-#   config = {
-#     bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
-#     key    = "iam/terraform.tfstate"
-#     region = module.globals.var.region
-#   }
-# }
-
 locals {
+  // If cleanup_policies is true we ignore previous policies
+  previous_policy_document = module.globals.var.cleanup_policies ? [] : try(data.terraform_remote_state.previous.outputs.current_policy_document, [])
+  policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
+  // Below logic groups all resources together that have the same permissions
 
-  # workflow_step       = module.globals.var.workflow_step
-  # transition_complete = timeadd(time_rotating.policy_rotation.id, "${var.transition_period * 24}h") < timestamp()
-
-  # previous_policies = try(data.terraform_remote_state.previous.outputs.current_policies, [])
-
-  # current_policies = distinct(concat(local.previous_policies, var.policy_documents))
-
-  # transition_policy = {
-  #   Version = "2012-10-17"
-  #   Statement = flatten([
-  #     for doc in local.current_policies : try(jsondecode(doc).Statement, null)
-  #   ])
-  # }
-
-  # final_policy = {
-  #   Version = "2012-10-17"
-  #   Statement = flatten([
-  #     for doc in var.policy_documents : try(jsondecode(doc).Statement, null)
-  #   ])
-  # }
-
+  // Maps out the statement for each policy
   merged_statements = flatten([
-    for policy in var.policy_documents :
+    for policy in local.policies :
     try(jsondecode(policy).Statement, [])
   ])
 
+  // Groups all identical keys (effect + actions), statement... tells Terraform to create a list of values  when multiple items have the same key
   grouped_statements = {
     for statement in local.merged_statements :
     "${lower(statement.Effect)}-${jsonencode(sort([for action in tolist(statement.Action) : lower(action)]))}" => statement...
   }
 
+  // Loops over each group and collects all resources
   combined_statements = [
     for key, statements in local.grouped_statements : {
       Effect   = statements[0].Effect
@@ -73,18 +49,16 @@ locals {
     }
   ]
 
-  combined_policy = {
+  current_policy_document = {
     Version   = "2012-10-17"
     Statement = local.combined_statements
   }
-
-  # combined_policy = local.transition_complete ? local.final_policy : local.transition_policy
 }
 
 resource "aws_iam_policy" "policy" {
   count  = module.globals.run_iam
   name   = "terraform-${var.name}-policy"
-  policy = jsonencode(local.combined_policy)
+  policy = jsonencode(local.current_policy_document)
 }
 
 resource "aws_iam_role_policy_attachment" "attachment" {
@@ -93,7 +67,8 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   policy_arn = aws_iam_policy.policy[0].arn
 }
 
-# output "current_policies" {
-#   value       = local.current_policies
-#   description = "The current set of policies, including both old and new"
-# }
+output "current_policy_document" {
+  value       = local.current_policy_document
+  description = "The current set of policies, including both old and new"
+}
+
