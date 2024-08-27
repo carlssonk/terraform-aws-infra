@@ -4,8 +4,8 @@ on:
   workflow_dispatch: # Manual trigger
   schedule:
   - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up potential old policies
-  push:
-    branches: [prod, dev]
+  # push:
+  #   branches: [prod, dev]
   pull_request:
     branches: [prod, dev]
 
@@ -77,7 +77,7 @@ jobs:
             
             chmod +x retry_command.sh
 
-            if ! ./retry_command.sh "terraform apply -auto-approve"; then
+            if ! ./retry_command.sh "terraform apply -lock=false -auto-approve"; then
               echo "Terraform apply failed after all retry attempts"
               exit 1
             fi
