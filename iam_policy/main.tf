@@ -78,5 +78,5 @@ output "previous_policy" {
 }
 
 output "previous_policy2" {
-  value = try(data.terraform_remote_state.previous.outputs.previous_policy, "Not found2")
+  value = try(data.terraform_remote_state.previous[0].outputs.previous_policy, "Not found2")
 }
