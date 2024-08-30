@@ -11,6 +11,8 @@ module "test_bucket" {
   bucket_name   = "carlssonk-test-bucket"
 }
 
+// s3 + cloudflare website setup https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
+
 module "subdomain_bucket" {
   workflow_step = var.workflow_step
   source        = "../../modules/s3"
@@ -33,10 +35,11 @@ module "apex_bucket" {
 }
 
 module "cloudflare" {
-  workflow_step       = var.workflow_step
-  source              = "../../modules/cloudflare"
-  root_domain         = local.root_domain
-  s3_website_endpoint = module.subdomain_bucket.website_endpoint
+  workflow_step         = var.workflow_step
+  source                = "../../modules/cloudflare"
+  root_domain           = local.root_domain
+  s3_subdomain_endpoint = module.subdomain_bucket.website_endpoint
+  s3_apex_endpoint      = module.apex_bucket.website_endpoint
 }
 
 module "iam_policy" {

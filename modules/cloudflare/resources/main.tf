@@ -10,8 +10,12 @@ variable "root_domain" {
   description = "The root domain name to route to the S3 bucket"
 }
 
-variable "s3_website_endpoint" {
-  description = "The S3 bucket website endpoint"
+variable "s3_subdomain_endpoint" {
+  description = "The S3 bucket (www) website endpoint"
+}
+
+variable "s3_apex_endpoint" {
+  description = "The S3 bucket (root) website endpoint"
 }
 
 data "cloudflare_zone" "domain" {
@@ -21,7 +25,7 @@ data "cloudflare_zone" "domain" {
 resource "cloudflare_record" "www" {
   zone_id = data.cloudflare_zone.domain.id
   name    = "www"
-  value   = var.s3_website_endpoint
+  value   = var.s3_subdomain_endpoint
   type    = "CNAME"
   ttl     = 1
   proxied = true
@@ -30,7 +34,7 @@ resource "cloudflare_record" "www" {
 resource "cloudflare_record" "root" {
   zone_id = data.cloudflare_zone.domain.id
   name    = "@"
-  value   = var.s3_website_endpoint
+  value   = var.s3_apex_endpoint
   type    = "CNAME"
   ttl     = 1
   proxied = true
