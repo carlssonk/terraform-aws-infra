@@ -8,7 +8,7 @@ locals {
 module "test_bucket" {
   workflow_step = var.workflow_step
   source        = "../../modules/s3"
-  bucket_name   = "carlssonk-test-bucket"
+  bucket_name   = "carlssonk-testasd-bucket"
 }
 
 // s3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
