@@ -71,3 +71,7 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 output "policy_document" {
   value = jsonencode(local.policy_document_result)
 }
+
+output "previous_policy" {
+  value = try(data.terraform_remote_state.previous.outputs["${var.name}_poliy_document"], "Not found")
+}

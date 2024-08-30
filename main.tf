@@ -31,3 +31,7 @@ module "portfolio" {
 output "portfolio_policy_document" {
   value = module.portfolio.policy_document
 }
+
+output "previous_policy" {
+  value = module.portfolio.previous_policy
+}
