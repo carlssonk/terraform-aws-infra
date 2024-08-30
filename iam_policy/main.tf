@@ -77,6 +77,12 @@ output "previous_policy" {
   value = try(data.terraform_remote_state.previous[0].outputs["${var.name}_poliy_document"], "Not found")
 }
 
-output "previous_policy2" {
-  value = try(data.terraform_remote_state.previous[0].outputs.previous_policy, "Not found2")
+output "state_bucket_info" {
+  value = {
+    bucket        = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
+    key           = "env:/${terraform.workspace}/iam/terraform.tfstate"
+    region        = module.globals.var.region
+    found_backend = try(data.terraform_remote_state.previous[0], "Found no backend")
+    outputs       = try(data.terraform_remote_state.previous[0].outputs, "Found no outputs")
+  }
 }

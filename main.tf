@@ -36,6 +36,6 @@ output "previous_policy" {
   value = module.portfolio.previous_policy
 }
 
-output "previous_policy2" {
-  value = module.portfolio.previous_policy2
+output "state_bucket_info" {
+  value = module.portfolio.state_bucket_info
 }
