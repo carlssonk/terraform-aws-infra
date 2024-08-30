@@ -62,11 +62,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Prepare Runs
-        run: |
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
-
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
           TF_VAR_workflow_step: iam
@@ -79,6 +74,8 @@ jobs:
             -backend-config="key=iam/terraform.tfstate"
           
           python create_globals.py '${{ toJson(env) }}' workflow_step=iam
+          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
+          chmod +x retry_command.sh
           
           if [ github.event_name == 'pull_request' ]; then
             terraform plan -lock=false
@@ -101,6 +98,8 @@ jobs:
             -backend-config="key=resources/terraform.tfstate"
           
           python create_globals.py '${{ toJson(env) }}' workflow_step=resources
+          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
+          chmod +x retry_command.sh
           
           if [ github.event_name == 'pull_request' ]; then
             terraform plan
