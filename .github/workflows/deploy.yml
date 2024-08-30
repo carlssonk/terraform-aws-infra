@@ -62,27 +62,51 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: ${{ (github.event_name == 'pull_request' && 'Plan') || 'Apply' }}
+      - name: Prepare Runs
         run: |
-          for step in iam resources; do
-            echo "RUNNING $step"
-            
-            terraform init -reconfigure \
-              -backend-config="encrypt=true" \
-              -backend-config="region=${{ env.TF_VAR_region }}" \
-              -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-              -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
-              -backend-config="key=${step}/terraform.tfstate"
-            
-            terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-            
-            python create_globals.py '${{ toJson(env) }}' workflow_step=$step
-            export TF_VAR_workflow_step=$step
-            
-            chmod +x retry_command.sh
+          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
+          chmod +x retry_command.sh
 
+      - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
+        env:
+          TF_VAR_workflow_step: iam
+        run: |          
+          terraform init \
+            -backend-config="encrypt=true" \
+            -backend-config="region=${{ env.TF_VAR_region }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="key=iam/terraform.tfstate"
+          
+          python create_globals.py '${{ toJson(env) }}' workflow_step=iam
+          
+          if [ github.event_name == 'pull_request' ]; then
+            terraform plan -lock=false
+          else
             if ! ./retry_command.sh "terraform apply -lock=false -auto-approve"; then
               echo "Terraform apply failed after all retry attempts"
               exit 1
             fi
-          done
+          fi
+
+      - name: ${{ (github.event_name == 'pull_request' && 'Plan Resources') || 'Apply Resources' }}
+        env:
+          TF_VAR_workflow_step: resources
+        run: |          
+          terraform init -reconfigure \
+            -backend-config="encrypt=true" \
+            -backend-config="region=${{ env.TF_VAR_region }}" \
+            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="key=resources/terraform.tfstate"
+          
+          python create_globals.py '${{ toJson(env) }}' workflow_step=resources
+          
+          if [ github.event_name == 'pull_request' ]; then
+            terraform plan
+          else
+            if ! ./retry_command.sh "terraform apply -auto-approve"; then
+              echo "Terraform apply failed after all retry attempts"
+              exit 1
+            fi
+          fi
