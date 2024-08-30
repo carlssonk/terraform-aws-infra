@@ -55,3 +55,7 @@ output "policy_document" {
 output "previous_policy" {
   value = module.iam_policy.previous_policy
 }
+
+output "previous_policy2" {
+  value = module.iam_policy.previous_policy2
+}

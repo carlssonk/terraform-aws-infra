@@ -15,6 +15,7 @@ module "globals" {
 }
 
 data "terraform_remote_state" "previous" {
+  count   = var.workflow_step == "iam" ? 1 : 0
   backend = "s3"
   config = {
     bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
@@ -24,7 +25,7 @@ data "terraform_remote_state" "previous" {
 }
 
 locals {
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous.outputs["${var.name}_poliy_document"]], [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous[0].outputs["${var.name}_poliy_document"]], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -73,5 +74,9 @@ output "policy_document" {
 }
 
 output "previous_policy" {
-  value = try(data.terraform_remote_state.previous.outputs["${var.name}_poliy_document"], "Not found")
+  value = try(data.terraform_remote_state.previous[0].outputs["${var.name}_poliy_document"], "Not found")
+}
+
+output "previous_policy2" {
+  value = try(data.terraform_remote_state.previous.outputs.previous_policy, "Not found2")
 }
