@@ -33,7 +33,7 @@ resource "aws_s3_bucket_website_configuration" "this" {
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
-  count  = var.bucket_access_and_policy == "public" ? 1 : 0
+  count  = var.bucket_access_and_policy == "public" || var.bucket_access_and_policy == "cloudflare" ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   block_public_acls       = false
@@ -67,12 +67,12 @@ locals {
       Resource  = "${aws_s3_bucket.this.arn}/*"
     },
     cloudflare = {
-      Effect    = "Deny"
+      Effect    = "Allow"
       Principal = "*"
       Action    = "s3:GetObject"
       Resource  = "${aws_s3_bucket.this.arn}/*"
       Condition = {
-        NotIpAddress = {
+        IpAddress = {
           "aws:SourceIp" = concat(
             split("\n", chomp(try(data.http.cloudflare_ips_v4[0].response_body, ""))),
             split("\n", chomp(try(data.http.cloudflare_ips_v6[0].response_body, "")))

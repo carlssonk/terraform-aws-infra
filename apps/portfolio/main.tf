@@ -11,7 +11,7 @@ module "test_bucket" {
   bucket_name   = "carlssonk-test-bucket"
 }
 
-// s3 + cloudflare website setup https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
+// s3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
 
 module "subdomain_bucket" {
   workflow_step = var.workflow_step
@@ -23,7 +23,6 @@ module "subdomain_bucket" {
   bucket_access_and_policy = "cloudflare"
 }
 
-// The apex bucket will be used to redirect to the main subdomain_bucket
 module "apex_bucket" {
   workflow_step = var.workflow_step
   source        = "../../modules/s3"
