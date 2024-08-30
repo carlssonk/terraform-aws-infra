@@ -43,7 +43,7 @@ module "iam_policy" {
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
   name             = "portfolio"
-  policy_documents = [module.subdomain_bucket.policy_document, module.apex_bucket.policy_document]
+  policy_documents = [module.subdomain_bucket.policy_document, module.apex_bucket.policy_document, module.test_bucket.policy_document]
 }
 
 output "policy_document" {
