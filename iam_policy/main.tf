@@ -25,7 +25,7 @@ data "terraform_remote_state" "previous" {
 }
 
 locals {
-  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous[0].outputs["${var.name}_poliy_document"]], [])
+  previous_policy_document = tobool(module.globals.var.cleanup_policies) ? [] : try([data.terraform_remote_state.previous[0].outputs["${var.name}_policy_document"]], [])
   policies                 = distinct(concat(local.previous_policy_document, var.policy_documents))
 
   // Below logic groups all resources together that have the same permissions
@@ -71,18 +71,4 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 
 output "policy_document" {
   value = jsonencode(local.policy_document_result)
-}
-
-output "previous_policy" {
-  value = try(data.terraform_remote_state.previous[0].outputs["${var.name}_poliy_document"], "Not found")
-}
-
-output "state_bucket_info" {
-  value = {
-    bucket        = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
-    key           = "env:/${terraform.workspace}/iam/terraform.tfstate"
-    region        = module.globals.var.region
-    found_backend = try(data.terraform_remote_state.previous[0], "Found no backend")
-    outputs       = try(data.terraform_remote_state.previous[0].outputs, "Found no outputs")
-  }
 }

@@ -8,7 +8,7 @@ locals {
 module "test_bucket" {
   workflow_step = var.workflow_step
   source        = "../../modules/s3"
-  bucket_name   = "carlssonk-testasd-bucket"
+  bucket_name   = "carlssonk-test-bucket"
 }
 
 // s3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
@@ -50,12 +50,4 @@ module "iam_policy" {
 
 output "policy_document" {
   value = module.iam_policy.policy_document
-}
-
-output "previous_policy" {
-  value = module.iam_policy.previous_policy
-}
-
-output "state_bucket_info" {
-  value = module.iam_policy.state_bucket_info
 }
