@@ -97,5 +97,5 @@ resource "aws_s3_bucket_policy" "this" {
 }
 
 output "website_endpoint" {
-  value = aws_s3_bucket_website_configuration.this.website_endpoint
+  value = try(aws_s3_bucket_website_configuration.this[0].website_endpoint, null)
 }
