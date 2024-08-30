@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_website_configuration" "this" {
-  count  = !var.website_config.is_website && var.website_config.redirect_to == null
+  count  = var.website_config.is_website || var.website_config.redirect_to != null ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   dynamic "index_document" {
