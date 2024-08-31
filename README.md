@@ -12,7 +12,8 @@
 ### Destroy infra for an environment
 1. Run Destroy Infrastructure workflow manually in Github Actions
 2. Done
-3. (Optional additional step) Go to AWS Console and delete the `s3` terraform state bucket (and the contents inside it) and the `dynamodb table`
+3. (Optional additional step 1) Delete the `s3` terraform state bucket (and the contents inside it) and the `dynamodb table`
+4. (Optional additional step 2) Delete the bootstrap IAM resources: `terraform-execution-role`, `terraform-base-policy` and `Identity Provider`
 
 ### Set up Cloudflare for static website hosting
 1. Create a Cloudflare account
