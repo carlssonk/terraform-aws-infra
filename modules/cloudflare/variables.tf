@@ -3,12 +3,10 @@ variable "root_domain" {
   type        = string
 }
 
-variable "s3_subdomain_endpoint" {
-  description = "The S3 bucket (www) website endpoint"
-  type        = string
-}
-
-variable "s3_apex_endpoint" {
-  description = "The S3 bucket (root) website endpoint"
-  type        = string
+variable "dns_records" {
+  description = "List of DNS records to create"
+  type = list(object({
+    name  = string
+    value = string
+  }))
 }
