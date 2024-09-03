@@ -27,7 +27,14 @@ module "portfolio" {
   source        = "./apps/portfolio"
   workflow_step = var.workflow_step
 }
-
 output "portfolio_policy_document" {
   value = module.portfolio.policy_document
+}
+
+module "blackjack" {
+  source        = "./apps/blackjack-game-multiplayer"
+  workflow_step = var.workflow_step
+}
+output "blackjack_policy_document" {
+  value = module.blackjack.policy_document
 }
