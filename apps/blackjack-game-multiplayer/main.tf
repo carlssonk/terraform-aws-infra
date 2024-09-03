@@ -2,7 +2,7 @@ variable "workflow_step" {}
 
 locals {
   root_domain = "carlssonk.com"
-  subdomain   = "portfolio"
+  subdomain   = "blackjack"
 }
 
 module "subdomain_bucket" {
