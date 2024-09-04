@@ -41,7 +41,7 @@ locals {
     for statement in local.merged_statements :
     "${lower(statement.Effect)}-${jsonencode(sort(
       [for action in(
-        can(tolist(statement.Action)) ? tolist(statement.Action) : [statement.Action]
+        can(tolist(statement.Action)) ? tolist(statement.Action) : [tostring(statement.Action)]
       ) : lower(action)]
     ))}" => statement...
   }
