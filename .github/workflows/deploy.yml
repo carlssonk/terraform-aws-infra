@@ -62,26 +62,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Debug AWS_ACCOUNT_ID
+     - name: Attempt to unmask AWS_ACCOUNT_ID
         run: |
-          echo "1. Direct echo:"
-          echo "$AWS_ACCOUNT_ID"
-          
-          echo "2. Using env context:"
-          echo "${{ env.AWS_ACCOUNT_ID }}"
-          
-          echo "3. All environment variables:"
-          env
-          
-          echo "4. Trying to write to JSON:"
-          echo "{\"AWS_ACCOUNT_ID\": \"$AWS_ACCOUNT_ID\"}" > debug.json
-          cat debug.json
-          
-          echo "5. Length of AWS_ACCOUNT_ID:"
-          echo "${#AWS_ACCOUNT_ID}"
-          
-          echo "6. First and last character of AWS_ACCOUNT_ID:"
-          echo "First: ${AWS_ACCOUNT_ID:0:1}, Last: ${AWS_ACCOUNT_ID: -1}"
+          echo "::stop-masking::$AWS_ACCOUNT_ID"
+          echo "After unmasking: $AWS_ACCOUNT_ID"
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
