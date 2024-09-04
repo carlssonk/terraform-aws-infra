@@ -1,13 +1,5 @@
-variable "task_name" {
-  description = "Name of ECS Task Definition"
-}
-
-module "globals" {
-  source = "../globals"
-}
-
-locals {
-  task_definition_arn_data = "${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/${var.task_name}"
+variable "task_definition_arn_query" {
+  description = "Data that makes up the query of resource ARN"
 }
 
 data "aws_iam_policy_document" "this" {
@@ -21,8 +13,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${local.task_definition_arn_data}",
-      "arn:aws:ecs:${local.task_definition_arn_data}:*"
+      "arn:aws:ecs:${var.task_definition_arn_query}",
+      "arn:aws:ecs:${var.task_definition_arn_query}:*"
     ]
     effect = "Allow"
   }
