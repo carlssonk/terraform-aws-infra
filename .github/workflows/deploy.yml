@@ -64,7 +64,7 @@ jobs:
 
       - name: Debug AWS_ACCOUNT_ID 1
         run: |
-          echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g'
+          echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g' | tr -d ' '
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
