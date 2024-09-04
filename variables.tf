@@ -8,11 +8,6 @@ variable "region" {
   type        = string
 }
 
-variable "aws_account_id" {
-  description = "AWS Account ID"
-  type        = string
-}
-
 variable "cloudflare_api_token" {
   description = "Cloudflare API token"
   type        = string

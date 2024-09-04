@@ -64,10 +64,9 @@ output "portfolio_policy_document" {
 #######################################################################
 
 module "blackjack" {
-  workflow_step  = var.workflow_step
-  aws_account_id = var.aws_account_id
-  source         = "./apps/blackjack-game-multiplayer"
-  cluster_id     = module.simple_ecs_cluster.cluster_id
+  workflow_step = var.workflow_step
+  source        = "./apps/blackjack-game-multiplayer"
+  cluster_id    = module.simple_ecs_cluster.cluster_id
   subnet_ids = flatten([
     module.simple_vpc.private_subnet_ids,
     module.simple_vpc.public_subnet_ids
