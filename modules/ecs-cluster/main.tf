@@ -17,5 +17,5 @@ output "policy_document" {
 }
 
 output "cluster_id" {
-  value = module.resources[0].cluster_id
+  value = try(module.resources[0].cluster_id, null)
 }

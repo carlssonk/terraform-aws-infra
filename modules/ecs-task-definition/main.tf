@@ -25,5 +25,5 @@ output "policy_document" {
 }
 
 output "task_definition_arn" {
-  value = module.resources[0].task_definition_arn
+  value = try(module.resources[0].task_definition_arn, null)
 }

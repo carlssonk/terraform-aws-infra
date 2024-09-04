@@ -15,13 +15,13 @@ output "policy_document" {
 }
 
 output "private_subnet_ids" {
-  value = module.resources[0].private_subnet_ids
+  value = try(module.resources[0].private_subnet_ids, null)
 }
 
 output "public_subnet_ids" {
-  value = module.resources[0].public_subnet_ids
+  value = try(module.resources[0].public_subnet_ids, null)
 }
 
 output "security_group_id" {
-  value = module.resources[0].security_group_id
+  value = try(module.resources[0].security_group_id, null)
 }
