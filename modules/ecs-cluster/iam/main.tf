@@ -2,6 +2,10 @@ variable "cluster_name" {
   description = "Name of ECS Cluster"
 }
 
+module "globals" {
+  source = "../../../globals"
+}
+
 data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
@@ -14,8 +18,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:::${var.cluster_name}",
-      "arn:aws:ecs:::${var.cluster_name}/*"
+      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.aws_account_id}:${var.cluster_name}",
+      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.aws_account_id}:${var.cluster_name}/*"
     ]
     effect = "Allow"
   }
