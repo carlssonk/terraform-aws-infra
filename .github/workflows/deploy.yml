@@ -64,7 +64,8 @@ jobs:
 
       - name: Unmask Insensitive Environment Variables 
         run: |
-          value=$(echo "${{ env.AWS_ACCOUNT_ID }}" | sed 's/./& /g')
+          echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g'
+          value=$(echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g')
           echo "aws_account_id=$value" >> $GITHUB_ENV
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
