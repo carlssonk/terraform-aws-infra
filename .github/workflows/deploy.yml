@@ -63,11 +63,8 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Debug AWS_ACCOUNT_ID 1
-        shell: bash
         run: |
-          echo "$SECRET" > key
-        env:
-          SECRET: ${{ vars.AWS_ACCOUNT_ID }}
+          echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g'
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
