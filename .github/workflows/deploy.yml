@@ -64,8 +64,9 @@ jobs:
 
      - name: Attempt to unmask AWS_ACCOUNT_ID
         run: |
-          echo "::stop-masking::$AWS_ACCOUNT_ID"
-          echo "After unmasking: $AWS_ACCOUNT_ID"
+          echo "AWS_ACCOUNT_ID before unmasking: ${{ env.AWS_ACCOUNT_ID }}"
+          echo "::stop-masking::${{ env.AWS_ACCOUNT_ID }}"
+          echo "AWS_ACCOUNT_ID after unmasking attempt: ${{ env.AWS_ACCOUNT_ID }}"
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
