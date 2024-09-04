@@ -62,6 +62,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      - name: Unmask Insensitive Environment Variables 
+        run: |
+          value=$(echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g')
+          echo "aws_account_id=$value" >> $GITHUB_ENV
+
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
           TF_VAR_workflow_step: iam
@@ -73,7 +78,7 @@ jobs:
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=iam/terraform.tfstate"
           
-          python create_globals.py '${{ toJson(env) }}' workflow_step=iam aws_account_id=$(echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g')
+          python create_globals.py '${{ toJson(env) }}' workflow_step=iam
           cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
@@ -98,7 +103,7 @@ jobs:
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=resources/terraform.tfstate"
           
-          python create_globals.py '${{ toJson(env) }}' workflow_step=resources aws_account_id=$(echo ${{ env.AWS_ACCOUNT_ID }} | sed 's/./& /g')
+          python create_globals.py '${{ toJson(env) }}' workflow_step=resources
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
           
