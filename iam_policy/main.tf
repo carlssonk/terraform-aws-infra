@@ -39,7 +39,11 @@ locals {
   // Groups all identical keys (effect + actions), statement... tells Terraform to create a list of values  when multiple items have the same key
   grouped_statements = {
     for statement in local.merged_statements :
-    "${lower(statement.Effect)}-${jsonencode(sort([for action in tolist(statement.Action) : lower(action)]))}" => statement...
+    "${lower(statement.Effect)}-${jsonencode(sort(
+      [for action in(
+        can(tolist(statement.Action)) ? tolist(statement.Action) : [statement.Action]
+      ) : lower(action)]
+    ))}" => statement...
   }
 
   // Loops over each group and collects all resources
