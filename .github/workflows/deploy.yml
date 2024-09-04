@@ -74,6 +74,7 @@ jobs:
             -backend-config="key=iam/terraform.tfstate"
           
           python create_globals.py '${{ toJson(env) }}' workflow_step=iam
+          cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
           
