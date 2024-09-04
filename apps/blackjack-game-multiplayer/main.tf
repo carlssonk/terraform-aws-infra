@@ -1,4 +1,5 @@
 variable "workflow_step" {}
+variable "aws_account_id" {}
 
 variable "subnet_ids" {}
 variable "cluster_id" {}
@@ -30,11 +31,12 @@ module "cloudflare" {
 }
 
 module "ecs_task_definition" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/ecs-task-definition"
-  task_name     = "task-${local.app_name}"
-  cpu           = 256
-  memory        = 512
+  workflow_step  = var.workflow_step
+  aws_account_id = var.aws_account_id
+  source         = "../../modules/ecs-task-definition"
+  task_name      = "task-${local.app_name}"
+  cpu            = 256
+  memory         = 512
   container_definitions = jsonencode([{
     name  = "node"
     image = "node:14-alpine"

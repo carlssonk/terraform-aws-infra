@@ -6,11 +6,6 @@ def remove_prefix(key):
         return key[7:]
     return key
 
-def clean_value(value):
-    if isinstance(value, str):
-        return value.replace(' ', '')
-    return value
-
 def merge_json_with_args(env_json, additional_args):
     env_dict = json.loads(env_json)
     
@@ -22,7 +17,7 @@ def merge_json_with_args(env_json, additional_args):
     cleaned_env_dict = {}
     for key, value in env_dict.items():
         cleaned_key = remove_prefix(key) # Remove 'TF_VAR_' prefix from existing keys in env_dict
-        cleaned_env_dict[cleaned_key] = clean_value(value)
+        cleaned_env_dict[cleaned_key] = value
     
     return cleaned_env_dict
 
