@@ -1,5 +1,9 @@
 variable "workflow_step" {}
 
+module "globals" {
+  source = "../globals"
+}
+
 locals {
   table_name_full = "${module.globals.var.organization}-${var.table_name}-${terraform.workspace}"
 }
