@@ -2,6 +2,10 @@ variable "task_definition_arn_query" {
   description = "Data that makes up the query of resource ARN"
 }
 
+variable "execution_role_arn" {
+  description = "ARN of da execution role"
+}
+
 data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
@@ -15,6 +19,18 @@ data "aws_iam_policy_document" "this" {
     resources = [
       "arn:aws:ecs:${var.task_definition_arn_query}",
       "arn:aws:ecs:${var.task_definition_arn_query}:*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = concat(
+      [
+        "iam:PassRole"
+      ]
+    )
+    resources = [
+      var.execution_role_arn
     ]
     effect = "Allow"
   }

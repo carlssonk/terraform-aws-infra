@@ -8,6 +8,7 @@ module "generate_policy_document" {
   count                     = var.workflow_step == "iam" ? 1 : 0
   source                    = "./iam"
   task_definition_arn_query = "${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/${var.task_name}"
+  execution_role_arn        = "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
 }
 
 module "resources" {
