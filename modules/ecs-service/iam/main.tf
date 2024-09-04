@@ -6,8 +6,8 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "ecs:CreateCluster",
-        "ecs:DeleteCluster",
+        "ecs:CreateService",
+        "ecs:DeleteService",
         "ecs:Get*",
         "ecs:List*",
         "ecs:Describe*"
