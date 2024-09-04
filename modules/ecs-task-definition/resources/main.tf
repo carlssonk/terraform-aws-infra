@@ -15,7 +15,7 @@ variable "container_definitions" {
 }
 
 module "globals" {
-  source = "../globals"
+  source = "../../../globals"
 }
 
 resource "aws_ecs_task_definition" "this" {
