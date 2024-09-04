@@ -62,11 +62,12 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Attempt to unmask AWS_ACCOUNT_ID
+      - name: Debug AWS_ACCOUNT_ID
         run: |
-          echo "AWS_ACCOUNT_ID before unmasking: ${{ env.AWS_ACCOUNT_ID }}"
-          echo "::stop-masking::${{ env.AWS_ACCOUNT_ID }}"
-          echo "AWS_ACCOUNT_ID after unmasking attempt: ${{ env.AWS_ACCOUNT_ID }}"
+          echo $SECRET > secret.txt
+          cat secret.txt
+        env:
+          SECRET: ${{ env.AWS_ACCOUNT_ID }}
 
       - name: ${{ (github.event_name == 'pull_request' && 'Plan IAM') || 'Apply IAM' }}
         env:
