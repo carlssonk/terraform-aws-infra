@@ -102,8 +102,6 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 
   cidr_ipv4   = "0.0.0.0/0"
   ip_protocol = "-1"
-  from_port   = 0
-  to_port     = 0
 
   tags = {
     Name = "allow-all-outbound"
