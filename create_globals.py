@@ -4,8 +4,6 @@ import sys
 def remove_prefix(key):
     if key.startswith('TF_VAR_'):
         return key[7:]
-    if key.startswith('AWS_'):
-        return key[4:]
     return key
 
 def merge_json_with_args(env_json, additional_args):
@@ -18,7 +16,7 @@ def merge_json_with_args(env_json, additional_args):
     
     cleaned_env_dict = {}
     for key, value in env_dict.items():
-        cleaned_key = remove_prefix(key) # Remove 'TF_VAR_' and 'AWS_' prefix from existing keys in env_dict
+        cleaned_key = remove_prefix(key) # Remove 'TF_VAR_' prefix from existing keys in env_dict
         cleaned_env_dict[cleaned_key] = value
     
     return cleaned_env_dict
