@@ -62,10 +62,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Debug AWS_ACCOUNT_ID
+      - name: Debug AWS_ACCOUNT_ID 1
+        shell: bash
         run: |
-          echo $SECRET | base64 > secret_encoded.txt
-          cat secret_encoded.txt
+          echo "$SECRET" > key
         env:
           SECRET: ${{ vars.AWS_ACCOUNT_ID }}
 
