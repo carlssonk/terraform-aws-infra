@@ -6,8 +6,10 @@ data "aws_iam_policy_document" "this" {
       [
         "elasticloadbalancing:CreateLoadBalancer",
         "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:*TargetGroup",
         "elasticloadbalancing:Describe*",
         "elasticloadbalancing:Modify*",
+        "iam:CreateServiceLinkedRole"
       ],
     )
     resources = ["*"]

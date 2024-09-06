@@ -12,6 +12,7 @@ data "aws_iam_policy_document" "this" {
       [
         "ecs:CreateService",
         "ecs:DeleteService",
+        "ecs:UpdateService",
         "ecs:Get*",
         "ecs:List*",
         "ecs:Describe*"
