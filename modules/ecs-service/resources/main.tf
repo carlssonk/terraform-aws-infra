@@ -31,3 +31,17 @@ resource "aws_ecs_service" "main" {
     security_groups  = [var.security_group_id]
   }
 }
+
+// Create one ECR repo per service
+resource "aws_ecr_repository" "app_repo" {
+  name                 = var.service_name
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+}
