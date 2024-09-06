@@ -6,6 +6,10 @@ data "aws_iam_policy_document" "this" {
       [
         "elasticloadbalancing:CreateLoadBalancer",
         "elasticloadbalancing:DeleteLoadBalancer",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "elasticloadbalancing:RegisterTargets",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:DeregisterTargets",
         "elasticloadbalancing:*Listener",
         "elasticloadbalancing:*TargetGroup",
         "elasticloadbalancing:Describe*",
