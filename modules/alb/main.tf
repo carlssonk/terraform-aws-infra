@@ -17,9 +17,9 @@ output "policy_document" {
 }
 
 output "alb_dns_name" {
-  value = try(module.generate_policy_document[0].alb_dns_name, null)
+  value = try(module.resources[0].alb_dns_name, null)
 }
 
 output "target_group_arn" {
-  value = try(module.generate_policy_document[0].target_group_arn, null)
+  value = try(module.resources[0].target_group_arn, null)
 }
