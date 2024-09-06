@@ -44,8 +44,8 @@ module "cloudflare" {
   source        = "../../modules/cloudflare"
   root_domain   = local.root_domain
   dns_records = [{
-    name    = local.app_name,
-    content = var.alb_dns_name
+    name  = local.app_name,
+    value = var.alb_dns_name
   }]
 }
 
