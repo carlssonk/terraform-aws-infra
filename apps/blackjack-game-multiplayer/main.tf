@@ -7,8 +7,9 @@ variable "alb_dns_name" {}
 variable "alb_target_group_arn" {}
 
 locals {
-  app_name    = "blackjack" // also subdomain
-  root_domain = "carlssonk.com"
+  app_name       = "blackjack" // also subdomain
+  root_domain    = "carlssonk.com"
+  container_port = 8080
 }
 
 module "ecs_task_definition" {
@@ -21,8 +22,8 @@ module "ecs_task_definition" {
     name  = local.app_name
     image = "node:14-alpine"
     portMappings = [{
-      containerPort = 8080
-      hostPort      = 8080
+      containerPort = local.container_port
+      hostPort      = local.container_port
     }]
   }])
 }
@@ -37,6 +38,7 @@ module "ecs_service" {
   security_group_id    = var.security_group_id
   alb_target_group_arn = var.alb_target_group_arn
   container_name       = local.app_name
+  container_port       = local.container_port
 }
 
 # module "cloudflare" {

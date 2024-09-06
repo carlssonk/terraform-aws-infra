@@ -16,6 +16,7 @@ module "resources" {
   security_group_id    = var.security_group_id
   alb_target_group_arn = var.alb_target_group_arn
   container_name       = var.container_name
+  container_port       = var.container_port
 }
 
 output "policy_document" {

@@ -32,3 +32,8 @@ variable "container_name" {
   description = "Docker container name"
   type        = string
 }
+
+variable "container_port" {
+  description = "Docker container port"
+  type        = number
+}

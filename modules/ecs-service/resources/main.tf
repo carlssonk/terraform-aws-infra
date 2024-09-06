@@ -26,6 +26,10 @@ variable "container_name" {
   description = "Docker container name"
 }
 
+variable "container_port" {
+  description = "Docker container port"
+}
+
 resource "aws_ecs_service" "main" {
   name            = var.service_name
   cluster         = var.cluster_id
@@ -41,8 +45,8 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = var.alb_target_group_arn
-    container_name   = "your-container-name"
-    container_port   = 80
+    container_name   = var.container_name
+    container_port   = var.container_port
   }
 }
 
