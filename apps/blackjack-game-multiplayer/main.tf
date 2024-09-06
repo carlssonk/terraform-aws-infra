@@ -41,15 +41,15 @@ module "ecs_service" {
   container_port       = local.container_port
 }
 
-# module "cloudflare" {
-#   workflow_step = var.workflow_step
-#   source        = "../../modules/cloudflare"
-#   root_domain   = local.root_domain
-#   dns_records = [{
-#     name  = local.app_name,
-#     value = var.alb_dns_name
-#   }]
-# }
+module "cloudflare" {
+  workflow_step = var.workflow_step
+  source        = "../../modules/cloudflare"
+  root_domain   = local.root_domain
+  dns_records = [{
+    name  = local.app_name,
+    value = var.alb_dns_name
+  }]
+}
 
 module "iam_policy" {
   workflow_step = var.workflow_step
