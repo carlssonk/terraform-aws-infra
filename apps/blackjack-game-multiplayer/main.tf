@@ -50,10 +50,13 @@ module "cloudflare" {
 }
 
 module "iam_policy" {
-  workflow_step    = var.workflow_step
-  source           = "../../iam_policy"
-  name             = local.app_name
-  policy_documents = [module.subdomain_bucket.policy_document, module.ecs_task_definition.policy_document, module.ecs_service.policy_document]
+  workflow_step = var.workflow_step
+  source        = "../../iam_policy"
+  name          = local.app_name
+  policy_documents = [
+    module.ecs_task_definition.policy_document,
+    module.ecs_service.policy_document
+  ]
 }
 
 output "policy_document" {
