@@ -25,3 +25,7 @@ output "public_subnet_ids" {
 output "security_group_id" {
   value = try(module.resources[0].security_group_id, null)
 }
+
+output "vpc_id" {
+  value = try(module.resources[0].vpc_id, null)
+}

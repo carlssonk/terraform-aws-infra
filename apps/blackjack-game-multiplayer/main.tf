@@ -3,30 +3,12 @@ variable "workflow_step" {}
 variable "subnet_ids" {}
 variable "cluster_id" {}
 variable "security_group_id" {}
+variable "alb_dns_name" {}
+variable "alb_target_group_arn" {}
 
 locals {
   app_name    = "blackjack" // also subdomain
   root_domain = "carlssonk.com"
-}
-
-module "subdomain_bucket" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/s3"
-  bucket_name   = "${local.app_name}.${local.root_domain}"
-  website_config = {
-    is_website = true
-  }
-  bucket_access_and_policy = "cloudflare"
-}
-
-module "cloudflare" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/cloudflare"
-  root_domain   = local.root_domain
-  dns_records = [{
-    name  = local.app_name,
-    value = module.subdomain_bucket.website_endpoint
-  }]
 }
 
 module "ecs_task_definition" {
@@ -36,7 +18,7 @@ module "ecs_task_definition" {
   cpu           = 256
   memory        = 512
   container_definitions = jsonencode([{
-    name  = "node"
+    name  = local.app_name
     image = "node:14-alpine"
     portMappings = [{
       containerPort = 8080
@@ -46,13 +28,25 @@ module "ecs_task_definition" {
 }
 
 module "ecs_service" {
-  workflow_step       = var.workflow_step
-  source              = "../../modules/ecs-service"
-  service_name        = "service-${local.app_name}"
-  subnet_ids          = var.subnet_ids
-  cluster_id          = var.cluster_id
-  task_definition_arn = module.ecs_task_definition.task_definition_arn
-  security_group_id   = var.security_group_id
+  workflow_step        = var.workflow_step
+  source               = "../../modules/ecs-service"
+  service_name         = "service-${local.app_name}"
+  subnet_ids           = var.subnet_ids
+  cluster_id           = var.cluster_id
+  task_definition_arn  = module.ecs_task_definition.task_definition_arn
+  security_group_id    = var.security_group_id
+  alb_target_group_arn = var.alb_target_group_arn
+  container_name       = local.app_name
+}
+
+module "cloudflare" {
+  workflow_step = var.workflow_step
+  source        = "../../modules/cloudflare"
+  root_domain   = local.root_domain
+  dns_records = [{
+    name  = local.app_name,
+    value = var.alb_dns_name
+  }]
 }
 
 module "iam_policy" {

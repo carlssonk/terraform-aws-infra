@@ -32,6 +32,13 @@ module "simple_vpc" {
   source        = "./modules/vpc"
 }
 
+module "simple_alb" {
+  workflow_step     = var.workflow_step
+  source            = "./modules/alb"
+  vpc_id            = module.simple_vpc.vpc_id
+  public_subnet_ids = module.simple_vpc.public_subnet_ids
+}
+
 module "simple_ecs_cluster" {
   workflow_step = var.workflow_step
   source        = "./modules/ecs-cluster"
@@ -39,10 +46,14 @@ module "simple_ecs_cluster" {
 }
 
 module "common_infrastructure_policy" {
-  workflow_step    = var.workflow_step
-  source           = "./iam_policy"
-  name             = "common"
-  policy_documents = [module.simple_vpc.policy_document, module.simple_ecs_cluster.policy_document]
+  workflow_step = var.workflow_step
+  source        = "./iam_policy"
+  name          = "common"
+  policy_documents = [
+    module.simple_vpc.policy_document,
+    module.simple_alb.policy_document,
+    module.simple_ecs_cluster.policy_document
+  ]
 }
 
 output "common_policy_document" {
@@ -71,7 +82,9 @@ module "blackjack" {
     module.simple_vpc.private_subnet_ids,
     module.simple_vpc.public_subnet_ids
   ])
-  security_group_id = module.simple_vpc.security_group_id
+  security_group_id    = module.simple_vpc.security_group_id
+  alb_dns_name         = module.simple_alb.alb_dns_name
+  alb_target_group_arn = module.simple_alb.target_group_arn
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document
