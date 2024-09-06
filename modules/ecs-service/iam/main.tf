@@ -23,6 +23,23 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
+
+  statement {
+    actions = concat(
+      [
+        "ecr:CreateRepository",
+        "ecr:DeleteRepository",
+        "ecr:Get*",
+        "ecr:List*",
+        "ecr:Describe*"
+      ]
+    )
+    resources = [
+      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.service_name}",
+      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.service_name}/*"
+    ]
+    effect = "Allow"
+  }
 }
 
 output "policy_document" {
