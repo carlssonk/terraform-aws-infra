@@ -7,9 +7,10 @@ variable "alb_dns_name" {}
 variable "alb_target_group_arn" {}
 
 locals {
+  repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
   app_name       = "blackjack" // also subdomain
   root_domain    = "carlssonk.com"
-  container_port = 8080
+  container_port = 3000
   container_name = "container-${local.app_name}"
 }
 
@@ -21,7 +22,7 @@ module "ecs_task_definition" {
   memory        = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "node:14-alpine"
+    image = "node:22-alpine"
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port

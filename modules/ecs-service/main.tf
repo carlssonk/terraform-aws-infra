@@ -29,3 +29,11 @@ module "resources" {
 output "policy_document" {
   value = try(module.generate_policy_document[0].policy_document, null)
 }
+
+output "service_name" {
+  value = local.service_name
+}
+
+output "repo_name" {
+  value = local.repo_name
+}
