@@ -98,7 +98,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource : "arn:aws:iam::*:policy/${local.terraform_base_policy}"
       },
       {
-        // Enables policy to create and manage terraform-*-policy
+        // Enables policy to create and manage terraform-*-policy + *-deploy-policy
         Effect : "Allow",
         Action : [
           "iam:CreatePolicy",
@@ -109,7 +109,10 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:CreatePolicyVersion",
           "iam:DeletePolicyVersion"
         ],
-        Resource : "arn:aws:iam::*:policy/terraform-*-policy"
+        Resources : [
+          "arn:aws:iam::*:policy/terraform-*-policy",
+          "arn:aws:iam::*:role/*-deploy-policy"
+        ]
       },
       {
         // Enables role to add policies to itself
@@ -124,6 +127,21 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListAttachedRolePolicies"
         ]
         Resource = aws_iam_role.terraform_execution_role.arn
+      },
+      {
+        // Used for creating iam_deploy roles
+        Effect : "Allow",
+        Action : [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:UpdateRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListRolePolicies"
+        ],
+        Resource : "arn:aws:iam::*:role/*-deploy-role"
       },
       {
         // Used when fetching a policy
