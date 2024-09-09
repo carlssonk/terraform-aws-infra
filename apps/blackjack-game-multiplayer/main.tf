@@ -19,7 +19,7 @@ module "ecs_task_definition" {
   cpu           = 256
   memory        = 512
   container_definitions = jsonencode([{
-    name  = local.app_name
+    name  = "container-${local.app_name}"
     image = "node:14-alpine"
     portMappings = [{
       containerPort = local.container_port
