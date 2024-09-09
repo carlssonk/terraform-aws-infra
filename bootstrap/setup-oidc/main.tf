@@ -109,7 +109,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:CreatePolicyVersion",
           "iam:DeletePolicyVersion"
         ],
-        Resources : [
+        Resource : [
           "arn:aws:iam::*:policy/terraform-*-policy",
           "arn:aws:iam::*:role/*-deploy-policy"
         ]
