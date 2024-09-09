@@ -1,5 +1,9 @@
 variable "service_name" {
-  description = "Name of the service"
+  description = "Name of ECS service"
+}
+
+variable "repo_name" {
+  description = "Name of ECR repository"
 }
 
 module "globals" {
@@ -36,8 +40,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.service_name}",
-      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.service_name}/*"
+      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.repo_name}",
+      "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${var.repo_name}/*"
     ]
     effect = "Allow"
   }

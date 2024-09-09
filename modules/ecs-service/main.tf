@@ -9,6 +9,7 @@ module "generate_policy_document" {
   count        = var.workflow_step == "iam" ? 1 : 0
   source       = "./iam"
   service_name = local.service_name
+  repo_name    = local.repo_name
 }
 
 module "resources" {

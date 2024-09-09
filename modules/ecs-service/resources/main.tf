@@ -1,5 +1,5 @@
 variable "service_name" {
-  description = "Name of service"
+  description = "Name of ECS service"
 }
 
 variable "repo_name" {
