@@ -47,7 +47,7 @@ resource "aws_iam_policy" "this" {
           "ecr:CompleteLayerUpload",
           "ecr:PutImage"
         ]
-        Resources = [
+        Resource = [
           "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}",
           "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}/*"
         ]
@@ -63,7 +63,7 @@ resource "aws_iam_policy" "this" {
           "ecs:RegisterTaskDefinition",
           "ecs:UpdateService"
         ]
-        Resources = [
+        Resource = [
           "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/SimpleCluster/${module.ecs_service.service_name}",
           "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/SimpleCluster/${module.ecs_service.service_name}/*"
         ]
