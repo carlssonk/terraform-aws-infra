@@ -32,7 +32,7 @@ module "ecs_task_definition" {
 module "ecs_service" {
   workflow_step        = var.workflow_step
   source               = "../../modules/ecs-service"
-  service_name         = "service-${local.app_name}"
+  app_name             = local.app_name
   subnet_ids           = var.subnet_ids
   cluster_id           = var.cluster_id
   task_definition_arn  = module.ecs_task_definition.task_definition_arn

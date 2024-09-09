@@ -1,5 +1,5 @@
-variable "service_name" {
-  description = "Name of service"
+variable "app_name" {
+  description = "Name of application"
   type        = string
 }
 

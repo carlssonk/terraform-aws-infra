@@ -1,15 +1,21 @@
 variable "workflow_step" {}
 
+locals {
+  service_name = "service-${var.app_name}"
+  repo_name    = "repo-${var.app_name}"
+}
+
 module "generate_policy_document" {
   count        = var.workflow_step == "iam" ? 1 : 0
   source       = "./iam"
-  service_name = var.service_name
+  service_name = local.service_name
 }
 
 module "resources" {
   count                = var.workflow_step == "resources" ? 1 : 0
   source               = "./resources"
-  service_name         = var.service_name
+  service_name         = local.service_name
+  repo_name            = local.repo_name
   subnet_ids           = var.subnet_ids
   cluster_id           = var.cluster_id
   task_definition_arn  = var.task_definition_arn

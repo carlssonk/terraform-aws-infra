@@ -2,6 +2,10 @@ variable "service_name" {
   description = "Name of service"
 }
 
+variable "repo_name" {
+  description = "Name of ECR repository"
+}
+
 variable "subnet_ids" {
   description = "List of subnet ID's to use"
 }
@@ -52,7 +56,7 @@ resource "aws_ecs_service" "main" {
 
 // Create one ECR repo per service
 resource "aws_ecr_repository" "app_repo" {
-  name                 = var.service_name
+  name                 = var.repo_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
