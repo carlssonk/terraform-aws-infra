@@ -10,6 +10,7 @@ locals {
   app_name       = "blackjack" // also subdomain
   root_domain    = "carlssonk.com"
   container_port = 8080
+  container_name = "container-${local.app_name}"
 }
 
 module "ecs_task_definition" {
@@ -19,7 +20,7 @@ module "ecs_task_definition" {
   cpu           = 256
   memory        = 512
   container_definitions = jsonencode([{
-    name  = "container-${local.app_name}"
+    name  = local.container_name
     image = "node:14-alpine"
     portMappings = [{
       containerPort = local.container_port
@@ -37,7 +38,7 @@ module "ecs_service" {
   task_definition_arn  = module.ecs_task_definition.task_definition_arn
   security_group_id    = var.security_group_id
   alb_target_group_arn = var.alb_target_group_arn
-  container_name       = local.app_name
+  container_name       = local.container_name
   container_port       = local.container_port
 }
 
