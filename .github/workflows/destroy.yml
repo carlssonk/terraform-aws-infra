@@ -92,7 +92,7 @@ jobs:
 
       - name: ${{ format('{0} - Terraform Destroy', matrix.step) }}
         run: |
-          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
+          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
