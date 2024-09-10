@@ -90,7 +90,7 @@ jobs:
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
 
-      - name: ${{ format('{0} - Terraform Destroy', matrix.step) }}
+      - name: Terraform Destroy
         run: |
           if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
             echo "Terraform failed after all retry attempts"
