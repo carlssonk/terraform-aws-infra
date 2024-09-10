@@ -3,6 +3,8 @@ variable "workflow_step" {}
 variable "subnet_ids" {}
 variable "cluster_id" {}
 variable "security_group_id" {}
+variable "alb_dns_name" {}
+variable "alb_target_group_arn" {}
 
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
@@ -29,15 +31,16 @@ module "ecs_task_definition" {
 }
 
 module "ecs_service" {
-  workflow_step       = var.workflow_step
-  source              = "../../modules/ecs-service"
-  app_name            = local.app_name
-  subnet_ids          = var.subnet_ids
-  cluster_id          = var.cluster_id
-  task_definition_arn = module.ecs_task_definition.task_definition_arn
-  security_group_id   = var.security_group_id
-  container_name      = local.container_name
-  container_port      = local.container_port
+  workflow_step        = var.workflow_step
+  source               = "../../modules/ecs-service"
+  app_name             = local.app_name
+  subnet_ids           = var.subnet_ids
+  cluster_id           = var.cluster_id
+  task_definition_arn  = module.ecs_task_definition.task_definition_arn
+  security_group_id    = var.security_group_id
+  alb_target_group_arn = var.alb_target_group_arn
+  container_name       = local.container_name
+  container_port       = local.container_port
 }
 
 data "aws_network_interface" "ecs_eni" {
@@ -58,8 +61,7 @@ module "cloudflare" {
   root_domain   = local.root_domain
   dns_records = [{
     name  = local.app_name,
-    value = data.aws_network_interface.ecs_eni.association[0].public_ip
-    type  = "A"
+    value = var.alb_dns_name
   }]
 }
 
