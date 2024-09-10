@@ -63,7 +63,8 @@ resource "aws_iam_policy" "this" {
       {
         Effect = "Allow"
         Action = [
-          "ecs:RegisterTaskDefinition"
+          "ecs:RegisterTaskDefinition",
+          "ecs:DescribeTaskDefinition"
         ]
         Resource = "*"
       },
@@ -72,7 +73,6 @@ resource "aws_iam_policy" "this" {
         Action = [
           "ecs:DescribeCluster",
           "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition",
           "ecs:DescribeTasks",
           "ecs:ListTasks",
           "ecs:UpdateService"
