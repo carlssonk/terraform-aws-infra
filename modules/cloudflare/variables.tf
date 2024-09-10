@@ -6,8 +6,10 @@ variable "root_domain" {
 variable "dns_records" {
   description = "List of DNS records to create"
   type = list(object({
-    name  = string
-    value = string
+    name                 = string
+    value                = string
+    type                 = optional(string, "CNAME")
+    ignore_value_changes = optional(bool, false)
   }))
 }
 

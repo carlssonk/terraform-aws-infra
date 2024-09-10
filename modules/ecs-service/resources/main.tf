@@ -22,10 +22,6 @@ variable "security_group_id" {
   description = "ID of a security group"
 }
 
-variable "alb_target_group_arn" {
-  description = "ARN for ALB Target Group"
-}
-
 variable "container_name" {
   description = "Docker container name"
 }
@@ -44,14 +40,8 @@ resource "aws_ecs_service" "main" {
 
   network_configuration {
     subnets          = var.subnet_ids
-    assign_public_ip = true
     security_groups  = [var.security_group_id]
-  }
-
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = var.container_name
-    container_port   = var.container_port
+    assign_public_ip = true
   }
 
   force_delete = true

@@ -75,13 +75,11 @@ output "portfolio_policy_document" {
 #######################################################################
 
 module "blackjack" {
-  workflow_step        = var.workflow_step
-  source               = "./apps/blackjack-game-multiplayer"
-  cluster_id           = module.simple_ecs_cluster.cluster_id
-  subnet_ids           = module.simple_vpc.public_subnet_ids
-  security_group_id    = module.simple_vpc.security_group_id
-  alb_dns_name         = module.simple_alb.alb_dns_name
-  alb_target_group_arn = module.simple_alb.target_group_arn
+  workflow_step     = var.workflow_step
+  source            = "./apps/blackjack-game-multiplayer"
+  cluster_id        = module.simple_ecs_cluster.cluster_id
+  subnet_ids        = module.simple_vpc.public_subnet_ids
+  security_group_id = module.simple_vpc.security_group_id
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document
