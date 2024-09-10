@@ -58,49 +58,49 @@ resource "aws_iam_policy" "terraform_base_policy" {
     Statement = [
       {
         // Required for backend management
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "s3:GetObject",
           "s3:PutObject",
           "s3:ListBucket"
         ],
-        Resource : [
+        Resource = [
           "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}",
           "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}/*"
         ]
       },
       {
         // Required for backend management
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem"
         ],
-        Resource : "arn:aws:dynamodb:*:*:table/${var.organization}-terraform-lock-table-${terraform.workspace}"
+        Resource = "arn:aws:dynamodb:*:*:table/${var.organization}-terraform-lock-table-${terraform.workspace}"
       },
       {
         // Required for communicating with OpenID Connect Provider
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "iam:GetOpenIDConnectProvider",
         ],
-        Resource : "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
+        Resource = "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
       },
       {
         // Enables policy to read itself
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
           "iam:ListPolicyVersions"
         ],
-        Resource : "arn:aws:iam::*:policy/${local.terraform_base_policy}"
+        Resource = "arn:aws:iam::*:policy/${local.terraform_base_policy}"
       },
       {
         // Enables policy to create and manage terraform-*-policy + *-deploy-policy
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "iam:CreatePolicy",
           "iam:DeletePolicy",
           "iam:GetPolicy",
@@ -109,7 +109,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:CreatePolicyVersion",
           "iam:DeletePolicyVersion"
         ],
-        Resource : [
+        Resource = [
           "arn:aws:iam::*:policy/terraform-*-policy",
           "arn:aws:iam::*:policy/*-deploy-policy"
         ]
@@ -126,25 +126,24 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies"
         ]
-        Resource = [
-          aws_iam_role.terraform_execution_role.arn,
-          "arn:aws:iam::*:role/*-deploy-role"
-        ]
+        Resource = aws_iam_role.terraform_execution_role.arn
       },
       {
         // Used for creating iam_deploy roles
-        Effect : "Allow",
-        Action : [
+        Effect = "Allow",
+        Action = [
           "iam:CreateRole",
           "iam:DeleteRole",
           "iam:GetRole",
           "iam:UpdateRole",
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:ListInstanceProfilesForRole",
           "iam:ListAttachedRolePolicies",
           "iam:ListRolePolicies"
         ],
-        Resource : "arn:aws:iam::*:role/*-deploy-role"
+        Resource = "arn:aws:iam::*:role/*-deploy-role"
       },
       {
         // Used when fetching a policy
