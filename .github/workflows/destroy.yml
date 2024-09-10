@@ -42,8 +42,8 @@ jobs:
 
   terraform_operation:
     name: Terraform Operation
-    needs: check_run
-    if: needs.check_run.outputs.should_run == 'true'
+    needs: check_destroy_condition
+    if: needs.check_destroy_condition.outputs.should_destroy == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
