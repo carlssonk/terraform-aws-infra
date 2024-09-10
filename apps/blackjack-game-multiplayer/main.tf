@@ -6,7 +6,7 @@ variable "security_group_id" {}
 
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
-  app_name       = "blackjack" // also subdomain
+  app_name       = "blackjack"
   root_domain    = "carlssonk.com"
   container_port = 3000
   container_name = "container-${local.app_name}"
@@ -25,13 +25,6 @@ module "ecs_task_definition" {
       containerPort = local.container_port
       hostPort      = local.container_port
     }]
-    healthCheck = {
-      command     = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
-      interval    = 30
-      timeout     = 5
-      retries     = 3
-      startPeriod = 60
-    }
   }])
 }
 
