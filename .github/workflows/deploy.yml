@@ -78,7 +78,6 @@ jobs:
       - name: Prepare Environment
         run: |
           python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
-          cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
 
@@ -105,15 +104,7 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
           else
-            if [ "${{ matrix.step }}" == "iam" ]; then
-              if ! ./retry_command.sh "terraform apply -lock=false -auto-approve"; then
-                echo "Terraform failed after all retry attempts"
-                exit 1
-              fi
-            else
-              if ! ./retry_command.sh "terraform apply -auto-approve"; then
-                echo "Terraform failed after all retry attempts"
-                exit 1
-              fi
-            fi
+            if ! ./retry_command.sh "TF_LOG=DEBUG terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
+              echo "Terraform failed after all retry attempts"
+            exit 1
           fi
