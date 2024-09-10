@@ -106,5 +106,6 @@ jobs:
           else
             if ! ./retry_command.sh "TF_LOG=DEBUG terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
               echo "Terraform failed after all retry attempts"
-            exit 1
+              exit 1
+            fi
           fi
