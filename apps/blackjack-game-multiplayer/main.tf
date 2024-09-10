@@ -58,10 +58,6 @@ module "cloudflare" {
     name  = local.app_name,
     value = var.alb_dns_name
   }]
-  zone_settings = {
-    websockets = "on"
-    ssl        = "full"
-  }
 }
 
 module "iam_policy" {

@@ -10,15 +10,3 @@ variable "dns_records" {
     value = string
   }))
 }
-
-variable "zone_settings" {
-  description = "Settings for the Cloudflare zone"
-  type = object({
-    websockets = string
-    ssl        = string
-  })
-  default = {
-    websockets = "on"
-    ssl        = "flexible"
-  }
-}

@@ -9,9 +9,8 @@ terraform {
 variable "workflow_step" {}
 
 module "resources" {
-  count         = var.workflow_step == "resources" ? 1 : 0
-  source        = "./resources"
-  root_domain   = var.root_domain
-  dns_records   = var.dns_records
-  zone_settings = var.zone_settings
+  count       = var.workflow_step == "resources" ? 1 : 0
+  source      = "./resources"
+  root_domain = var.root_domain
+  dns_records = var.dns_records
 }
