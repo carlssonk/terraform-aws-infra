@@ -50,7 +50,7 @@ jobs:
       pull-requests: write
     strategy:
       matrix:
-        step: [iam, resources]
+        step: [iam]
       fail-fast: true
       max-parallel: 1
     steps:
@@ -68,7 +68,7 @@ jobs:
 
       - name: Terraform Init
         run: |
-          terraform init -reconfigure \
+          terraform init \
             -backend-config="encrypt=true" \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
