@@ -84,16 +84,16 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_app_port" {
+resource "aws_vpc_security_group_ingress_rule" "allow_http" {
   security_group_id = aws_security_group.ecs_tasks.id
 
   cidr_ipv4   = "0.0.0.0/0"
-  from_port   = 3000
+  from_port   = 80
   ip_protocol = "tcp"
-  to_port     = 3000
+  to_port     = 80
 
   tags = {
-    Name = "allow-app-port-ingress"
+    Name = "allow-http-ingress"
   }
 }
 

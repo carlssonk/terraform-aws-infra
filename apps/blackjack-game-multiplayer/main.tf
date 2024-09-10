@@ -27,6 +27,13 @@ module "ecs_task_definition" {
       containerPort = local.container_port
       hostPort      = local.container_port
     }]
+    healthCheck = {
+      command     = ["CMD-SHELL", "curl -f http://localhost:${local.container_port}/health || exit 1"]
+      interval    = 30
+      timeout     = 5
+      retries     = 3
+      startPeriod = 60
+    }
   }])
 }
 
@@ -51,6 +58,10 @@ module "cloudflare" {
     name  = local.app_name,
     value = var.alb_dns_name
   }]
+  zone_settings = {
+    websockets = "on"
+    ssl        = "full"
+  }
 }
 
 module "iam_policy" {

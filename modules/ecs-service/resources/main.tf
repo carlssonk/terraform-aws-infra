@@ -35,11 +35,12 @@ variable "container_port" {
 }
 
 resource "aws_ecs_service" "main" {
-  name            = var.service_name
-  cluster         = var.cluster_id
-  task_definition = var.task_definition_arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+  name                              = var.service_name
+  cluster                           = var.cluster_id
+  task_definition                   = var.task_definition_arn
+  desired_count                     = 1
+  launch_type                       = "FARGATE"
+  health_check_grace_period_seconds = 120
 
   network_configuration {
     subnets          = var.subnet_ids
