@@ -88,9 +88,9 @@ resource "aws_vpc_security_group_ingress_rule" "allow_app_port" {
   security_group_id = aws_security_group.ecs_tasks.id
 
   cidr_ipv4   = "0.0.0.0/0"
-  from_port   = 80
+  from_port   = 3000
   ip_protocol = "tcp"
-  to_port     = 80
+  to_port     = 3000
 
   tags = {
     Name = "allow-app-port-ingress"

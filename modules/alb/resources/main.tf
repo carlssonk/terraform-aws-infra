@@ -51,7 +51,7 @@ resource "aws_lb_listener" "front_end" {
 
 resource "aws_lb_target_group" "ecs" {
   name        = "ecs-target-group"
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
