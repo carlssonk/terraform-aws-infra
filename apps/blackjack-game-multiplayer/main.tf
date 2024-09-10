@@ -43,18 +43,6 @@ module "ecs_service" {
   container_port       = local.container_port
 }
 
-data "aws_network_interface" "ecs_eni" {
-  depends_on = [module.ecs_service]
-  filter {
-    name   = "group-id"
-    values = [var.security_group_id]
-  }
-  filter {
-    name   = "status"
-    values = ["in-use"]
-  }
-}
-
 module "cloudflare" {
   workflow_step = var.workflow_step
   source        = "../../modules/cloudflare"
