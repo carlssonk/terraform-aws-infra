@@ -39,6 +39,24 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_lb_target_group" "ecs" {
+  name        = "ecs-target-group"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    healthy_threshold   = "3"
+    interval            = "30"
+    protocol            = "HTTP"
+    matcher             = "200"
+    timeout             = "3"
+    path                = "/"
+    unhealthy_threshold = "2"
+  }
+}
+
+resource "aws_lb_target_group" "ecs" {
   name        = "ecs-target-group-new"
   port        = 3000 // TODO, set dynamicalle based on container port
   protocol    = "HTTP"
