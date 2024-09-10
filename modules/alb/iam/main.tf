@@ -14,6 +14,7 @@ data "aws_iam_policy_document" "this" {
         "elasticloadbalancing:*TargetGroup",
         "elasticloadbalancing:Describe*",
         "elasticloadbalancing:Modify*",
+        "elasticloadbalancing:CreateRule",
         "iam:CreateServiceLinkedRole"
       ],
     )
