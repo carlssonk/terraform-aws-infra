@@ -31,8 +31,6 @@ resource "aws_lb_target_group" "this" {
     path                = "/"
   }
 
-  deregistration_delay = 300
-
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 86400

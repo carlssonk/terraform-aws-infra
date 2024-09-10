@@ -18,10 +18,6 @@ output "policy_document" {
   value = try(module.generate_policy_document[0].policy_document, null)
 }
 
-output "alb_dns_name" {
-  value = try(module.resources[0].alb_dns_name, null)
-}
-
 output "target_group_arn" {
   value = try(module.resources[0].target_group_arn, null)
 }
