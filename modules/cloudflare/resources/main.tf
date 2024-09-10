@@ -38,11 +38,4 @@ resource "cloudflare_record" "dns_records" {
   type    = var.dns_records[count.index].type
   ttl     = 1
   proxied = true
-
-  dynamic "lifecycle" {
-    for_each = var.dns_records[count.index].ignore_value_changes ? [1] : []
-    content {
-      ignore_changes = [value]
-    }
-  }
 }

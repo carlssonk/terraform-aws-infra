@@ -64,10 +64,9 @@ module "cloudflare" {
   source        = "../../modules/cloudflare"
   root_domain   = local.root_domain
   dns_records = [{
-    name                 = local.app_name,
-    value                = data.aws_network_interface.ecs_eni.association[0].public_ip
-    type                 = "A"
-    ignore_value_changes = true
+    name  = local.app_name,
+    value = data.aws_network_interface.ecs_eni.association[0].public_ip
+    type  = "A"
   }]
 }
 
