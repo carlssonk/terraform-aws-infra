@@ -68,12 +68,19 @@ jobs:
 
       - name: Terraform Init
         run: |
-          terraform init \
+          terraform init -reconfigure \
             -backend-config="encrypt=true" \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
+
+      - name: Prepare Environment
+        run: |
+          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
+          cat globals.json
+          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
+          chmod +x retry_command.sh
 
       - name: Check for State Removal Command
         if: matrix.step == 'resources'
@@ -92,13 +99,6 @@ jobs:
         run: |
           terraform state rm '${{ steps.check_commit.outputs.resource_address }}'
         continue-on-error: true
-
-      - name: Prepare Environment
-        run: |
-          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
-          cat globals.json
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
 
       - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan') || 'Terraform Apply' }}
         run: |
