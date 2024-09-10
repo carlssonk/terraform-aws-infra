@@ -68,7 +68,7 @@ resource "aws_lb_target_group" "ecs" {
 }
 
 resource "aws_lb_target_group" "ecs_new" {
-  name        = "ecs-target-group"
+  name        = "ecs-target-group-new"
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
