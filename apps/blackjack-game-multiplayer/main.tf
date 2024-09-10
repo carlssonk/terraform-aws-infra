@@ -15,6 +15,11 @@ locals {
   container_name = "container-${local.app_name}"
 }
 
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/service-${local.app_name}"
+  retention_in_days = 30
+}
+
 module "ecs_task_definition" {
   workflow_step = var.workflow_step
   source        = "../../modules/ecs-task-definition"
@@ -28,6 +33,14 @@ module "ecs_task_definition" {
       containerPort = local.container_port
       hostPort      = local.container_port
     }]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+        awslogs-region        = "eu-north-1"
+        awslogs-stream-prefix = "ecs"
+      }
+    }
   }])
 }
 
