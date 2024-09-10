@@ -7,7 +7,8 @@ module "globals" {
 }
 
 resource "aws_iam_role" "this" {
-  name = "${local.app_name}-deploy-role"
+  count = var.workflow_step == "iam"
+  name  = "${local.app_name}-deploy-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -30,7 +31,8 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_policy" "this" {
-  name = "${local.app_name}-deploy-policy"
+  count = var.workflow_step == "iam"
+  name  = "${local.app_name}-deploy-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -85,6 +87,7 @@ resource "aws_iam_policy" "this" {
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
-  policy_arn = aws_iam_policy.this.arn
-  role       = aws_iam_role.this.name
+  count      = var.workflow_step == "iam"
+  policy_arn = aws_iam_policy.this[0].arn
+  role       = aws_iam_role.this[0].name
 }
