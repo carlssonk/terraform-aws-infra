@@ -35,6 +35,8 @@ resource "aws_lb" "main" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
 
+  idle_timeout = 300
+
   enable_deletion_protection = false
 }
 
@@ -46,13 +48,25 @@ resource "aws_lb_target_group" "ecs" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    interval            = 30
     protocol            = "HTTP"
-    matcher             = "200"
-    timeout             = "3"
-    path                = "/"
-    unhealthy_threshold = "2"
+    matcher             = "200-299"
+    timeout             = 5
+    path                = "/health"
+  }
+
+  deregistration_delay = 300
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+    enabled         = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
