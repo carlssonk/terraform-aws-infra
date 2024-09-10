@@ -126,7 +126,10 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies"
         ]
-        Resource = aws_iam_role.terraform_execution_role.arn
+        Resource = [
+          aws_iam_role.terraform_execution_role.arn,
+          "arn:aws:iam::*:role/*-deploy-role"
+        ]
       },
       {
         // Used for creating iam_deploy roles
