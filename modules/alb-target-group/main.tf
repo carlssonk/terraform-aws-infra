@@ -6,11 +6,12 @@ module "generate_policy_document" {
 }
 
 module "resources" {
-  count             = var.workflow_step == "resources" ? 1 : 0
-  source            = "./resources"
-  alb_name          = var.alb_name
-  vpc_id            = var.vpc_id
-  public_subnet_ids = var.public_subnet_ids
+  count        = var.workflow_step == "resources" ? 1 : 0
+  source       = "./resources"
+  vpc_id       = var.vpc_id
+  port         = var.port
+  listener_arn = var.listener_arn
+  app_name     = var.app_name
 }
 
 output "policy_document" {
@@ -23,8 +24,4 @@ output "alb_dns_name" {
 
 output "target_group_arn" {
   value = try(module.resources[0].target_group_arn, null)
-}
-
-output "listener_arn" {
-  value = try(module.resources[0].listener_arn, null)
 }

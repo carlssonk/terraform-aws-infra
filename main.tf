@@ -35,6 +35,7 @@ module "simple_vpc" {
 module "simple_alb" {
   workflow_step     = var.workflow_step
   source            = "./modules/alb"
+  alb_name          = "simple-alb"
   vpc_id            = module.simple_vpc.vpc_id
   public_subnet_ids = module.simple_vpc.public_subnet_ids
 }
@@ -75,13 +76,14 @@ output "portfolio_policy_document" {
 #######################################################################
 
 module "blackjack" {
-  workflow_step        = var.workflow_step
-  source               = "./apps/blackjack-game-multiplayer"
-  cluster_id           = module.simple_ecs_cluster.cluster_id
-  subnet_ids           = module.simple_vpc.private_subnet_ids
-  security_group_id    = module.simple_vpc.security_group_id
-  alb_dns_name         = module.simple_alb.alb_dns_name
-  alb_target_group_arn = module.simple_alb.target_group_arn
+  workflow_step     = var.workflow_step
+  source            = "./apps/blackjack-game-multiplayer"
+  cluster_id        = module.simple_ecs_cluster.cluster_id
+  subnet_ids        = module.simple_vpc.private_subnet_ids
+  security_group_id = module.simple_vpc.security_group_id
+  vpc_id            = module.simple_vpc.vpc_id
+  alb_dns_name      = module.simple_alb.alb_dns_name
+  listener_arn      = module.simple_alb.listener_arn
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document

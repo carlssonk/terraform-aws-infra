@@ -4,7 +4,8 @@ variable "subnet_ids" {}
 variable "cluster_id" {}
 variable "security_group_id" {}
 variable "alb_dns_name" {}
-variable "alb_target_group_arn" {}
+variable "vpc_id" {}
+variable "listener_arn" {}
 
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
@@ -30,6 +31,15 @@ module "ecs_task_definition" {
   }])
 }
 
+module "ecs_target_group" {
+  workflow_step = var.workflow_step
+  source        = "../../modules/alb-target-group"
+  app_name      = local.app_name
+  port          = local.container_port
+  vpc_id        = var.vpc_id
+  listener_arn  = var.listener_arn
+}
+
 module "ecs_service" {
   workflow_step        = var.workflow_step
   source               = "../../modules/ecs-service"
@@ -38,7 +48,7 @@ module "ecs_service" {
   cluster_id           = var.cluster_id
   task_definition_arn  = module.ecs_task_definition.task_definition_arn
   security_group_id    = var.security_group_id
-  alb_target_group_arn = var.alb_target_group_arn
+  alb_target_group_arn = module.ecs_target_group.target_group_arn
   container_name       = local.container_name
   container_port       = local.container_port
 }
@@ -59,6 +69,7 @@ module "iam_policy" {
   name          = local.app_name
   policy_documents = [
     module.ecs_task_definition.policy_document,
+    module.ecs_target_group.policy_document,
     module.ecs_service.policy_document
   ]
 }

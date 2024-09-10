@@ -1,3 +1,8 @@
+variable "alb_name" {
+  description = "Name of Application Load Balancer"
+  type        = string
+}
+
 variable "vpc_id" {
   description = "ID of VPC"
   type        = string
