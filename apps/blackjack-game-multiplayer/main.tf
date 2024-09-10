@@ -40,18 +40,18 @@ module "ecs_target_group" {
   listener_arn  = var.listener_arn
 }
 
-module "ecs_service" {
-  workflow_step        = var.workflow_step
-  source               = "../../modules/ecs-service"
-  app_name             = local.app_name
-  subnet_ids           = var.subnet_ids
-  cluster_id           = var.cluster_id
-  task_definition_arn  = module.ecs_task_definition.task_definition_arn
-  security_group_id    = var.security_group_id
-  alb_target_group_arn = module.ecs_target_group.target_group_arn
-  container_name       = local.container_name
-  container_port       = local.container_port
-}
+# module "ecs_service" {
+#   workflow_step        = var.workflow_step
+#   source               = "../../modules/ecs-service"
+#   app_name             = local.app_name
+#   subnet_ids           = var.subnet_ids
+#   cluster_id           = var.cluster_id
+#   task_definition_arn  = module.ecs_task_definition.task_definition_arn
+#   security_group_id    = var.security_group_id
+#   alb_target_group_arn = module.ecs_target_group.target_group_arn
+#   container_name       = local.container_name
+#   container_port       = local.container_port
+# }
 
 module "cloudflare" {
   workflow_step = var.workflow_step
@@ -70,7 +70,7 @@ module "iam_policy" {
   policy_documents = [
     module.ecs_task_definition.policy_document,
     module.ecs_target_group.policy_document,
-    module.ecs_service.policy_document
+    # module.ecs_service.policy_document
   ]
 }
 
