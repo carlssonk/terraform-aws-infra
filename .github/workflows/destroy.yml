@@ -8,6 +8,8 @@ on:
       confirm_destroy:
         description: 'Type "DESTROY" to confirm infrastructure destruction'
         required: true
+      tf-rm:
+        description: 'Removes resource from state bucket'
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,17 +40,18 @@ jobs:
             echo "should_destroy=false" >> $GITHUB_OUTPUT
           fi
 
-  destroy:
-    name: Destroy
-    needs: check_destroy_condition
-    if: needs.check_destroy_condition.outputs.should_destroy == 'true'
+  terraform_operation:
+    name: Terraform Operation
+    needs: check_run
+    if: needs.check_run.outputs.should_run == 'true'
     runs-on: ubuntu-latest
-
-    environment: ${{ github.ref_name }}
+    environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       id-token: write
       contents: read
-
+    strategy:
+      matrix:
+        step: [resources, iam]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -62,42 +65,34 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Destroy resources
-        env:
-          TF_VAR_workflow_step: resources
-        run: |          
+      - name: Terraform Init
+        run: |
           terraform init \
             -backend-config="encrypt=true" \
             -backend-config="region=${{ env.TF_VAR_region }}" \
             -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
-            -backend-config="key=resources/terraform.tfstate"
-          
-          python create_globals.py '${{ toJson(env) }}' workflow_step=resources
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
-          
-          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
-            echo "Terraform failed after all retry attempts"
-            exit 1
-          fi
+            -backend-config="key=${{ matrix.step }}/terraform.tfstate"
 
-      - name: Destroy IAM
-        env:
-          TF_VAR_workflow_step: iam
-        run: |          
-          terraform init -reconfigure \
-            -backend-config="encrypt=true" \
-            -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
-            -backend-config="key=iam/terraform.tfstate"
-          
-          python create_globals.py '${{ toJson(env) }}' workflow_step=iam
+      - name: Check and Remove Resource from Terraform State
+        if: matrix.step == 'resources' && inputs.tf-rm != ''
+        run: |
+          echo "Removing resource: ${{ inputs.tf-rm }}"
+          terraform state rm '${{ inputs.tf-rm }}'
+          echo "remove_resource=true" >> $GITHUB_OUTPUT
+          echo "resource_address=${{ inputs.tf-rm }}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Prepare Environment
+        run: |
+          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
+          cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
-          
-          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
+
+      - name: ${{ format('{0} - Terraform Destroy', matrix.step) }}
+        run: |
+          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi

@@ -53,6 +53,8 @@ resource "aws_ecs_service" "main" {
     container_name   = var.container_name
     container_port   = var.container_port
   }
+
+  force_delete = true
 }
 
 // Create one ECR repo per service
@@ -67,4 +69,6 @@ resource "aws_ecr_repository" "app_repo" {
   encryption_configuration {
     encryption_type = "AES256"
   }
+
+  force_delete = true
 }
