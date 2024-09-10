@@ -77,7 +77,7 @@ jobs:
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
           
-          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
+          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
