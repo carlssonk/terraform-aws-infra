@@ -35,7 +35,7 @@ resource "cloudflare_record" "dns_records" {
   zone_id = data.cloudflare_zone.domain.id
   name    = var.dns_records[count.index].name
   content = var.dns_records[count.index].value
-  type    = "CNAME"
+  type    = var.dns_records[count.index].type
   ttl     = 1
   proxied = true
 }

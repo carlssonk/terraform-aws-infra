@@ -22,10 +22,6 @@ variable "security_group_id" {
   description = "ID of a security group"
 }
 
-variable "alb_target_group_arn" {
-  description = "ARN for ALB Target Group"
-}
-
 variable "container_name" {
   description = "Docker container name"
 }

@@ -8,6 +8,7 @@ variable "dns_records" {
   type = list(object({
     name  = string
     value = string
+    type  = optional(string, "CNAME")
   }))
 }
 
