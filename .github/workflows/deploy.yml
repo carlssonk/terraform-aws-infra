@@ -106,10 +106,14 @@ jobs:
             terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
           else
             if [ "${{ matrix.step }}" == "iam" ]; then
-              echo "Running: ./retry_command.sh terraform apply -lock=false -auto-approve"
-              ./retry_command.sh terraform apply -lock=false -auto-approve
+              if ! ./retry_command.sh "terraform apply -lock=false -auto-approve"; then
+                echo "Terraform failed after all retry attempts"
+                exit 1
+              fi
             else
-              echo "Running: ./retry_command.sh terraform apply -auto-approve"
-              ./retry_command.sh terraform apply -auto-approve
+              if ! ./retry_command.sh "terraform apply -auto-approve"; then
+                echo "Terraform failed after all retry attempts"
+                exit 1
+              fi
             fi
           fi
