@@ -100,7 +100,7 @@ jobs:
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
 
-      - name: ${{ (github.event_name == 'pull_request' && format('{0} - Terraform Plan', matrix.step)) || format('{0} - Terraform Apply', matrix.step) }}
+      - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan') || 'Terraform Apply' }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
