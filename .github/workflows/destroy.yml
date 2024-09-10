@@ -55,6 +55,9 @@ jobs:
       fail-fast: true
       max-parallel: 1
     steps:
+      - name: Set TF_VAR_workflow_step
+        run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -76,6 +79,13 @@ jobs:
             -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
 
+      - name: Prepare Environment
+        run: |
+          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
+          cat globals.json
+          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
+          chmod +x retry_command.sh
+
       - name: Check and Remove Resource from Terraform State
         if: matrix.step == 'resources' && inputs.tf-rm != ''
         run: |
@@ -84,13 +94,6 @@ jobs:
           echo "remove_resource=true" >> $GITHUB_OUTPUT
           echo "resource_address=${{ inputs.tf-rm }}" >> $GITHUB_OUTPUT
         continue-on-error: true
-
-      - name: Prepare Environment
-        run: |
-          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
-          cat globals.json
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
 
       - name: Terraform Destroy
         run: |

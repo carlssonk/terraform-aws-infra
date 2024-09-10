@@ -54,6 +54,9 @@ jobs:
       fail-fast: true
       max-parallel: 1
     steps:
+      - name: Set TF_VAR_workflow_step
+        run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
 
