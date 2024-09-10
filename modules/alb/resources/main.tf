@@ -56,7 +56,7 @@ resource "aws_lb_target_group" "ecs" {
   }
 }
 
-resource "aws_lb_target_group" "ecs" {
+resource "aws_lb_target_group" "ecs_new" {
   name        = "ecs-target-group-new"
   port        = 3000 // TODO, set dynamicalle based on container port
   protocol    = "HTTP"
@@ -81,7 +81,7 @@ resource "aws_lb_listener" "front_end" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.ecs.arn
+    target_group_arn = aws_lb_target_group.ecs_new.arn
   }
 }
 
@@ -90,5 +90,5 @@ output "alb_dns_name" {
 }
 
 output "target_group_arn" {
-  value = aws_lb_target_group.ecs.arn
+  value = aws_lb_target_group.ecs_new.arn
 }
