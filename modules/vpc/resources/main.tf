@@ -115,6 +115,10 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.ecs_tasks.id]
+
+  tags = {
+    Name = "ecr-dkr-vpc-endpoint"
+  }
 }
 
 resource "aws_vpc_endpoint" "ecr_api" {
@@ -124,6 +128,10 @@ resource "aws_vpc_endpoint" "ecr_api" {
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
   security_group_ids  = [aws_security_group.ecs_tasks.id]
+
+  tags = {
+    Name = "ecr-api-vpc-endpoint"
+  }
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -131,6 +139,49 @@ resource "aws_vpc_endpoint" "s3" {
   service_name      = "com.amazonaws.eu-north-1.s3"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = [aws_route_table.private.id]
+
+  tags = {
+    Name = "s3-vpc-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.eu-north-1.secretsmanager"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.ecs_tasks.id]
+
+  tags = {
+    Name = "secretsmanager-vpc-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.eu-north-1.logs"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.ecs_tasks.id]
+
+  tags = {
+    Name = "cloudwatch-logs-vpc-endpoint"
+  }
+}
+
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.eu-north-1.ssm"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.ecs_tasks.id]
+
+  tags = {
+    Name = "ssm-vpc-endpoint"
+  }
 }
 
 resource "aws_security_group_rule" "this" {
