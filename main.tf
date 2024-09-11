@@ -88,7 +88,6 @@ module "blackjack" {
   vpc_id            = module.main_vpc.vpc_id
   alb_dns_name      = module.main_alb.alb_dns_name
   listener_arn      = module.main_alb.listener_arn
-  cluster_name      = module.main_ecs_cluster.cluster_name
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document

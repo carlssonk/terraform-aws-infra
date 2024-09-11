@@ -6,7 +6,6 @@ variable "security_group_id" {}
 variable "alb_dns_name" {}
 variable "vpc_id" {}
 variable "listener_arn" {}
-variable "cluster_name" {}
 
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
