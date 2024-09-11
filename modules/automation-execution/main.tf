@@ -16,13 +16,13 @@ module "generate_policy_document" {
 }
 
 module "resources" {
-  count           = var.workflow_step == "resources" ? 1 : 0
-  source          = "./resources"
-  aws_account_id  = module.globals.var.AWS_ACCOUNT_ID
-  service_name    = var.service_name
-  cluster_name    = var.service_name
-  task_definition = var.task_definition
-  document_name   = local.document_name
+  count               = var.workflow_step == "resources" ? 1 : 0
+  source              = "./resources"
+  aws_account_id      = module.globals.var.AWS_ACCOUNT_ID
+  service_name        = var.service_name
+  cluster_name        = var.service_name
+  task_definition_arn = var.task_definition_arn
+  document_name       = local.document_name
 }
 
 output "policy_document" {

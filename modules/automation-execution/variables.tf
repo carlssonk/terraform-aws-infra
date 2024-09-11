@@ -8,7 +8,7 @@ variable "service_name" {
   type        = string
 }
 
-variable "task_definition" {
-  description = "Name of ECS Task Definition"
+variable "task_definition_arn" {
+  description = "ARN of ECS Task Definition"
   type        = string
 }
