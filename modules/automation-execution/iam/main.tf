@@ -9,7 +9,7 @@ data "aws_iam_policy_document" "this" {
         "ssm:CreateDocument",
         "ssm:DeleteDocument",
         "ssm:Describe*",
-        "ssm:Gete*",
+        "ssm:Get*",
         "ssm:List*",
       ]
     )
