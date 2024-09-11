@@ -65,7 +65,7 @@ module "cloudflare" {
   }]
 }
 
-module "blackjack_automation_execution" {
+module "ecs_troubleshoot" {
   workflow_step   = var.workflow_step
   source          = "../../modules/automation-execution"
   service_name    = module.ecs_service.service_name
@@ -81,7 +81,7 @@ module "iam_policy" {
     module.ecs_task_definition.policy_document,
     module.ecs_target_group.policy_document,
     module.ecs_service.policy_document,
-    module.blackjack_automation_execution.policy_document
+    module.ecs_troubleshoot.policy_document
   ]
 }
 
