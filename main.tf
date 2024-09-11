@@ -31,23 +31,23 @@ terraform {
 ######################## COMMON INFRASTRUCTURE #########################
 ########################################################################
 
-module "simple_vpc" {
+module "main_vpc" {
   workflow_step = var.workflow_step
   source        = "./modules/vpc"
 }
 
-module "simple_alb" {
+module "main_alb" {
   workflow_step     = var.workflow_step
   source            = "./modules/alb"
-  alb_name          = "simple-alb"
-  vpc_id            = module.simple_vpc.vpc_id
-  public_subnet_ids = module.simple_vpc.public_subnet_ids
+  alb_name          = "main-alb"
+  vpc_id            = module.main_vpc.vpc_id
+  public_subnet_ids = module.main_vpc.public_subnet_ids
 }
 
-module "simple_ecs_cluster" {
+module "main_ecs_cluster" {
   workflow_step = var.workflow_step
   source        = "./modules/ecs-cluster"
-  cluster_name  = "SimpleCluster"
+  cluster_name  = "MainCluster"
 }
 
 module "common_infrastructure_policy" {
@@ -55,9 +55,9 @@ module "common_infrastructure_policy" {
   source        = "./iam_policy"
   name          = "common"
   policy_documents = [
-    module.simple_vpc.policy_document,
-    module.simple_alb.policy_document,
-    module.simple_ecs_cluster.policy_document
+    module.main_vpc.policy_document,
+    module.main_alb.policy_document,
+    module.main_ecs_cluster.policy_document
   ]
 }
 
@@ -82,13 +82,13 @@ output "portfolio_policy_document" {
 module "blackjack" {
   workflow_step     = var.workflow_step
   source            = "./apps/blackjack-game-multiplayer"
-  cluster_id        = module.simple_ecs_cluster.cluster_id
-  subnet_ids        = module.simple_vpc.private_subnet_ids
-  security_group_id = module.simple_vpc.security_group_id
-  vpc_id            = module.simple_vpc.vpc_id
-  alb_dns_name      = module.simple_alb.alb_dns_name
-  listener_arn      = module.simple_alb.listener_arn
-  cluster_name      = module.simple_ecs_cluster.cluster_name
+  cluster_id        = module.main_ecs_cluster.cluster_id
+  subnet_ids        = module.main_vpc.private_subnet_ids
+  security_group_id = module.main_vpc.security_group_id
+  vpc_id            = module.main_vpc.vpc_id
+  alb_dns_name      = module.main_alb.alb_dns_name
+  listener_arn      = module.main_alb.listener_arn
+  cluster_name      = module.main_ecs_cluster.cluster_name
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document

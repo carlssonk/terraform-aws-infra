@@ -78,8 +78,8 @@ resource "aws_iam_policy" "this" {
           "ecs:UpdateService"
         ]
         Resource = [
-          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/SimpleCluster/${module.ecs_service.service_name}",
-          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/SimpleCluster/${module.ecs_service.service_name}/*"
+          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}",
+          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}/*"
         ]
       },
       {
