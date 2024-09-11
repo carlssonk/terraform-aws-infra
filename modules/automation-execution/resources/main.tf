@@ -62,7 +62,8 @@ DOC
 }
 
 resource "aws_ssm_association" "troubleshoot_ecs" {
-  name = aws_ssm_document.troubleshoot_ecs.name
+  name                             = aws_ssm_document.troubleshoot_ecs.name
+  automation_target_parameter_name = "InstanceId"
 
   parameters = {
     ClusterName      = var.cluster_name
