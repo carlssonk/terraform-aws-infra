@@ -35,6 +35,7 @@ data "aws_iam_policy_document" "this" {
     resources = ["arn:aws:ssm:eu-north-1:***:association/*"]
     effect    = "Allow"
   }
+
   statement {
     actions = concat(
       [

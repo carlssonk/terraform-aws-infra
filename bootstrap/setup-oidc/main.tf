@@ -152,6 +152,16 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListPolicies"
         ]
         Resource = "*"
+      },
+      {
+        // Used for running automation execution documents
+        Effect = "Allow"
+        Action = [
+          "sts:AssumeRole"
+        ],
+        Principal = {
+          Service = "ssm.amazonaws.com"
+        }
       }
     ]
   })
