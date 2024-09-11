@@ -84,14 +84,8 @@ module "blackjack" {
   vpc_id            = module.simple_vpc.vpc_id
   alb_dns_name      = module.simple_alb.alb_dns_name
   listener_arn      = module.simple_alb.listener_arn
+  cluster_name      = module.simple_ecs_cluster.cluster_name
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document
-}
-module "blackjack_automation_execution" {
-  workflow_step   = var.workflow_step
-  source          = "./modules/automation-execution"
-  service_name    = module.blackjack.service_name
-  cluster_name    = module.simple_ecs_cluster.cluster_name
-  task_definition = module.blackjack.task_name
 }

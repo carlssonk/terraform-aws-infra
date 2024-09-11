@@ -6,6 +6,7 @@ variable "security_group_id" {}
 variable "alb_dns_name" {}
 variable "vpc_id" {}
 variable "listener_arn" {}
+variable "cluster_name" {}
 
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
@@ -64,6 +65,14 @@ module "cloudflare" {
   }]
 }
 
+module "blackjack_automation_execution" {
+  workflow_step   = var.workflow_step
+  source          = "./modules/automation-execution"
+  service_name    = module.ecs_service.service_name
+  cluster_name    = var.cluster_name
+  task_definition = local.task_name
+}
+
 module "iam_policy" {
   workflow_step = var.workflow_step
   source        = "../../iam_policy"
@@ -71,7 +80,8 @@ module "iam_policy" {
   policy_documents = [
     module.ecs_task_definition.policy_document,
     module.ecs_target_group.policy_document,
-    module.ecs_service.policy_document
+    module.ecs_service.policy_document,
+    module.blackjack_automation_execution.policy_document
   ]
 }
 
@@ -81,8 +91,4 @@ output "policy_document" {
 
 output "service_name" {
   value = module.ecs_service.service_name
-}
-
-output "task_name" {
-  value = local.task_name
 }
