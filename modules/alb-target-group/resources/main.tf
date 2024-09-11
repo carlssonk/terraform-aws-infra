@@ -26,13 +26,13 @@ resource "aws_lb_target_group" "this" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
-    protocol            = "HTTP"
     matcher             = "200"
-    timeout             = "3"
     path                = "/"
-    unhealthy_threshold = "2"
+    port                = var.port
+    healthy_threshold   = 2
+    unhealthy_threshold = 10
+    timeout             = 60
+    interval            = 300
   }
 
   stickiness {
