@@ -107,7 +107,7 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
           else
-            if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '-lock=false' }} -auto-approve"; then
+            if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
               echo "Terraform failed after all retry attempts"
               exit 1
             fi
