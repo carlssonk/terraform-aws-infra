@@ -19,3 +19,7 @@ output "policy_document" {
 output "cluster_id" {
   value = try(module.resources[0].cluster_id, null)
 }
+
+output "cluster_name" {
+  value = try(module.resources[0].cluster_name, null)
+}

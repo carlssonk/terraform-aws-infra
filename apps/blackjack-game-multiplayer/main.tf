@@ -13,12 +13,13 @@ locals {
   root_domain    = "carlssonk.com"
   container_port = 3000
   container_name = "container-${local.app_name}"
+  task_name      = "task-${local.app_name}"
 }
 
 module "ecs_task_definition" {
   workflow_step = var.workflow_step
   source        = "../../modules/ecs-task-definition"
-  task_name     = "task-${local.app_name}"
+  task_name     = local.task_name
   cpu           = 256
   memory        = 512
   container_definitions = jsonencode([{
@@ -76,4 +77,12 @@ module "iam_policy" {
 
 output "policy_document" {
   value = module.iam_policy.policy_document
+}
+
+output "service_name" {
+  value = module.ecs_service.service_name
+}
+
+output "task_name" {
+  value = local.task_name
 }
