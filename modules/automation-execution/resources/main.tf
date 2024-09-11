@@ -18,8 +18,12 @@ module "globals" {
   source = "../../../globals"
 }
 
+resource "random_id" "document_suffix" {
+  byte_length = 8
+}
+
 resource "aws_ssm_document" "troubleshoot_ecs" {
-  name            = "TroubleshootECSTaskFailedToStart"
+  name            = "TroubleshootECSTaskFailedToStart-${random_id.document_suffix.hex}"
   document_type   = "Automation"
   document_format = "YAML"
   version_name    = "latest"
