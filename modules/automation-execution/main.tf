@@ -20,7 +20,7 @@ module "resources" {
   source              = "./resources"
   aws_account_id      = module.globals.var.AWS_ACCOUNT_ID
   service_name        = var.service_name
-  cluster_name        = var.service_name
+  cluster_name        = var.cluster_name
   task_definition_arn = var.task_definition_arn
   document_name       = local.document_name
 }
