@@ -133,6 +133,15 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = [aws_route_table.private.id]
 }
 
+resource "aws_security_group_rule" "this" {
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.main.cidr_block]
+  security_group_id = aws_security_group.ecs_tasks.id
+}
+
 output "private_subnet_ids" {
   value = aws_subnet.private[*].id
 }
