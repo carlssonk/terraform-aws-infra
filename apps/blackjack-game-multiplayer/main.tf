@@ -23,7 +23,7 @@ module "ecs_task_definition" {
   memory        = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "node:22-alpine"
+    image = "752502408032.dkr.ecr.eu-north-1.amazonaws.com/repo-blackjack:latest"
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
