@@ -108,6 +108,29 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   }
 }
 
+resource "aws_vpc_endpoint" "cloudwatch_logs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.eu-north-1.logs"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.cloudwatch_endpoint.id]
+}
+
+resource "aws_security_group" "cloudwatch_endpoint" {
+  name        = "cloudwatch-logs-endpoint-sg"
+  description = "Allow traffic to CloudWatch Logs VPC Endpoint"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "HTTPS from ECS tasks"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs_tasks.id]
+  }
+}
+
 output "private_subnet_ids" {
   value = aws_subnet.private[*].id
 }
