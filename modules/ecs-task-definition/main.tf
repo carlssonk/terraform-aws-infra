@@ -28,3 +28,7 @@ output "policy_document" {
 output "task_definition_arn" {
   value = try(module.resources[0].task_definition_arn, null)
 }
+
+output "task_id" {
+  value = try(module.resources[0].task_id, null)
+}

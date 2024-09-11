@@ -71,6 +71,7 @@ module "ecs_troubleshoot" {
   service_name        = module.ecs_service.service_name
   cluster_name        = var.cluster_name
   task_definition_arn = module.ecs_task_definition.task_definition_arn
+  task_id             = module.ecs_task_definition.task_id
 }
 
 module "iam_policy" {

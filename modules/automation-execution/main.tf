@@ -23,6 +23,7 @@ module "resources" {
   cluster_name        = var.cluster_name
   task_definition_arn = var.task_definition_arn
   document_name       = local.document_name
+  task_id             = var.task_id
 }
 
 output "policy_document" {

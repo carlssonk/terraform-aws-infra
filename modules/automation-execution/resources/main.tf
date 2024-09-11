@@ -10,6 +10,10 @@ variable "task_definition_arn" {
   description = "ARN of ECS Task Definition"
 }
 
+variable "task_id" {
+  description = "ID of ECS Task Definition"
+}
+
 variable "aws_account_id" {
   description = "AWS Account ID"
 }
@@ -36,6 +40,7 @@ mainSteps:
         ClusterName: '${var.cluster_name}'
         ServiceName: '${var.service_name}'
         TaskDefinition: '${var.task_definition_arn}'
+        TaskId: '${var.task_id}'
         ExecutionRoleArn: 'arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole'
 DOC
 
