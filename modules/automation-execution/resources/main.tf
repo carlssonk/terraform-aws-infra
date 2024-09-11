@@ -39,6 +39,10 @@ parameters:
   ExecutionRoleArn:
     type: String
     description: 'ARN of the ECS task execution role'
+  AutomationAssumeRole:
+    type: String
+    description: 'ARN of the IAM role for SSM Automation to assume'
+    default: ''
 mainSteps:
   - name: StartAutomation
     action: 'aws:executeAutomation'
@@ -49,6 +53,7 @@ mainSteps:
         ServiceName: '{{ServiceName}}'
         TaskDefinition: '{{TaskDefinition}}'
         ExecutionRoleArn: '{{ExecutionRoleArn}}'
+        AutomationAssumeRole: '{{AutomationAssumeRole}}'
 DOC
 }
 
@@ -56,10 +61,11 @@ resource "aws_ssm_association" "troubleshoot_ecs" {
   name = aws_ssm_document.troubleshoot_ecs.name
 
   parameters = {
-    ClusterName      = var.cluster_name
-    ServiceName      = var.service_name
-    TaskDefinition   = var.task_definition
-    ExecutionRoleArn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
+    ClusterName          = var.cluster_name
+    ServiceName          = var.service_name
+    TaskDefinition       = var.task_definition
+    ExecutionRoleArn     = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
+    AutomationAssumeRole = "arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role"
   }
 
   targets {
