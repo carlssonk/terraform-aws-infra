@@ -5,6 +5,8 @@ data "aws_iam_policy_document" "this" {
       [
         "ec2:CreateVpc",
         "ec2:DeleteVpc",
+        "ec2:CreateVpcEndpoint",
+        "ec2:DeleteVpcEndpoint",
         "ec2:ModifyVpcAttribute",
         "ec2:CreateTags",
         "ec2:DeleteTags",
