@@ -181,11 +181,6 @@ resource "aws_route_table" "private_route_table" {
     destination_prefix_list_id = aws_vpc_endpoint.ecr_dkr.prefix_list_id
     vpc_endpoint_id            = aws_vpc_endpoint.ecr_dkr.id
   }
-
-  route {
-    destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
-    gateway_id                 = aws_vpc_endpoint.s3.id
-  }
 }
 
 output "private_subnet_ids" {
