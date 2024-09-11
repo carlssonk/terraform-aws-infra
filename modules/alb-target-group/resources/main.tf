@@ -22,13 +22,13 @@ resource "aws_lb_target_group" "this" {
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 3
-    interval            = 30
+    healthy_threshold   = "3"
+    interval            = "30"
     protocol            = "HTTP"
-    matcher             = "200-299"
-    timeout             = 5
+    matcher             = "200"
+    timeout             = "3"
     path                = "/"
+    unhealthy_threshold = "2"
   }
 
   stickiness {
@@ -39,22 +39,6 @@ resource "aws_lb_target_group" "this" {
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-resource "aws_lb_listener_rule" "this" {
-  listener_arn = var.listener_arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/*"]
-    }
   }
 }
 

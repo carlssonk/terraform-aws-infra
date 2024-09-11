@@ -16,7 +16,6 @@ resource "aws_security_group" "alb" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "HTTP from anywhere"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -50,8 +49,8 @@ resource "aws_lb_listener" "http" {
     type = "fixed-response"
     fixed_response {
       content_type = "text/plain"
-      message_body = "Not Found"
-      status_code  = "404"
+      message_body = "Please use a valid hostname"
+      status_code  = "200"
     }
   }
 }

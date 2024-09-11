@@ -1,35 +1,27 @@
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for the public subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for the private subnets"
+  type        = list(string)
+  default     = ["10.0.3.0/24", "10.0.4.0/24"]
+}
+
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
 
   tags = {
-    Name = "ecs-nodejs-vpc"
-  }
-}
-
-data "aws_availability_zones" "available" {}
-
-resource "aws_subnet" "private" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.${count.index + 1}.0/24"
-  availability_zone = data.aws_availability_zones.available.names[count.index]
-
-  tags = {
-    Name = "ecs-nodejs-private-subnet-${count.index + 1}"
-  }
-}
-
-resource "aws_subnet" "public" {
-  count                   = 2
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.${count.index + 10}.0/24"
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "ecs-nodejs-public-subnet-${count.index + 1}"
+    Name = "main-vpc"
   }
 }
 
@@ -37,15 +29,32 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "ecs-nodejs-igw"
+    Name = "main-igw"
   }
 }
 
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
+data "aws_availability_zones" "available" {}
+
+resource "aws_subnet" "public" {
+  count                   = length(var.public_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "ecs-nodejs-private-rt"
+    Name = "public-subnet-${count.index + 1}"
+  }
+}
+
+resource "aws_subnet" "private" {
+  count             = length(var.private_subnet_cidrs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "private-subnet-${count.index + 1}"
   }
 }
 
@@ -58,139 +67,108 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "ecs-nodejs-public-rt"
+    Name = "public-route-table"
   }
 }
 
-resource "aws_route_table_association" "private" {
-  count          = 2
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private.id
-}
-
 resource "aws_route_table_association" "public" {
-  count          = 2
+  count          = length(aws_subnet.public)
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_security_group" "ecs_tasks" {
-  name        = "ecs-tasks-sg"
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "private-route-table"
+  }
+}
+
+resource "aws_route_table_association" "private" {
+  count          = length(aws_subnet.private)
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "vpc-endpoints-sg"
   description = "Allow inbound traffic to ECS tasks"
   vpc_id      = aws_vpc.main.id
 
   tags = {
-    Name = "ecs-tasks-security-group"
+    Name = "vpc-endpoints-sg"
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "allow_http" {
+resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   security_group_id = aws_security_group.ecs_tasks.id
 
-  cidr_ipv4   = "0.0.0.0/0"
-  from_port   = 80
+  to_port     = 443
+  from_port   = 443
   ip_protocol = "tcp"
-  to_port     = 80
+  cidr_ipv4   = [var.vpc_cidr]
 
   tags = {
-    Name = "allow-http-ingress"
+    Name = "allow-https-ingress"
   }
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   security_group_id = aws_security_group.ecs_tasks.id
 
-  cidr_ipv4   = "0.0.0.0/0"
+  from_port   = 0
+  to_port     = 0
   ip_protocol = "-1"
+  cidr_ipv4   = ["0.0.0.0/0"]
 
   tags = {
     Name = "allow-all-outbound"
   }
 }
 
-resource "aws_vpc_endpoint" "ecr_dkr" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.eu-north-1.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
+data "aws_region" "current" {}
 
-  tags = {
-    Name = "ecr-dkr-vpc-endpoint"
-  }
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id          = aws_vpc.main.id
+  service_name    = "com.amazonaws.${data.aws_region.current.name}.s3"
+  route_table_ids = [aws_route_table.private.id]
 }
 
 resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.eu-north-1.ecr.api"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
-
-  tags = {
-    Name = "ecr-api-vpc-endpoint"
-  }
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
 }
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.eu-north-1.s3"
-  vpc_endpoint_type = "Gateway"
-  route_table_ids   = [aws_route_table.private.id]
-
-  tags = {
-    Name = "s3-vpc-endpoint"
-  }
-}
-
-resource "aws_vpc_endpoint" "secretsmanager" {
+resource "aws_vpc_endpoint" "ecr_dkr" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.eu-north-1.secretsmanager"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
-
-  tags = {
-    Name = "secretsmanager-vpc-endpoint"
-  }
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
 }
 
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.eu-north-1.logs"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.logs"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
-
-  tags = {
-    Name = "cloudwatch-logs-vpc-endpoint"
-  }
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
 }
 
-resource "aws_vpc_endpoint" "ssm" {
+resource "aws_vpc_endpoint" "secretsmanager" {
   vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.eu-north-1.ssm"
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.secretsmanager"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.ecs_tasks.id]
-
-  tags = {
-    Name = "ssm-vpc-endpoint"
-  }
-}
-
-resource "aws_security_group_rule" "this" {
-  type              = "egress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  security_group_id = aws_security_group.ecs_tasks.id
+  security_group_ids  = [aws_security_group.vpc_endpoints.id]
 }
 
 output "private_subnet_ids" {
