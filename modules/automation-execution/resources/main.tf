@@ -31,6 +31,11 @@ resource "aws_ssm_document" "troubleshoot_ecs" {
 schemaVersion: '0.3'
 description: 'Troubleshoot ECS Task Failed to Start'
 assumeRole: 'arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role'
+parameters:
+  TaskId:
+    type: String
+    description: 'ID of the ECS task to troubleshoot'
+    default: ''
 mainSteps:
   - name: StartAutomation
     action: 'aws:executeAutomation'
@@ -40,7 +45,7 @@ mainSteps:
         ClusterName: '${var.cluster_name}'
         ServiceName: '${var.service_name}'
         TaskDefinition: '${var.task_definition_arn}'
-        TaskId: '${var.task_id}'
+        TaskId: {{TaskId}}
         ExecutionRoleArn: 'arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole'
 DOC
 
