@@ -28,6 +28,18 @@ schemaVersion: '0.3'
 description: 'Troubleshoot ECS Task Failed to Start'
 assumeRole: 'arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role'
 parameters:
+  ClusterName:
+    type: String
+    description: 'Name of the ECS cluster'
+  ServiceName:
+    type: String
+    description: 'Name of the ECS service'
+  TaskDefinition:
+    type: String
+    description: 'ARN of the task definition'
+  ExecutionRoleArn:
+    type: String
+    description: 'ARN of the ECS task execution role'
   TaskId:
     type: String
     description: 'ID of the ECS task to troubleshoot'
