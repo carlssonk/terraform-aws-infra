@@ -12,6 +12,7 @@ module "resources" {
   port         = var.port
   listener_arn = var.listener_arn
   app_name     = var.app_name
+  host_header  = var.host_header
 }
 
 output "policy_document" {

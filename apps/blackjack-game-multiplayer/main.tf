@@ -7,6 +7,10 @@ variable "alb_dns_name" {}
 variable "vpc_id" {}
 variable "listener_arn" {}
 
+module "globals" {
+  source = "../../globals"
+}
+
 locals {
   repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
   app_name       = "blackjack"
@@ -24,7 +28,7 @@ module "ecs_task_definition" {
   memory        = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "752502408032.dkr.ecr.eu-north-1.amazonaws.com/repo-blackjack:latest"
+    image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.AWS_ACCOUNT_ID}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
@@ -39,6 +43,7 @@ module "ecs_target_group" {
   port          = local.container_port
   vpc_id        = var.vpc_id
   listener_arn  = var.listener_arn
+  host_header   = "${local.app_name}.${local.root_domain}"
 }
 
 module "ecs_service" {

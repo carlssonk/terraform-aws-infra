@@ -14,6 +14,10 @@ variable "listener_arn" {
   description = "ARN of alb listener"
 }
 
+variable "host_header" {
+  description = "Domain name"
+}
+
 resource "aws_lb_target_group" "this" {
   name        = "${var.app_name}-tg"
   port        = var.port
@@ -39,6 +43,22 @@ resource "aws_lb_target_group" "this" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+resource "aws_lb_listener_rule" "this" {
+  listener_arn = var.listener_arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this.arn
+  }
+
+  condition {
+    host_header {
+      values = [var.host_header] # Replace with your domain or subdomain
+    }
   }
 }
 

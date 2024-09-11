@@ -17,3 +17,8 @@ variable "listener_arn" {
   description = "ARN of alb listener"
   type        = string
 }
+
+variable "host_header" {
+  description = "Domain name"
+  type        = string
+}
