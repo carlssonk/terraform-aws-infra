@@ -15,12 +15,6 @@ locals {
   container_name = "container-${local.app_name}"
 }
 
-module "cloudwatch" {
-  workflow_step  = var.workflow_step
-  source         = "../../modules/cloudwatch"
-  log_group_name = "service-${local.app_name}"
-}
-
 module "ecs_task_definition" {
   workflow_step = var.workflow_step
   source        = "../../modules/ecs-task-definition"
@@ -29,7 +23,7 @@ module "ecs_task_definition" {
   memory        = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "node:20-alpine"
+    image = "node:22-alpine"
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
@@ -84,8 +78,7 @@ module "iam_policy" {
   policy_documents = [
     module.ecs_task_definition.policy_document,
     module.ecs_target_group.policy_document,
-    module.ecs_service.policy_document,
-    module.cloudwatch.policy_document
+    module.ecs_service.policy_document
   ]
 }
 
