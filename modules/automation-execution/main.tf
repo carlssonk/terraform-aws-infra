@@ -4,12 +4,8 @@ module "globals" {
   source = "../../globals"
 }
 
-resource "random_id" "document_suffix" {
-  byte_length = 8
-}
-
 locals {
-  document_name = "TroubleshootECSTaskFailedToStart-${random_id.document_suffix.hex}"
+  document_name = "TroubleshootECSTaskFailedToStart-new"
 }
 
 module "generate_policy_document" {
