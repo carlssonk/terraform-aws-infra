@@ -169,6 +169,25 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
 }
 
+resource "aws_route_table" "private_route_table" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    destination_prefix_list_id = aws_vpc_endpoint.ecr_api.prefix_list_id
+    vpc_endpoint_id            = aws_vpc_endpoint.ecr_api.id
+  }
+
+  route {
+    destination_prefix_list_id = aws_vpc_endpoint.ecr_dkr.prefix_list_id
+    vpc_endpoint_id            = aws_vpc_endpoint.ecr_dkr.id
+  }
+
+  route {
+    destination_prefix_list_id = aws_vpc_endpoint.s3.prefix_list_id
+    gateway_id                 = aws_vpc_endpoint.s3.id
+  }
+}
+
 output "private_subnet_ids" {
   value = aws_subnet.private[*].id
 }
