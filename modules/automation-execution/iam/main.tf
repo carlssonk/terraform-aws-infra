@@ -13,7 +13,6 @@ data "aws_iam_policy_document" "this" {
         "ssm:CreateDocument",
         "ssm:DeleteDocument",
         "ssm:UpdateDocument",
-        "ssm:CreateAssociation",
         "ssm:Describe*",
         "ssm:Get*",
         "ssm:List*",
@@ -23,6 +22,15 @@ data "aws_iam_policy_document" "this" {
     effect    = "Allow"
   }
 
+  statement {
+    actions = concat(
+      [
+        "ssm:CreateAssociation"
+      ]
+    )
+    resources = ["arn:aws:ssm:eu-north-1:***:association/*"]
+    effect    = "Allow"
+  }
   statement {
     actions = concat(
       [
