@@ -102,7 +102,7 @@ resource "aws_security_group" "vpc_endpoints" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_https" {
-  security_group_id = aws_security_group.ecs_tasks.id
+  security_group_id = aws_security_group.vpc_endpoints.id
 
   to_port     = 443
   from_port   = 443
@@ -115,7 +115,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_https" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
-  security_group_id = aws_security_group.ecs_tasks.id
+  security_group_id = aws_security_group.vpc_endpoints.id
 
   from_port   = 0
   to_port     = 0
@@ -180,7 +180,7 @@ output "public_subnet_ids" {
 }
 
 output "security_group_id" {
-  value = aws_security_group.ecs_tasks.id
+  value = aws_security_group.vpc_endpoints.id
 }
 
 output "vpc_id" {
