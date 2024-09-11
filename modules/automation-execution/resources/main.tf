@@ -18,15 +18,54 @@ module "globals" {
   source = "../../../globals"
 }
 
-resource "aws_ssm_automation_execution" "troubleshoot_ecs" {
-  document_name    = "AWSSupport-TroubleshootECSTaskFailedToStart"
-  document_version = "$LATEST"
+resource "aws_ssm_document" "troubleshoot_ecs" {
+  name            = "TroubleshootECSTaskFailedToStart"
+  document_type   = "Automation"
+  document_format = "YAML"
+
+  content = <<DOC
+schemaVersion: '0.3'
+description: 'Troubleshoot ECS Task Failed to Start'
+assumeRole: 'arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role'
+parameters:
+  ClusterName:
+    type: String
+    description: 'Name of the ECS cluster'
+  ServiceName:
+    type: String
+    description: 'Name of the ECS service'
+  TaskDefinition:
+    type: String
+    description: 'ARN of the task definition'
+  ExecutionRoleArn:
+    type: String
+    description: 'ARN of the ECS task execution role'
+mainSteps:
+  - name: StartAutomation
+    action: 'aws:executeAutomation'
+    inputs:
+      DocumentName: AWSSupport-TroubleshootECSTaskFailedToStart
+      RuntimeParameters:
+        ClusterName: '{{ClusterName}}'
+        ServiceName: '{{ServiceName}}'
+        TaskDefinition: '{{TaskDefinition}}'
+        ExecutionRoleArn: '{{ExecutionRoleArn}}'
+DOC
+}
+
+resource "aws_ssm_association" "troubleshoot_ecs" {
+  name = aws_ssm_document.troubleshoot_ecs.name
 
   parameters = {
     ClusterName      = var.cluster_name
     ServiceName      = var.service_name
     TaskDefinition   = var.task_definition
     ExecutionRoleArn = "arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole"
+  }
+
+  targets {
+    key    = "InstanceIds"
+    values = ["*"]
   }
 }
 
