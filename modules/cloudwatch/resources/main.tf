@@ -3,10 +3,10 @@ variable "log_group_name" {
 }
 
 resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${log_group_name}"
+  name              = "/ecs/${var.log_group_name}"
   retention_in_days = 30
 }
 
 output "log_group_name" {
-  value = "/ecs/${log_group_name}"
+  value = "/ecs/${var.log_group_name}"
 }
