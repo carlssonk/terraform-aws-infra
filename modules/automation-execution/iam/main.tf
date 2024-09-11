@@ -6,7 +6,11 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "ssm:CreateDocument"
+        "ssm:CreateDocument",
+        "ssm:DeleteDocument",
+        "ssm:Describe*",
+        "ssm:Gete*",
+        "ssm:List*",
       ]
     )
     resources = ["arn:aws:ssm:eu-north-1:${var.aws_account_id}:document/TroubleshootECSTaskFailedToStart"]
