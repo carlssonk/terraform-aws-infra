@@ -65,14 +65,6 @@ module "cloudflare" {
   }]
 }
 
-module "ecs_troubleshoot" {
-  workflow_step       = var.workflow_step
-  source              = "../../modules/automation-execution"
-  service_name        = module.ecs_service.service_name
-  cluster_name        = var.cluster_name
-  task_definition_arn = module.ecs_task_definition.task_definition_arn
-}
-
 module "iam_policy" {
   workflow_step = var.workflow_step
   source        = "../../iam_policy"
@@ -80,8 +72,7 @@ module "iam_policy" {
   policy_documents = [
     module.ecs_task_definition.policy_document,
     module.ecs_target_group.policy_document,
-    module.ecs_service.policy_document,
-    module.ecs_troubleshoot.policy_document
+    module.ecs_service.policy_document
   ]
 }
 
