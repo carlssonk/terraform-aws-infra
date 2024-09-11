@@ -26,7 +26,6 @@ resource "aws_ssm_document" "troubleshoot_ecs" {
   content = <<DOC
 schemaVersion: '0.3'
 description: 'Troubleshoot ECS Task Failed to Start'
-assumeRole: 'arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role'
 parameters:
   ClusterName:
     type: String
