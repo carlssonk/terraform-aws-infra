@@ -31,21 +31,31 @@ resource "aws_iam_role" "terraform_execution_role" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRoleWithWebIdentity"
-      Effect = "Allow"
-      Principal = {
-        Federated = aws_iam_openid_connect_provider.github_actions.arn
-      }
-      Condition = {
-        StringEquals = {
-          "${local.oidc_domain}:aud" : "sts.amazonaws.com"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github_actions.arn
         }
-        StringLike = {
-          "${local.oidc_domain}:sub" : "repo:${var.organization}/${var.repository}:*"
+        Condition = {
+          StringEquals = {
+            "${local.oidc_domain}:aud" : "sts.amazonaws.com"
+          }
+          StringLike = {
+            "${local.oidc_domain}:sub" : "repo:${var.organization}/${var.repository}:*"
+          }
+        }
+      },
+      {
+        // Used for running automation execution documents
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "ssm.amazonaws.com"
         }
       }
-    }]
+    ]
   })
 }
 
@@ -152,16 +162,6 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListPolicies"
         ]
         Resource = "*"
-      },
-      {
-        // Used for running automation execution documents
-        Effect = "Allow"
-        Action = [
-          "sts:AssumeRole"
-        ],
-        Principal = {
-          Service = "ssm.amazonaws.com"
-        }
       }
     ]
   })
