@@ -107,7 +107,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   to_port     = 443
   from_port   = 443
   ip_protocol = "tcp"
-  cidr_ipv4   = [var.vpc_cidr]
+  cidr_ipv4   = var.vpc_cidr
 
   tags = {
     Name = "allow-https-ingress"
@@ -120,7 +120,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   from_port   = 0
   to_port     = 0
   ip_protocol = "-1"
-  cidr_ipv4   = ["0.0.0.0/0"]
+  cidr_ipv4   = "0.0.0.0/0"
 
   tags = {
     Name = "allow-all-outbound"
