@@ -13,6 +13,7 @@ data "aws_iam_policy_document" "this" {
         "ssm:CreateDocument",
         "ssm:DeleteDocument",
         "ssm:UpdateDocument",
+        "ssm:UpdateDocumentDefaultVersion",
         "ssm:Describe*",
         "ssm:Get*",
         "ssm:List*",
