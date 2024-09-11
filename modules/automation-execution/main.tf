@@ -21,7 +21,3 @@ module "resources" {
 # output "policy_document" {
 #   value = try(module.generate_policy_document[0].policy_document, null)
 # }
-
-output "automation_execution_id" {
-  value = try(module.resources[0].automation_execution_id, null)
-}

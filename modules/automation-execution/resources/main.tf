@@ -68,7 +68,3 @@ resource "aws_ssm_association" "troubleshoot_ecs" {
     values = ["*"]
   }
 }
-
-output "automation_execution_id" {
-  value = aws_ssm_automation_execution.troubleshoot_ecs.automation_execution_id
-}
