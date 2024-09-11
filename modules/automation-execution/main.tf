@@ -5,7 +5,7 @@ module "globals" {
 }
 
 locals {
-  document_name = "TroubleshootECSTaskFailedToStart-new"
+  document_name = "TroubleshootECSTaskFailedToStart-Wrapper"
 }
 
 module "generate_policy_document" {
