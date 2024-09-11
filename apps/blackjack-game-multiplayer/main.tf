@@ -28,14 +28,6 @@ module "ecs_task_definition" {
       containerPort = local.container_port
       hostPort      = local.container_port
     }]
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        awslogs-group         = module.cloudwatch.log_group_name
-        awslogs-region        = "eu-north-1"
-        awslogs-stream-prefix = "ecs"
-      }
-    }
   }])
 }
 
