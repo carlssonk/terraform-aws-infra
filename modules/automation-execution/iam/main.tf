@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "ssm:CreateAssociation"
+        "ssm:*Association"
       ]
     )
     resources = ["arn:aws:ssm:eu-north-1:***:association/*"]
