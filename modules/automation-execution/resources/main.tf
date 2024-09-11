@@ -41,7 +41,7 @@ mainSteps:
         ClusterName: '${var.cluster_name}'
         ServiceName: '${var.service_name}'
         TaskDefinition: '${var.task_definition_arn}'
-        TaskId: {{TaskId}}
+        TaskId: '{{TaskId}}'
         ExecutionRoleArn: 'arn:aws:iam::${var.aws_account_id}:role/ecsTaskExecutionRole'
 DOC
 
