@@ -67,7 +67,7 @@ module "cloudflare" {
 
 module "blackjack_automation_execution" {
   workflow_step   = var.workflow_step
-  source          = "./modules/automation-execution"
+  source          = "../../modules/automation-execution"
   service_name    = module.ecs_service.service_name
   cluster_name    = var.cluster_name
   task_definition = local.task_name
