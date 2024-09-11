@@ -26,7 +26,6 @@ resource "aws_ssm_document" "troubleshoot_ecs" {
   name            = var.document_name
   document_type   = "Automation"
   document_format = "YAML"
-  version_name    = "latest"
 
   content = <<DOC
 schemaVersion: '0.3'
