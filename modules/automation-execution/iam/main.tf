@@ -45,6 +45,16 @@ data "aws_iam_policy_document" "this" {
     resources = ["arn:aws:iam::${var.aws_account_id}:role/terraform-execution-role"]
     effect    = "Allow"
   }
+
+  statement {
+    actions = concat(
+      [
+        "ssm:StartAutomationExecution"
+      ]
+    )
+    resources = ["*"]
+    effect    = "Allow"
+  }
 }
 
 output "policy_document" {
