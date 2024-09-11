@@ -22,6 +22,7 @@ resource "aws_ssm_document" "troubleshoot_ecs" {
   name            = "TroubleshootECSTaskFailedToStart"
   document_type   = "Automation"
   document_format = "YAML"
+  version_name    = "latest"
 
   content = <<DOC
 schemaVersion: '0.3'
@@ -56,6 +57,10 @@ mainSteps:
         ExecutionRoleArn: '{{ExecutionRoleArn}}'
         AutomationAssumeRole: '{{AutomationAssumeRole}}'
 DOC
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_ssm_association" "troubleshoot_ecs" {
