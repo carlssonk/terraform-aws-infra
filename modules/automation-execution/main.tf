@@ -1,7 +1,7 @@
 variable "workflow_step" {}
 
 module "globals" {
-  source = "../../../globals"
+  source = "../../globals"
 }
 
 # module "generate_policy_document" {
