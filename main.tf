@@ -83,7 +83,7 @@ module "blackjack" {
   workflow_step     = var.workflow_step
   source            = "./apps/blackjack-game-multiplayer"
   cluster_id        = module.main_ecs_cluster.cluster_id
-  subnet_ids        = module.main_vpc.private_subnet_ids
+  subnet_ids        = module.main_vpc.public_subnet_ids
   security_group_id = module.main_vpc.security_group_id
   vpc_id            = module.main_vpc.vpc_id
   alb_dns_name      = module.main_alb.alb_dns_name
