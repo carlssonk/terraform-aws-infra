@@ -58,6 +58,10 @@ resource "aws_subnet" "private" {
   }
 }
 
+resource "aws_default_route_table" "this" {
+  default_route_table_id = aws_vpc.main.default_route_table_id
+}
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -104,8 +108,8 @@ resource "aws_security_group" "vpc_endpoints" {
 resource "aws_vpc_security_group_ingress_rule" "allow_https" {
   security_group_id = aws_security_group.vpc_endpoints.id
 
-  to_port     = 3000
-  from_port   = 3000
+  to_port     = 0
+  from_port   = 0
   ip_protocol = "tcp"
   cidr_ipv4   = var.vpc_cidr
 
@@ -127,12 +131,6 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
 
 data "aws_region" "current" {}
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id          = aws_vpc.main.id
-  service_name    = "com.amazonaws.${data.aws_region.current.name}.s3"
-  route_table_ids = [aws_route_table.private.id]
-}
-
 resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
@@ -145,15 +143,6 @@ resource "aws_vpc_endpoint" "ecr_api" {
 resource "aws_vpc_endpoint" "ecr_dkr" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = aws_subnet.private[*].id
-  security_group_ids  = [aws_security_group.vpc_endpoints.id]
-}
-
-resource "aws_vpc_endpoint" "logs" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.logs"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
