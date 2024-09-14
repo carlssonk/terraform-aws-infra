@@ -115,9 +115,7 @@ jobs:
 
       - name: Terraform Show
         if: matrix.step == 'resources'
-        env:
-          ACTIONS_RUNNER_DEBUG: false
-        run: terraform show -json > terraform_show.json
+        run: terraform show -json > terraform_show.json 2>/dev/null
 
       - name: Check for changes
         if: matrix.step == 'resources'
