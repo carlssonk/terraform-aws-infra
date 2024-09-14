@@ -115,7 +115,9 @@ jobs:
 
       - name: Terraform Show
         if: matrix.step == 'resources'
-        run: terraform show -json > terraform_show.json 2>/dev/null
+        run: |
+          set -o pipefail
+          terraform show -json | sed '1d' | grep -v '^::' > terraform_show.json
 
       - name: Check for changes
         if: matrix.step == 'resources'
