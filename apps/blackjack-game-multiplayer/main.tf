@@ -1,54 +1,39 @@
-variable "workflow_step" {}
-
-variable "subnet_ids" {}
-variable "cluster_id" {}
-variable "security_group_id" {}
-variable "alb_dns_name" {}
-variable "vpc_id" {}
-variable "listener_arn" {}
-
 module "globals" {
   source = "../../globals"
 }
 
 locals {
-  repo_name      = "carlssonk/Blackjack-Game-Multiplayer"
   app_name       = "blackjack"
-  root_domain    = "carlssonk.com"
-  container_port = 3000
+  root_domain    = var.root_domain
   container_name = "container-${local.app_name}"
-  task_name      = "task-${local.app_name}"
+  container_port = var.container_port
 }
 
 module "ecs_task_definition" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/ecs-task-definition"
-  task_name     = local.task_name
-  cpu           = 256
-  memory        = 512
+  source   = "../../modules/ecs-task-definition/default"
+  app_name = local.app_name
+  cpu      = 256
+  memory   = 512
   container_definitions = jsonencode([{
     name  = local.container_name
     image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.region}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
-      hostPort      = local.container_port
     }]
   }])
 }
 
 module "ecs_target_group" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/alb-target-group"
-  app_name      = local.app_name
-  port          = local.container_port
-  vpc_id        = var.vpc_id
-  listener_arn  = var.listener_arn
-  host_header   = "${local.app_name}.${local.root_domain}"
+  source       = "../../modules/alb-target-group/default"
+  app_name     = local.app_name
+  port         = local.container_port
+  vpc_id       = var.vpc_id
+  listener_arn = var.listener_arn
+  host_header  = "${local.app_name}.${local.root_domain}"
 }
 
 module "ecs_service" {
-  workflow_step        = var.workflow_step
-  source               = "../../modules/ecs-service"
+  source               = "../../modules/ecs-service/default"
   app_name             = local.app_name
   subnet_ids           = var.subnet_ids
   cluster_id           = var.cluster_id
@@ -60,9 +45,8 @@ module "ecs_service" {
 }
 
 module "cloudflare" {
-  workflow_step = var.workflow_step
-  source        = "../../modules/cloudflare"
-  root_domain   = local.root_domain
+  source      = "../../modules/cloudflare/default"
+  root_domain = local.root_domain
   dns_records = [{
     name  = local.app_name,
     value = var.alb_dns_name
@@ -78,12 +62,4 @@ module "iam_policy" {
     module.ecs_target_group.policy_document,
     module.ecs_service.policy_document
   ]
-}
-
-output "policy_document" {
-  value = module.iam_policy.policy_document
-}
-
-output "service_name" {
-  value = module.ecs_service.service_name
 }

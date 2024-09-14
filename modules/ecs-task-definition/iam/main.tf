@@ -1,9 +1,5 @@
-variable "task_definition_arn_query" {
-  description = "Data that makes up the query of resource ARN"
-}
-
-variable "execution_role_arn" {
-  description = "ARN of da execution role"
+module "globals" {
+  source = "../../../globals"
 }
 
 data "aws_iam_policy_document" "this" {
@@ -17,8 +13,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${var.task_definition_arn_query}",
-      "arn:aws:ecs:${var.task_definition_arn_query}:*"
+      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}",
+      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}:*"
     ]
     effect = "Allow"
   }
@@ -30,7 +26,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      var.execution_role_arn
+      "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
     ]
     effect = "Allow"
   }
@@ -47,8 +43,4 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
-}
-
-output "policy_document" {
-  value = data.aws_iam_policy_document.this.json
 }

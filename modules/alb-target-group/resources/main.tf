@@ -1,23 +1,3 @@
-variable "app_name" {
-  description = "Name of application"
-}
-
-variable "port" {
-  description = "Should match container port"
-}
-
-variable "vpc_id" {
-  description = "ID of vpc"
-}
-
-variable "listener_arn" {
-  description = "ARN of alb listener"
-}
-
-variable "host_header" {
-  description = "Domain name"
-}
-
 resource "aws_lb_target_group" "this" {
   name        = "${var.app_name}-tg"
   port        = var.port
@@ -60,8 +40,4 @@ resource "aws_lb_listener_rule" "this" {
       values = [var.host_header] # Replace with your domain or subdomain
     }
   }
-}
-
-output "target_group_arn" {
-  value = aws_lb_target_group.this.arn
 }

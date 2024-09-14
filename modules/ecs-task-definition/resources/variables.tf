@@ -1,5 +1,5 @@
-variable "task_name" {
-  description = "Name of ECS Task Definition"
+variable "app_name" {
+  description = "Name of app"
   type        = string
 }
 

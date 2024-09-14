@@ -8,10 +8,6 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "2.3.0"
-    }
   }
 }
 
@@ -31,38 +27,11 @@ terraform {
 ######################## COMMON INFRASTRUCTURE #########################
 ########################################################################
 
-module "main_vpc" {
-  workflow_step = var.workflow_step
-  source        = "./modules/vpc"
+module "common" {
+  source = "./common"
 }
-
-module "main_alb" {
-  workflow_step     = var.workflow_step
-  source            = "./modules/alb"
-  alb_name          = "main-alb"
-  vpc_id            = module.main_vpc.vpc_id
-  public_subnet_ids = module.main_vpc.public_subnet_ids
-}
-
-module "main_ecs_cluster" {
-  workflow_step = var.workflow_step
-  source        = "./modules/ecs-cluster"
-  cluster_name  = "MainCluster"
-}
-
-module "common_infrastructure_policy" {
-  workflow_step = var.workflow_step
-  source        = "./iam_policy"
-  name          = "common"
-  policy_documents = [
-    module.main_vpc.policy_document,
-    module.main_alb.policy_document,
-    module.main_ecs_cluster.policy_document
-  ]
-}
-
 output "common_policy_document" {
-  value = module.common_infrastructure_policy.policy_document
+  value = module.common.policy_document
 }
 
 ########################################################################
@@ -72,12 +41,14 @@ output "common_policy_document" {
 module "portfolio" {
   workflow_step = var.workflow_step
   source        = "./apps/portfolio"
+  root_domain   = module.common.apps.portfolio.root_domain
+  domain_name   = module.common.apps.portfolio.domain_name
 }
 output "portfolio_policy_document" {
   value = module.portfolio.policy_document
 }
 
-#######################################################################
+########################################################################
 
 module "blackjack" {
   workflow_step     = var.workflow_step
@@ -88,6 +59,8 @@ module "blackjack" {
   vpc_id            = module.main_vpc.vpc_id
   alb_dns_name      = module.main_alb.alb_dns_name
   listener_arn      = module.main_alb.listener_arn
+  root_domain       = module.common.apps.root_domain
+  container_port    = module.common.apps.container_port
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document

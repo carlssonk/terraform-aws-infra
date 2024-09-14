@@ -1,9 +1,9 @@
-variable "table_name_full" {
-  description = "Name of dynamodb table prefixed with organization and suffixed with environment"
+module "globals" {
+  source = "../../../globals"
 }
 
 resource "aws_dynamodb_table" "this" {
-  name         = var.table_name_full
+  name         = "${module.globals.var.organization}-${var.table_name}-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 

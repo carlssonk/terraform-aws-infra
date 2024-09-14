@@ -1,13 +1,3 @@
-variable "bucket_name" {
-  description = "Name of S3 Bucket"
-}
-variable "bucket_access_and_policy" {
-  description = "Specify who can access the bucket. Can one of 'public', 'cloudflare'"
-}
-variable "website_config" {
-  description = "Website configuration"
-}
-
 resource "aws_s3_bucket" "this" {
   bucket = var.bucket_name
 }
@@ -42,20 +32,8 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = false
 }
 
-data "http" "cloudflare_ips_v4" {
-  count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
-  url   = "https://www.cloudflare.com/ips-v4"
-  request_headers = {
-    Accept = "text/plain"
-  }
-}
-
-data "http" "cloudflare_ips_v6" {
-  count = var.bucket_access_and_policy == "cloudflare" ? 1 : 0
-  url   = "https://www.cloudflare.com/ips-v6"
-  request_headers = {
-    Accept = "text/plain"
-  }
+module "globals" {
+  source = "../../../globals"
 }
 
 locals {
@@ -73,10 +51,7 @@ locals {
       Resource  = "${aws_s3_bucket.this.arn}/*"
       Condition = {
         IpAddress = {
-          "aws:SourceIp" = concat(
-            split("\n", chomp(try(data.http.cloudflare_ips_v4[0].response_body, ""))),
-            split("\n", chomp(try(data.http.cloudflare_ips_v6[0].response_body, "")))
-          )
+          "aws:SourceIp" = module.globals.var.cloudflare_id_ranges
         }
       }
     }
@@ -94,8 +69,4 @@ resource "aws_s3_bucket_policy" "this" {
     Version   = "2012-10-17"
     Statement = [local.policy_statement]
   })
-}
-
-output "website_endpoint" {
-  value = try(aws_s3_bucket_website_configuration.this[0].website_endpoint, null)
 }

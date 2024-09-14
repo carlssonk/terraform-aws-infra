@@ -6,18 +6,6 @@ terraform {
   }
 }
 
-variable "root_domain" {
-  description = "The root domain name to route to the S3 bucket"
-}
-
-variable "dns_records" {
-  description = "List of DNS records to create"
-}
-
-variable "zone_settings" {
-  description = "Settings for the Cloudflare zone"
-}
-
 data "cloudflare_zone" "domain" {
   name = var.root_domain
 }

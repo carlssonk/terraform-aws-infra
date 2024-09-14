@@ -1,5 +1,6 @@
 locals {
-  oidc_domain = "token.actions.githubusercontent.com"
+  github_repo_name = "carlssonk/Blackjack-Game-Multiplayer"
+  oidc_domain      = "token.actions.githubusercontent.com"
 }
 
 resource "aws_iam_role" "this" {
@@ -19,7 +20,7 @@ resource "aws_iam_role" "this" {
           "${local.oidc_domain}:aud" : "sts.amazonaws.com"
         }
         StringLike = {
-          "${local.oidc_domain}:sub" : "repo:${local.repo_name}:*"
+          "${local.oidc_domain}:sub" : "repo:${local.github_repo_name}:*"
         }
       }
     }]

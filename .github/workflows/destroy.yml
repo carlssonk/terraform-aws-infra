@@ -1,8 +1,6 @@
 name: Destroy Infrastructure
 
 on:
-  push:
-    branches: [prod, dev]
   workflow_dispatch:
     inputs:
       confirm_destroy:
@@ -96,6 +94,7 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Destroy
+        if: inputs.tf-rm == ''
         run: |
           if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
             echo "Terraform failed after all retry attempts"
