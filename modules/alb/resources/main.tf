@@ -17,6 +17,10 @@ resource "aws_acm_certificate" "this" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags = {
+    Name = "acm_certificate-${each.value}"
+  }
 }
 
 module "cloudflare_records" {
@@ -49,6 +53,10 @@ resource "aws_lb_listener" "front_end" {
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  tags = {
+    Name = "lb_listener"
   }
 }
 

@@ -23,6 +23,10 @@ resource "aws_lb_target_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
+
+  tags = {
+    Name = "${var.app_name}-tg"
+  }
 }
 
 resource "aws_lb_listener_rule" "this" {
@@ -42,5 +46,9 @@ resource "aws_lb_listener_rule" "this" {
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  tags = {
+    Name = "${var.app_name}-tg-rule"
   }
 }

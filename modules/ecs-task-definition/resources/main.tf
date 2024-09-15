@@ -11,4 +11,8 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn       = "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
 
   container_definitions = var.container_definitions
+
+  tags = {
+    Name = "task-${var.app_name}"
+  }
 }
