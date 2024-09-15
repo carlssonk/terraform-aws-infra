@@ -1,6 +1,5 @@
 resource "aws_vpc_security_group_ingress_rule" "this" {
-  count = length(var.ingress_rules)
-
+  count             = length(var.ingress_rules)
   security_group_id = aws_security_group.this.id
 
   description                  = var.ingress_rules[count.index].description

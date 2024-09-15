@@ -37,3 +37,9 @@ variable "container_port" {
   description = "Docker container port"
   type        = number
 }
+
+variable "assign_public_ip" {
+  description = "Should be true if service needs access to internet and is not using NAT Gateway"
+  type        = bool
+  default     = false
+}

@@ -24,13 +24,11 @@ locals {
     8080 = {
       egress_rules = [allow_https_to_vpc_endpoints, allow_https_to_anywhere]
     }
-    # 8081 = {
-    #   egress_rules = [allow_https_to_vpc_endpoints]
-    # }
   }
 
   apps = {
     portfolio = {
+      root_domain = "carlssonk.com"
       cloudflare_ruleset_rules = [{
         action = "set_config"
         action_parameters = {
@@ -41,6 +39,7 @@ locals {
       }]
     }
     diagram = {
+      root_domain = "carlssonk.com"
       cloudflare_ruleset_rules = [{
         action = "set_config"
         action_parameters = {

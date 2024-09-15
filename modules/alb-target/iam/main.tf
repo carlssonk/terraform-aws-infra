@@ -1,22 +1,19 @@
+module "globals" {
+  source = "../../../globals"
+}
+
 data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "elasticloadbalancing:CreateLoadBalancer",
-        "elasticloadbalancing:DeleteLoadBalancer",
-        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-        "elasticloadbalancing:RegisterTargets",
-        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-        "elasticloadbalancing:DeregisterTargets",
-        "elasticloadbalancing:*Listener",
-        "elasticloadbalancing:*TargetGroup",
-        "elasticloadbalancing:Describe*",
-        "elasticloadbalancing:Modify*",
-        "elasticloadbalancing:CreateRule",
-        "iam:CreateServiceLinkedRole"
+        "elasticloadbalancing:*Rule*",
+        "elasticloadbalancing:*Target*",
       ],
     )
-    resources = ["*"]
-    effect    = "Allow"
+    resources = [
+      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener-rule/app/*",
+      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:targetgroup/*"
+    ]
+    effect = "Allow"
   }
 }

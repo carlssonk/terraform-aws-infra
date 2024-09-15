@@ -19,7 +19,7 @@ resource "aws_acm_certificate" "this" {
   }
 }
 
-module "cloudflare" {
+module "cloudflare_records" {
   for_each    = toset(var.root_domain_names)
   source      = "../../cloudflare-record/default"
   root_domain = each.value
@@ -45,6 +45,10 @@ resource "aws_lb_listener" "front_end" {
       message_body = "Please use a valid hostname"
       status_code  = "404"
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

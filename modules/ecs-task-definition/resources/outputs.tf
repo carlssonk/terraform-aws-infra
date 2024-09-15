@@ -1,7 +1,7 @@
-output "task_definition_arn" {
-  value = aws_ecs_task_definition.this.arn
+output "id" {
+  value = aws_ecs_task_definition.this.id
 }
 
-output "task_id" {
-  value = aws_ecs_task_definition.this.id
+output "arn" {
+  value = aws_ecs_task_definition.this.arn
 }

@@ -65,3 +65,17 @@ If NOT using NAT Gateway
 - [ ] Should place resource in privat subnets when possible while keeping it robust and scalable
 - [ ] Should have Load Balancer in a public subnet (its technically possible to have it in private subnet but its too much management overhead and isn't robust)
 - [ ] Should have ECS services in private subnets if using Load Balancer on top of it AND it doesnt need to make outbound requests (API calls, Websockets etc.)
+
+### Potential Cost Optimizations
+* Use fck-nat in replacement for NAT Geteway
+* Private IPv4 addresses associated with a running instance are free. But public IPv4 addresses it costs $0.005 per hour per associated service
+* IPv6 addresses are free
+* fck-nat or VPC Endpoints (if applicable) might be cheaper than having lots of services in public subnets
+* NAT Gateway is not needed when using IPv6. aws_egress_only_internet_gateway is free and handles IPv6 traffic only, should be used for private services
+
+
+Example Architecture Overview with NAT Gateway
+IPv4 addresses
+Cloudflare -> Load Balancer (public subnets) -> Services (private subnets) -> NAT Gateway (public subnets) -> Internet
+IPv6 addresses
+Cloudflare -> Load Balancer (public subnets) -> Services (no need for public/private distinciton) -> Egress-only Internet Gateway -> Internet

@@ -39,13 +39,14 @@ module "security_group_vpc_endpoints" {
 
 module "security_group_alb_rules" {
   source            = "../modules/security-group-rules/default"
+  name              = "alb"
   security_group_id = module.security_group_alb.id
   ingress_rules = [{
     description = "Allow HTTPS from Cloudflare"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = module.globals.var.cloudflare_id_ranges
+    cidr_blocks = module.globals.var.cloudflare_ip_ranges
   }]
   egress_rules = flatten([
     for port, _ in local.ecs_ports :
@@ -61,6 +62,7 @@ module "security_group_alb_rules" {
 
 module "security_group_ecs_tasks_rules" {
   source            = "../modules/security-group-rules/default"
+  name              = "ecs_tasks"
   security_group_id = module.security_group_ecs_tasks.id
   ingress_rules = flatten([
     for port, _ in local.ecs_ports :
@@ -79,6 +81,7 @@ module "security_group_ecs_tasks_rules" {
 
 module "security_group_vpc_endpoints_rules" {
   source            = "../modules/security-group-rules/default"
+  name              = "vpc_endpoints"
   security_group_id = module.security_group_vpc_endpoints.id
   ingress_rules = [{
     description     = "Allow HTTPS from ECS tasks"
@@ -106,9 +109,11 @@ module "ecs_cluster" {
 module "vpc_endpoints" {
   source = "../modules/vpc-endpoint/default"
   endpoints = [
-    "com.amazonaws.${module.globals.var.REGION}.ecr.api",
-    "com.amazonaws.${module.globals.var.REGION}.ecr.dkr",
-    "com.amazonaws.${module.globals.var.REGION}.secretsmanager"
+    "com.amazonaws.${module.globals.var.REGION}.s3", // s3 vpc endpoints are free
+    // Commented out for cost optimization
+    # "com.amazonaws.${module.globals.var.REGION}.ecr.api",
+    # "com.amazonaws.${module.globals.var.REGION}.ecr.dkr",
+    # "com.amazonaws.${module.globals.var.REGION}.secretsmanager"
   ]
   vpc_id            = module.vpc.id
   subnet_ids        = module.vpc.private_subnet_ids
@@ -137,31 +142,7 @@ module "iam_policy" {
 ############################# CLOUDFLARE ###############################
 ########################################################################
 
-data "cloudflare_zone" "domain" {
-  name = "carlssonk.com"
-}
-
-resource "cloudflare_ruleset" "main" {
-  zone_id     = data.cloudflare_zone.domain.id
-  name        = "Dynamic Main Ruleset"
-  description = "Dynamic ruleset for managing app settings"
-  kind        = "zone"
-  phase       = "http_request_late_transform"
-
-  dynamic "rules" {
-    for_each = flatten([for _, value in local.apps : value.cloudflare_ruleset_rules])
-    content {
-      action = rules.value.action
-
-      dynamic "action_parameters" {
-        for_each = rules.value.action_parameters.ssl != null ? [rules.value.action_parameters.ssl] : []
-        content {
-          ssl = action_parameters.value
-        }
-      }
-
-      expression  = rules.value.expression
-      description = rules.value.description
-    }
-  }
+module "cloudflare" {
+  source = "../modules/cloudflare/default"
+  apps   = local.apps
 }

@@ -1,24 +1,23 @@
 resource "aws_lb_target_group" "this" {
-  name        = "${var.app_name}-tg"
-  port        = var.port
-  protocol    = "HTTP"
+  name_prefix = "${var.app_name}-tg-"
+  port        = var.container_port
   vpc_id      = var.vpc_id
+  protocol    = "HTTPS"
   target_type = "ip"
 
   health_check {
-    matcher             = "200"
-    path                = "/"
-    port                = var.port
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 60
-    interval            = 300
+    matcher = "200"
+    path    = "/health"
+    port    = var.container_port
   }
 
-  stickiness {
-    type            = "lb_cookie"
-    cookie_duration = 86400
-    enabled         = true
+  dynamic "stickiness" {
+    for_each = var.use_stickiness ? [1] : [0]
+    content {
+      type            = "lb_cookie"
+      cookie_duration = 86400
+      enabled         = true
+    }
   }
 
   lifecycle {
@@ -37,7 +36,11 @@ resource "aws_lb_listener_rule" "this" {
 
   condition {
     host_header {
-      values = [var.host_header] # Replace with your domain or subdomain
+      values = [var.host_header]
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }

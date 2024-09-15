@@ -1,3 +1,8 @@
+variable "name" {
+  description = "Name tag"
+  type        = string
+}
+
 variable "security_group_id" {
   description = "ID Security Group"
   type        = string

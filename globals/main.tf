@@ -17,7 +17,7 @@ data "http" "cloudflare_ips_v6" {
 }
 
 locals {
-  cloudflare_id_ranges = concat(
+  cloudflare_ip_ranges = concat(
     split("\n", chomp(try(data.http.cloudflare_ips_v4[0].response_body, ""))),
     split("\n", chomp(try(data.http.cloudflare_ips_v6[0].response_body, "")))
   )
@@ -26,6 +26,6 @@ locals {
 output "var" {
   value = merge(
     jsondecode(data.local_file.globals.content),
-    { cloudflare_ip_ranges : local.cloudflare_id_ranges }
+    { cloudflare_ip_ranges : local.cloudflare_ip_ranges }
   )
 }

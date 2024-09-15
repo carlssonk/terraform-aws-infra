@@ -3,7 +3,7 @@ variable "app_name" {
   type        = string
 }
 
-variable "port" {
+variable "container_port" {
   description = "Should match container port"
   type        = number
 }
@@ -20,5 +20,10 @@ variable "listener_arn" {
 
 variable "host_header" {
   description = "Domain name"
+  type        = string
+}
+
+variable "use_stickiness" {
+  description = "Tells load balancer to route to the same target group (Needed for stateful applications eg. Sessions or Websockets)"
   type        = string
 }
