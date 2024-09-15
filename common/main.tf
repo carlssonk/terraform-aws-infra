@@ -109,11 +109,11 @@ module "ecs_cluster" {
 module "vpc_endpoints" {
   source = "../modules/vpc-endpoint/default"
   endpoints = [
-    "com.amazonaws.${module.globals.var.REGION}.s3", // s3 vpc endpoints are free
+    "com.amazonaws.${module.globals.var.AWS_REGION}.s3", // s3 vpc endpoints are free
     // Commented out for cost optimization
-    # "com.amazonaws.${module.globals.var.REGION}.ecr.api",
-    # "com.amazonaws.${module.globals.var.REGION}.ecr.dkr",
-    # "com.amazonaws.${module.globals.var.REGION}.secretsmanager"
+    # "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.api",
+    # "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.dkr",
+    # "com.amazonaws.${module.globals.var.AWS_REGION}.secretsmanager"
   ]
   vpc_id            = module.vpc.id
   subnet_ids        = module.vpc.private_subnet_ids

@@ -18,7 +18,7 @@ module "ecs_task_definition" {
   memory   = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.REGION}.amazonaws.com/repo-${local.app_name}:latest"
+    image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.AWS_REGION}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
     }]

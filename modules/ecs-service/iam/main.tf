@@ -15,8 +15,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/service-${var.app_name}",
-      "arn:aws:ecs:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/service-${var.app_name}/*"
+      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/service-${var.app_name}",
+      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/service-${var.app_name}/*"
     ]
     effect = "Allow"
   }
@@ -32,8 +32,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecr:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/repo-${var.app_name}",
-      "arn:aws:ecr:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/rep-${var.app_name}/*"
+      "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/repo-${var.app_name}",
+      "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/rep-${var.app_name}/*"
     ]
     effect = "Allow"
   }

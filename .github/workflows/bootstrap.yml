@@ -23,7 +23,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.BOOTSTRAP_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.BOOTSTRAP_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.TF_VAR_REGION }}
+          aws-region: ${{ vars.TF_VAR_AWS_REGION }}
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -57,7 +57,7 @@ jobs:
         run: |
           terraform init \
             -backend-config="encrypt=true" \
-            -backend-config="region=${{ vars.TF_VAR_REGION }}" \
+            -backend-config="region=${{ vars.TF_VAR_AWS_REGION }}" \
             -backend-config="bucket=${{ vars.TF_VAR_ORGANIZATION }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
             -backend-config="dynamodb_table=${{ vars.TF_VAR_ORGANIZATION }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"

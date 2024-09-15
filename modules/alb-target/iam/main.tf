@@ -11,8 +11,8 @@ data "aws_iam_policy_document" "this" {
       ],
     )
     resources = [
-      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener-rule/app/*",
-      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:targetgroup/*"
+      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener-rule/app/*",
+      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:targetgroup/*"
     ]
     effect = "Allow"
   }

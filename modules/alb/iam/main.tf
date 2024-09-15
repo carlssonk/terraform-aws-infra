@@ -13,8 +13,8 @@ data "aws_iam_policy_document" "this" {
       ],
     )
     resources = [
-      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:loadbalancer/app/${var.name}-alb/*",
-      "arn:aws:elasticloadbalancing:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener/app/${var.name}-alb/*"
+      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:loadbalancer/app/${var.name}-alb/*",
+      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener/app/${var.name}-alb/*"
     ]
     effect = "Allow"
   }
