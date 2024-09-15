@@ -15,6 +15,8 @@ concurrency:
 
 env:
   TARGET_BRANCH: ${{ github.ref_name }}
+  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   TF_VAR_cleanup_policies: true
 
@@ -60,7 +62,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/terraform-execution-role
-          aws-region: ${{ env.TF_VAR_AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -69,9 +71,9 @@ jobs:
         run: |
           terraform init \
             -backend-config="encrypt=true" \
-            -backend-config="region=${{ env.TF_VAR_AWS_REGION }}" \
-            -backend-config="bucket=${{ env.TF_VAR_ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
 
       - name: Prepare Environment
@@ -93,7 +95,7 @@ jobs:
       - name: Terraform Destroy
         if: inputs.tf-rm == ''
         run: |
-          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
+          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
