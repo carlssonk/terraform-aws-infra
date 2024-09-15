@@ -1,7 +1,3 @@
-module "globals" {
-  source = "../../globals"
-}
-
 variable "endpoints" {
   description = "List of service name endpoints"
   type        = list(string)
