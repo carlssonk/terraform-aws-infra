@@ -106,9 +106,9 @@ module "ecs_cluster" {
 module "vpc_endpoints" {
   source = "../modules/vpc-endpoint/default"
   endpoints = [
-    "com.amazonaws.${module.globals.var.region}.ecr.api",
-    "com.amazonaws.${module.globals.var.region}.ecr.dkr",
-    "com.amazonaws.${module.globals.var.region}.secretsmanager"
+    "com.amazonaws.${module.globals.var.REGION}.ecr.api",
+    "com.amazonaws.${module.globals.var.REGION}.ecr.dkr",
+    "com.amazonaws.${module.globals.var.REGION}.secretsmanager"
   ]
   vpc_id            = module.vpc.id
   subnet_ids        = module.vpc.private_subnet_ids

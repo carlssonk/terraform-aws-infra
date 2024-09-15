@@ -13,8 +13,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}",
-      "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}:*"
+      "arn:aws:ecs:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}",
+      "arn:aws:ecs:${module.globals.var.REGION}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}:*"
     ]
     effect = "Allow"
   }

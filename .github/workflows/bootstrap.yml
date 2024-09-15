@@ -6,9 +6,7 @@ on:
 env:
   WORKSPACE: ${{ github.ref_name }}
   GH_TOKEN: ${{ github.token }}
-  TF_VAR_region: eu-north-1
-  TF_VAR_organization: carlssonk
-  TF_VAR_repository: terraform-aws-infra
+  TF_VAR_repository: ${{ github.event.repository.name }}
 
 jobs:
   bootstrap:
@@ -25,7 +23,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.BOOTSTRAP_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.BOOTSTRAP_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.TF_VAR_region }}
+          aws-region: ${{ vars.TF_VAR_REGION }}
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -33,8 +31,8 @@ jobs:
       - name: Check if Terraform backend exists
         id: check_backend
         run: |
-          BUCKET_NAME="${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}"
-          TABLE_NAME="${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}"
+          BUCKET_NAME="${{ vars.TF_VAR_ORGANIZATION }}-terraform-state-bucket-${{ env.WORKSPACE }}"
+          TABLE_NAME="${{ vars.TF_VAR_ORGANIZATION }}-terraform-lock-table-${{ env.WORKSPACE }}"
           
           if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null && \
               aws dynamodb describe-table --table-name "$TABLE_NAME" 2>/dev/null; then
@@ -59,9 +57,9 @@ jobs:
         run: |
           terraform init \
             -backend-config="encrypt=true" \
-            -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.WORKSPACE }}" \
+            -backend-config="region=${{ vars.TF_VAR_REGION }}" \
+            -backend-config="bucket=${{ vars.TF_VAR_ORGANIZATION }}-terraform-state-bucket-${{ env.WORKSPACE }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_VAR_ORGANIZATION }}-terraform-lock-table-${{ env.WORKSPACE }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
 
           terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}

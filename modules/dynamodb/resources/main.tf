@@ -3,7 +3,7 @@ module "globals" {
 }
 
 resource "aws_dynamodb_table" "this" {
-  name         = "${module.globals.var.organization}-${var.table_name}-${terraform.workspace}"
+  name         = "${module.globals.var.ORGANIZATION}-${var.table_name}-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
