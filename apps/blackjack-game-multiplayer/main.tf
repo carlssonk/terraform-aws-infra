@@ -6,6 +6,7 @@ locals {
   app_name       = "blackjack"
   subdomain      = local.app_name
   root_domain    = "carlssonk.com"
+  domain_name    = "${local.app_name}.${local.root_domain}"
   container_name = "container-${local.app_name}"
   container_port = 8080
 }
@@ -25,12 +26,13 @@ module "ecs_task_definition" {
 }
 
 module "ecs_target_group" {
-  source       = "../../modules/alb-target-group/default"
-  app_name     = local.app_name
-  port         = local.container_port
-  vpc_id       = var.vpc_id
-  listener_arn = var.listener_arn
-  host_header  = "${local.app_name}.${local.root_domain}"
+  source         = "../../modules/alb-target/default"
+  app_name       = local.app_name
+  container_port = local.container_port
+  vpc_id         = var.vpc_id
+  listener_arn   = var.alb_listener_arn
+  host_header    = local.domain_name
+  use_stickiness = true
 }
 
 module "ecs_service" {

@@ -67,7 +67,7 @@ module "blackjack" {
   security_group_id = module.main_vpc.security_group_id
   vpc_id            = module.main_vpc.vpc_id
   alb_dns_name      = module.main_alb.alb_dns_name
-  listener_arn      = module.main_alb.listener_arn
+  alb_listener_arn  = module.main_alb.alb_listener_arn
   root_domain       = module.common.apps.root_domain
   container_port    = module.common.apps.container_port
 }
