@@ -1,3 +1,8 @@
+variable "workflow_step" {
+  description = "iam|resources"
+  type        = string
+}
+
 locals {
   allow_https_to_vpc_endpoints = {
     description     = "Allow HTTPS to VPC endpoints"
@@ -16,36 +21,34 @@ locals {
   }
 
   ecs_ports = {
-    "3000" = {
-      value        = 3000
+    8080 = {
       egress_rules = [allow_https_to_vpc_endpoints, allow_https_to_anywhere]
     }
-    "8080" = {
-      value        = 8080
-      egress_rules = [allow_https_to_vpc_endpoints]
-    }
+    # 8081 = {
+    #   egress_rules = [allow_https_to_vpc_endpoints]
+    # }
   }
-
-  carlssonk_com = "carlssonk.com"
 
   apps = {
     portfolio = {
-      root_domain = local.carlssonk_com
-      domain_name = "www.${local.carlssonk_com}"
+      cloudflare_ruleset_rules = [{
+        action = "set_config"
+        action_parameters = {
+          ssl = "flexible"
+        }
+        expression  = "(http.host eq \"carlssonk.com\" or http.host eq \"www.carlssonk.com\")"
+        description = "Cloudflare rules for portfolio"
+      }]
     }
-    blackjack = {
-      root_domain    = local.carlssonk_com
-      container_port = local.ecs_ports["3000"].value
+    diagram = {
+      cloudflare_ruleset_rules = [{
+        action = "set_config"
+        action_parameters = {
+          ssl = "flexible"
+        }
+        expression  = "(http.host eq \"terraform.carlssonk.com\")"
+        description = "Cloudflare rules for diagram"
+      }]
     }
   }
-
-  cloudflare_ruleset_rules = [
-    {
-      action = "set_ssl"
-      action_parameters = {
-        value = "flexible"
-      }
-      expression = "(http.host eq \"${local.apps.portfolio.root_domain}\" or http.host eq \"${local.apps.portfolio.domain_name}\")"
-    }
-  ]
 }

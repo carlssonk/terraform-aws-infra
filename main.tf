@@ -28,7 +28,8 @@ terraform {
 ########################################################################
 
 module "common" {
-  source = "./common"
+  workflow_step = var.workflow_step
+  source        = "./common"
 }
 output "common_policy_document" {
   value = module.common.policy_document
@@ -41,11 +42,19 @@ output "common_policy_document" {
 module "portfolio" {
   workflow_step = var.workflow_step
   source        = "./apps/portfolio"
-  root_domain   = module.common.apps.portfolio.root_domain
-  domain_name   = module.common.apps.portfolio.domain_name
 }
 output "portfolio_policy_document" {
   value = module.portfolio.policy_document
+}
+
+########################################################################
+
+module "diagram" {
+  workflow_step = var.workflow_step
+  source        = "./apps/terraform-diagram"
+}
+output "diagram_policy_document" {
+  value = module.diagram.policy_document
 }
 
 ########################################################################

@@ -3,14 +3,14 @@ name: Upsert Infrastructure
 on:
   workflow_dispatch: # Manual trigger
   schedule:
-  - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up potential old policies
+  - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up unused policies
   push:
     branches: [prod, dev]
   pull_request:
     branches: [prod, dev]
   
 concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
   cancel-in-progress: false
 
 env:

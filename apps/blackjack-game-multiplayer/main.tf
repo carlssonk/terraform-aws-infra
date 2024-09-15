@@ -4,9 +4,10 @@ module "globals" {
 
 locals {
   app_name       = "blackjack"
-  root_domain    = var.root_domain
+  subdomain      = local.app_name
+  root_domain    = "carlssonk.com"
   container_name = "container-${local.app_name}"
-  container_port = var.container_port
+  container_port = 8080
 }
 
 module "ecs_task_definition" {
@@ -45,10 +46,10 @@ module "ecs_service" {
 }
 
 module "cloudflare" {
-  source      = "../../modules/cloudflare/default"
+  source      = "../../modules/cloudflare-record/default"
   root_domain = local.root_domain
   dns_records = [{
-    name  = local.app_name,
+    name  = local.subdomain
     value = var.alb_dns_name
   }]
 }

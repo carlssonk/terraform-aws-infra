@@ -47,41 +47,34 @@ module "security_group_alb_rules" {
     protocol    = "tcp"
     cidr_blocks = module.globals.var.cloudflare_id_ranges
   }]
-  egress_rules = [{
-    description     = "Allow traffic to ECS tasks on port 3000"
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [module.security_group_ecs_tasks.id]
-  }]
+  egress_rules = flatten([
+    for port, _ in local.ecs_ports :
+    {
+      description     = "Allow traffic to ECS tasks on port ${port}"
+      from_port       = port
+      to_port         = port
+      protocol        = "tcp"
+      security_groups = [module.security_group_ecs_tasks.id]
+    }
+  ])
 }
 
 module "security_group_ecs_tasks_rules" {
   source            = "../modules/security-group-rules/default"
   security_group_id = module.security_group_ecs_tasks.id
-  ingress_rules = [{
-    description     = "Allow traffic from ALB on port 3000"
-    from_port       = 3000
-    to_port         = 3000
-    protocol        = "tcp"
-    security_groups = [module.security_group_alb.id]
-  }]
-  egress_rules = [
+  ingress_rules = flatten([
+    for port, _ in local.ecs_ports :
     {
-      description     = "Allow HTTPS to VPC endpoints"
-      from_port       = 443
-      to_port         = 443
+      description     = "Allow traffic from ALB on port ${port}"
+      from_port       = port
+      to_port         = port
       protocol        = "tcp"
-      security_groups = [module.security_group_vpc_endpoints.id]
-    },
-    {
-      description = "Allow HTTPS to any destination"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      security_groups = [module.security_group_alb.id]
     }
-  ]
+  ])
+  egress_rules = flatten([
+    for port, value in local.ecs_ports : flatten(value.egress_rules)
+  ])
 }
 
 module "security_group_vpc_endpoints_rules" {
@@ -102,6 +95,7 @@ module "alb" {
   vpc_id            = module.vpc.id
   subnet_ids        = module.vpc.public_subnet_ids
   security_group_id = module.security_group_alb.id
+  root_domain_names = ["carlssonk.com"] // Creates ACM certificates for alb
 }
 
 module "ecs_cluster" {
@@ -121,9 +115,9 @@ module "vpc_endpoints" {
   security_group_id = module.security_group_vpc_endpoints.id
 }
 
-module "common_infrastructure_policy" {
+module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "./iam_policy"
+  source        = "../iam_policy"
   name          = "common"
   policy_documents = [
     module.vpc.policy_document,
@@ -143,19 +137,31 @@ module "common_infrastructure_policy" {
 ############################# CLOUDFLARE ###############################
 ########################################################################
 
-# resource "cloudflare_ruleset" "ssl_mode_rules" {
-#   zone_id     = var.zone_id
-#   name        = "SSL Mode Configuration"
-#   description = "Configure SSL modes based on host headers"
-#   kind        = "root"
-#   phase       = "http_request_late"
+data "cloudflare_zone" "domain" {
+  name = "carlssonk.com"
+}
 
-#   rules {
-#     action = "set_ssl"
-#     action_parameters {
-#       value = "flexible"
-#     }
-#     expression  = "(http.host eq \"example.com\")"
-#     description = "Set Flexible SSL for example.com"
-#   }
-# }
+resource "cloudflare_ruleset" "main" {
+  zone_id     = data.cloudflare_zone.domain.id
+  name        = "Dynamic Main Ruleset"
+  description = "Dynamic ruleset for managing app settings"
+  kind        = "zone"
+  phase       = "http_request_late_transform"
+
+  dynamic "rules" {
+    for_each = flatten([for _, value in local.apps : value.cloudflare_ruleset_rules])
+    content {
+      action = rules.value.action
+
+      dynamic "action_parameters" {
+        for_each = rules.value.action_parameters.ssl != null ? [rules.value.action_parameters.ssl] : []
+        content {
+          ssl = action_parameters.value
+        }
+      }
+
+      expression  = rules.value.expression
+      description = rules.value.description
+    }
+  }
+}

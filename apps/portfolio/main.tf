@@ -1,12 +1,14 @@
-// s3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
+// S3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
 
 locals {
-  app_name = "portfolio"
+  app_name    = "portfolio"
+  root_domain = "carlssonk.com"
+  domain_name = "www.${local.root_domain}"
 }
 
 module "www_bucket" {
   source      = "../../modules/s3/default"
-  bucket_name = var.domain_name
+  bucket_name = local.domain_name
   website_config = {
     is_website = true
   }
@@ -15,24 +17,24 @@ module "www_bucket" {
 
 module "apex_bucket" {
   source      = "../../modules/s3/default"
-  bucket_name = var.root_domain
+  bucket_name = local.root_domain
   website_config = {
-    redirect_to = var.domain_name
+    redirect_to = local.domain_name
   }
   depends_on = [module.www_bucket]
 }
 
 module "cloudflare" {
-  source      = "../../modules/cloudflare/default"
-  root_domain = var.root_domain
+  source      = "../../modules/cloudflare-record/default"
+  root_domain = local.root_domain
   dns_records = [
     {
-      name  = "www",
-      value = module.www_bucket.website_endpoint,
+      name  = "www"
+      value = module.www_bucket.website_endpoint
     },
     {
-      name  = "@",
-      value = module.apex_bucket.website_endpoint,
+      name  = "@"
+      value = module.apex_bucket.website_endpoint
     }
   ]
 }
