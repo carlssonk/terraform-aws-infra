@@ -2,7 +2,7 @@
 TODO (flowchart/diagram of CI flow)
 
 ## Guide
-> Note: When first opening this project or when a new module is added in modules/; `chmod +x symlink_modules.sh` and `./symlink_modules.sh` needs to be executed to symlink variables and resources/ into a default/ folder
+> Note: Use `chmod +x symlink_modules.sh` and `./symlink_modules.sh` to create a symlinked default/ folder
 
 ### Set up and create infra on a new environment
 1. Create a new AWS account
