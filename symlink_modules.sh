@@ -48,11 +48,10 @@ for module_dir in "$MODULES_DIR"/*; do
                 if [ -f "$output_file" ]; then
                     combined_outputs+="# Outputs from $(basename "$subdir")\n"
     
-                    if [ "$subdir_name" != "$STEP_NAME" ]; then
+                    if [ "$(basename "$subdir")" != "$STEP_NAME" ]; then
                         # Modify the outputs.tf content for non-matching subdirectories
                         # This will replace all output values with null
                         modified_content=$(sed -E 's/value = .*/value = null/' "$output_file")
-                        echo "Modified content: $modified_content"
                         combined_outputs+="$modified_content\n\n"
                     else
                         # Use the original content for the matching subdirectory
