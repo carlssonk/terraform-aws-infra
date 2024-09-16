@@ -6,7 +6,7 @@
 # If COMBINE_OUTPUTS is true; Combines iam/ouputs.tf and resource/outputs.tf into one. If STEP_NAME is 'iam', the outputs in resources/ values will be replaced with null before adding it to combined_outputs
 
 STEP_NAME=${1:-resources}
-COMBINE_OUTPUTS=${2:-false}
+COMBINE_OUTPUTS=${2:-false} # ONLY FOR CI PIPELINE
 MODULES_DIR="./modules"
 
 # Check if the modules directory exists
@@ -51,7 +51,8 @@ for module_dir in "$MODULES_DIR"/*; do
                     if [ "$subdir_name" != "$STEP_NAME" ]; then
                         # Modify the outputs.tf content for non-matching subdirectories
                         # This will replace all output values with null
-                        modified_content=$(sed -E 's/(output[[:space:]]+".+"[[:space:]]*\{[[:space:]]*value[[:space:]]*=)[^}]+/\1 null/' "$output_file")
+                        modified_content=$(sed -E 's/value = .*/value = null/' "$output_file")
+                        echo "Modified content: $modified_content"
                         combined_outputs+="$modified_content\n\n"
                     else
                         # Use the original content for the matching subdirectory
