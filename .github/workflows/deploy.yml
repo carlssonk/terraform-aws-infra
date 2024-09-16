@@ -106,7 +106,7 @@ jobs:
           terraform state rm '${{ steps.check_commit.outputs.resource_address }}'
         continue-on-error: true
 
-      - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan ${{ matrix.step == 'iam' && '& Apply' }}') || 'Terraform Apply' }}
+      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             if [ "${{ matrix.step }}" == "iam" ]; then
