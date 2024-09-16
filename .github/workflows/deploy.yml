@@ -106,10 +106,15 @@ jobs:
           terraform state rm '${{ steps.check_commit.outputs.resource_address }}'
         continue-on-error: true
 
-      - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan') || 'Terraform Apply' }}
+      - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan ${{ matrix.step == 'iam' && '& Apply' }}') || 'Terraform Apply' }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
+            if [ "${{ matrix.step }}" == "iam" ]; then
+              terraform plan -lock=false
+              terraform apply -auto-approve
+            else
+              terraform plan
+            fi
           else
             if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
               echo "Terraform failed after all retry attempts"
