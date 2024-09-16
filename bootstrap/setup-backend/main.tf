@@ -13,11 +13,11 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "this" {
-  bucket = "${var.organization}-terraform-state-bucket-${terraform.workspace}"
+  bucket = "${var.ORGANIZATION}-terraform-state-bucket-${terraform.workspace}"
 }
 
 resource "aws_dynamodb_table" "this" {
-  name         = "${var.organization}-terraform-lock-table-${terraform.workspace}"
+  name         = "${var.ORGANIZATION}-terraform-lock-table-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 

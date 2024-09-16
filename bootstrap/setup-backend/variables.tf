@@ -3,7 +3,7 @@ variable "AWS_REGION" {
   type        = string
 }
 
-variable "organization" {
+variable "ORGANIZATION" {
   description = "Github username or organization name"
   type        = string
 }
