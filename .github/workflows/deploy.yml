@@ -124,7 +124,7 @@ jobs:
 
       - name: Complete workflow
         if: github.event_name == 'pull_request'
-        run: exit 0
+        run: exit 78
 
       - name: Terraform Show
         if: matrix.step == 'resources'
