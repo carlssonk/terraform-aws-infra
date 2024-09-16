@@ -9,7 +9,8 @@ data "aws_iam_policy_document" "this" {
         "ecs:*TaskDefinition*",
         "ecs:Get*",
         "ecs:List*",
-        "ecs:Describe*"
+        "ecs:Describe*",
+        "ecs:TagResource"
       ]
     )
     resources = [

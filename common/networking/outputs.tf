@@ -13,3 +13,11 @@ output "main_vpc_private_subnet_ids" {
 output "main_vpc_public_subnet_ids" {
   value = module.main_vpc.public_subnet_ids
 }
+
+output "main_vpc_private_route_table_ids" {
+  value = module.main_vpc.private_route_table_ids
+}
+
+output "main_vpc_public_route_table_ids" {
+  value = module.main_vpc.public_route_table_ids
+}

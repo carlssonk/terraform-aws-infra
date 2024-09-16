@@ -1,5 +1,5 @@
-resource "aws_vpc_endpoint" "ecr_api" {
-  for_each = toset(var.endpoints)
+resource "aws_vpc_endpoint" "interface" {
+  for_each = var.type == "interface" ? toset(var.endpoints) : []
 
   vpc_id              = var.vpc_id
   service_name        = each.value
@@ -7,4 +7,13 @@ resource "aws_vpc_endpoint" "ecr_api" {
   private_dns_enabled = true
   subnet_ids          = var.subnet_ids
   security_group_ids  = [var.security_group_id]
+}
+
+resource "aws_vpc_endpoint" "gateway" {
+  for_each = var.type == "gateway" ? toset(var.endpoints) : []
+
+  vpc_id            = var.vpc_id
+  service_name      = each.value
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = var.route_table_ids
 }

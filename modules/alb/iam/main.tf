@@ -18,4 +18,16 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
+
+  statement {
+    actions = concat(
+      [
+        "acm:RequestCertificate"
+      ]
+    )
+    resources = [
+      "arn:aws:acm:eu-north-1:${module.globals.var.AWS_ACCOUNT_ID}:certificate/*"
+    ]
+    effect = "Allow"
+  }
 }

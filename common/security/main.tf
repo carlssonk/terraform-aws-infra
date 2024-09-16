@@ -116,16 +116,27 @@ module "security_group_vpc_endpoints_rules" {
   }]
 }
 
-module "vpc_endpoints" {
+// Gateway endpoints are free
+module "vpc_endpoints_gateway" {
   source = "../../modules/vpc-endpoint/default"
+  type   = "gateway"
   endpoints = [
-    "com.amazonaws.${module.globals.var.AWS_REGION}.s3", // s3 vpc endpoints are free
-    // Commented out for cost optimization
-    # "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.api",
-    # "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.dkr",
-    # "com.amazonaws.${module.globals.var.AWS_REGION}.secretsmanager"
+    "com.amazonaws.${module.globals.var.AWS_REGION}.s3",
+    "com.amazonaws.${module.globals.var.AWS_REGION}.dynamodb"
   ]
-  vpc_id            = var.networking_outputs.main_vpc_id
-  subnet_ids        = var.networking_outputs.main_vpc_private_subnet_ids
-  security_group_id = module.security_group_vpc_endpoints.id
+  vpc_id          = var.networking_outputs.main_vpc_id
+  route_table_ids = module.networking_outputs.main_vpc_private_route_table_ids
 }
+
+// Commented out for cost optimization
+# module "vpc_endpoints_interface" {
+#   source = "../../modules/vpc-endpoint/default"
+#   type   = "interface"
+#   endpoints = [
+#     "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.api",
+#     "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.dkr",
+#   ]
+#   vpc_id            = var.networking_outputs.main_vpc_id
+#   subnet_ids        = var.networking_outputs.main_vpc_private_subnet_ids
+#   security_group_id = module.security_group_vpc_endpoints.id
+# }
