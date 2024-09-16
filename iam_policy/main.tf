@@ -72,7 +72,3 @@ resource "aws_iam_role_policy_attachment" "attachment" {
   role       = "terraform-execution-role"
   policy_arn = aws_iam_policy.policy[0].arn
 }
-
-output "policy_document" {
-  value = jsonencode(local.policy_document_result)
-}

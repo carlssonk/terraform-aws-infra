@@ -18,7 +18,7 @@ variable "security_group_id" {
   type        = string
 }
 
-variable "root_domain_names" {
+variable "domains_for_certificates" {
   description = "Root domain names used for creating ACM Certificates"
   type        = list(string)
 }

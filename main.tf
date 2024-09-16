@@ -23,14 +23,69 @@ terraform {
   backend "s3" {}
 }
 
+locals {
+  // App configurations used by common infrastrucutre
+  apps = {
+    portfolio = {
+      root_domain = "carlssonk.com"
+      cloudflare_ruleset_rules = [{
+        action = "set_config"
+        action_parameters = {
+          ssl = "flexible"
+        }
+        expression  = "(http.host eq \"carlssonk.com\" or http.host eq \"www.carlssonk.com\")"
+        description = "Cloudflare rules for portfolio"
+      }]
+    }
+    terraform_diagram = {
+      root_domain = "carlssonk.com"
+      cloudflare_ruleset_rules = [{
+        action = "set_config"
+        action_parameters = {
+          ssl = "flexible"
+        }
+        expression  = "(http.host eq \"terraform.carlssonk.com\")"
+        description = "Cloudflare rules for terraform-diagram"
+      }]
+    }
+  }
+}
+
 ########################################################################
 ######################## COMMON INFRASTRUCTURE #########################
 ########################################################################
 
-module "common" {
-  workflow_step = var.workflow_step
-  source        = "./common"
+module "networking" {
+  source = "./common/networking"
 }
+
+module "security" {
+  source             = "./common/security"
+  networking_outputs = module.networking
+}
+
+module "services" {
+  source             = "./common/services"
+  networking_outputs = module.networking
+  security_outputs   = module.security
+}
+
+module "cloudflare" {
+  source = "./modules/cloudflare/default"
+  apps   = local.apps
+}
+
+module "iam_policy" {
+  workflow_step = var.workflow_step
+  source        = "./iam_policy"
+  name          = "common"
+  policy_documents = flatten([
+    module.networking.policy_documents,
+    module.security.policy_documents,
+    module.services.policy_documents
+  ])
+}
+
 output "common_policy_document" {
   value = module.common.policy_document
 }
@@ -49,27 +104,25 @@ output "portfolio_policy_document" {
 
 ########################################################################
 
-module "diagram" {
+module "terraform_diagram" {
   workflow_step = var.workflow_step
   source        = "./apps/terraform-diagram"
 }
-output "diagram_policy_document" {
-  value = module.diagram.policy_document
+output "terraform_diagram_policy_document" {
+  value = module.terraform_diagram.policy_document
 }
 
 ########################################################################
 
 module "blackjack" {
-  workflow_step     = var.workflow_step
-  source            = "./apps/blackjack-game-multiplayer"
-  cluster_id        = module.main_ecs_cluster.cluster_id
-  subnet_ids        = module.main_vpc.public_subnet_ids
-  security_group_id = module.main_vpc.security_group_id
-  vpc_id            = module.main_vpc.vpc_id
-  alb_dns_name      = module.main_alb.alb_dns_name
-  alb_listener_arn  = module.main_alb.alb_listener_arn
-  root_domain       = module.common.apps.root_domain
-  container_port    = module.common.apps.container_port
+  workflow_step         = var.workflow_step
+  source                = "./apps/blackjack-game-multiplayer"
+  vpc_id                = module.networking.main_vpc_id
+  subnet_ids            = module.networking.main_vpc_public_subnet_ids
+  ecs_security_group_id = module.security.security_group_ecs_tasks_id
+  cluster_id            = module.services.main_ecs_cluster_id
+  alb_dns_name          = module.services.main_alb_dns_name
+  alb_listener_arn      = module.services.main_alb_listener_arn
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document

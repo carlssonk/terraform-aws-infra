@@ -9,7 +9,7 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_acm_certificate" "this" {
-  for_each                  = toset(var.root_domain_names)
+  for_each                  = toset(var.domains_for_certificates)
   domain_name               = each.value
   validation_method         = "DNS"
   subject_alternative_names = ["*.${each.value}"]
@@ -19,12 +19,12 @@ resource "aws_acm_certificate" "this" {
   }
 
   tags = {
-    Name = "acm_certificate-${each.value}"
+    Name = "acm-certificate-${each.value}"
   }
 }
 
 module "cloudflare_records" {
-  for_each    = toset(var.root_domain_names)
+  for_each    = toset(var.domains_for_certificates)
   source      = "../../cloudflare-record/default"
   root_domain = each.value
   dns_records = [for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
@@ -61,7 +61,7 @@ resource "aws_lb_listener" "front_end" {
 }
 
 resource "aws_lb_listener_certificate" "this" {
-  for_each        = toset(var.root_domain_names)
+  for_each        = toset(var.domains_for_certificates)
   listener_arn    = aws_lb_listener.front_end.arn
   certificate_arn = aws_acm_certificate[each.value].arn
 }

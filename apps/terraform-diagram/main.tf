@@ -1,7 +1,7 @@
 // Subdomain website setup
 
 locals {
-  app_name    = "diagram"
+  app_name    = "terraform_diagram"
   subdomain   = "terraform"
   root_domain = "carlssonk.com"
   domain_name = "${local.subdomain}.${local.root_domain}"
@@ -30,6 +30,8 @@ module "iam_policy" {
   source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
-    module.bucket.policy_document
+    for mod in values(module) :
+    mod.policy_document
+    if can(mod.policy_document)
   ]
 }

@@ -3,17 +3,6 @@ variable "workflow_step" {
   type        = string
 }
 
-variable "root_domain" {
-  description = "Domain name excluding subdomains"
-  type        = string
-}
-
-variable "container_port" {
-  description = "Port of the ECS task's Docker container"
-  type        = number
-}
-
-
 variable "subnet_ids" {
   description = "List of subnet IDS"
   type        = list(string)
@@ -24,7 +13,7 @@ variable "cluster_id" {
   type        = string
 }
 
-variable "security_group_id" {
+variable "ecs_security_group_id" {
   description = "ID of Security Group"
   type        = string
 }

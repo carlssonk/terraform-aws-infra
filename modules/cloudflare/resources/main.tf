@@ -22,7 +22,16 @@ data "cloudflare_zone" "domain" {
   name     = each.key
 }
 
-resource "cloudflare_ruleset" "main" {
+resource "cloudflare_zone_settings_override" "this" {
+  for_each = local.apps_grouped
+  zone_id  = data.cloudflare_zone.domain[each.key].id
+
+  settings {
+    ssl = "full"
+  }
+}
+
+resource "cloudflare_ruleset" "this" {
   for_each    = local.apps_grouped
   zone_id     = data.cloudflare_zone.domain[each.key].id
   name        = "Dynamic Main Ruleset"
