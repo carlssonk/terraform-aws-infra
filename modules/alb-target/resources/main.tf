@@ -1,5 +1,5 @@
 resource "aws_lb_target_group" "this" {
-  name_prefix = "${var.app_name}-tg-"
+  name        = "${var.app_name}-tg"
   port        = var.container_port
   vpc_id      = var.vpc_id
   protocol    = "HTTPS"
