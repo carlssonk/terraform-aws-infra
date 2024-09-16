@@ -1,4 +1,4 @@
-resource "aws_ecs_service" "main" {
+resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
   cluster         = var.cluster_id
   task_definition = var.task_definition_arn
@@ -21,7 +21,7 @@ resource "aws_ecs_service" "main" {
 }
 
 // Create one ECR repo per service
-resource "aws_ecr_repository" "app_repo" {
+resource "aws_ecr_repository" "this" {
   name                 = "repo-${var.app_name}"
   image_tag_mutability = "MUTABLE"
 

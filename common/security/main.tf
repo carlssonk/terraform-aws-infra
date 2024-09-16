@@ -16,8 +16,8 @@ locals {
     from_port   = 443
     to_port     = 443
     ip_protocol = "tcp"
-    cidr_ipv4   = ["0.0.0.0/0"]
-    cidr_ipv6   = ["::/0"]
+    cidr_ipv4   = "0.0.0.0/0"
+    cidr_ipv6   = "::/0"
   }
 
   ecs_ports = {
