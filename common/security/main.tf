@@ -4,19 +4,20 @@ module "globals" {
 
 locals {
   allow_https_to_vpc_endpoints = {
-    description     = "Allow HTTPS to VPC endpoints"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [module.security_group_vpc_endpoints.id]
+    description                  = "Allow HTTPS to VPC endpoints"
+    from_port                    = 443
+    to_port                      = 443
+    ip_protocol                  = "tcp"
+    referenced_security_group_id = module.security_group_vpc_endpoints.id
   }
 
   allow_https_to_anywhere = {
     description = "Allow HTTPS to any destination"
     from_port   = 443
     to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    ip_protocol = "tcp"
+    cidr_ipv4   = ["0.0.0.0/0"]
+    cidr_ipv6   = ["::/0"]
   }
 
   ecs_ports = {
@@ -52,17 +53,18 @@ module "security_group_alb_rules" {
     description = "Allow HTTPS from Cloudflare"
     from_port   = 443
     to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = module.globals.var.cloudflare_ip_ranges
+    ip_protocol = "tcp"
+    cidr_ipv4   = module.globals.var.cloudflare_ipv4_ranges
+    cidr_ipv6   = module.globals.var.cloudflare_ipv6_ranges
   }]
   egress_rules = flatten([
     for port, _ in local.ecs_ports :
     {
-      description     = "Allow traffic to ECS tasks on port ${port}"
-      from_port       = port
-      to_port         = port
-      protocol        = "tcp"
-      security_groups = [module.security_group_ecs_tasks.id]
+      description                  = "Allow traffic to ECS tasks on port ${port}"
+      from_port                    = port
+      to_port                      = port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.security_group_ecs_tasks.id
     }
   ])
 }
@@ -74,11 +76,11 @@ module "security_group_ecs_tasks_rules" {
   ingress_rules = flatten([
     for port, _ in local.ecs_ports :
     {
-      description     = "Allow traffic from ALB on port ${port}"
-      from_port       = port
-      to_port         = port
-      protocol        = "tcp"
-      security_groups = [module.security_group_alb.id]
+      description                  = "Allow traffic from ALB on port ${port}"
+      from_port                    = port
+      to_port                      = port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.security_group_alb.id
     }
   ])
   egress_rules = flatten([
@@ -91,11 +93,11 @@ module "security_group_vpc_endpoints_rules" {
   name              = "vpc_endpoints"
   security_group_id = module.security_group_vpc_endpoints.id
   ingress_rules = [{
-    description     = "Allow HTTPS from ECS tasks"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [module.security_group_ecs_tasks.id]
+    description                  = "Allow HTTPS from ECS tasks"
+    from_port                    = 443
+    to_port                      = 443
+    ip_protocol                  = "tcp"
+    referenced_security_group_id = module.security_group_ecs_tasks.id
   }]
 }
 

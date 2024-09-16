@@ -51,7 +51,7 @@ locals {
       Resource  = "${aws_s3_bucket.this.arn}/*"
       Condition = {
         IpAddress = {
-          "aws:SourceIp" = module.globals.var.cloudflare_ip_ranges
+          "aws:SourceIp" = module.globals.var.cloudflare_all_ip_ranges
         }
       }
     }

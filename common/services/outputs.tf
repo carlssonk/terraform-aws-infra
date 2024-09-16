@@ -1,6 +1,6 @@
 output "policy_documents" {
   value = [
-    for mod in values(module) :
+    for name, mod in module :
     mod.policy_document
     if can(mod.policy_document)
   ]

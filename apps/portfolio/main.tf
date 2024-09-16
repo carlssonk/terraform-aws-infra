@@ -44,7 +44,7 @@ module "iam_policy" {
   source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
-    for mod in values(module) :
+    for name, mod in module :
     mod.policy_document
     if can(mod.policy_document)
   ]

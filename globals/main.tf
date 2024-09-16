@@ -17,15 +17,16 @@ data "http" "cloudflare_ips_v6" {
 }
 
 locals {
-  cloudflare_ip_ranges = concat(
-    split("\n", chomp(try(data.http.cloudflare_ips_v4.response_body, ""))),
-    split("\n", chomp(try(data.http.cloudflare_ips_v6.response_body, "")))
-  )
+  cloudflare_ipv4_ranges   = split("\n", chomp(try(data.http.cloudflare_ips_v4.response_body, "")))
+  cloudflare_ipv6_ranges   = split("\n", chomp(try(data.http.cloudflare_ips_v6.response_body, "")))
+  cloudflare_all_ip_ranges = concat(local.cloudflare_ipv4_ranges, local.cloudflare_ipv6_ranges)
 }
 
 output "var" {
   value = merge(
     jsondecode(data.local_file.globals.content),
-    { cloudflare_ip_ranges : local.cloudflare_ip_ranges }
+    { cloudflare_all_ip_ranges : local.cloudflare_all_ip_ranges },
+    { cloudflare_ipv4_ranges : local.cloudflare_ipv4_ranges },
+    { cloudflare_ipv6_ranges : local.cloudflare_ipv6_ranges }
   )
 }

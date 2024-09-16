@@ -11,10 +11,10 @@ variable "security_group_id" {
 variable "ingress_rules" {
   description = "List of ingress rules"
   type = list(object({
-    description                  = string
-    from_port                    = number
-    to_port                      = number
     ip_protocol                  = string
+    description                  = optional(string)
+    from_port                    = optional(number)
+    to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)
@@ -26,10 +26,10 @@ variable "ingress_rules" {
 variable "egress_rules" {
   description = "List of egress rules"
   type = list(object({
-    description                  = string
-    from_port                    = number
-    to_port                      = number
     ip_protocol                  = string
+    description                  = optional(string)
+    from_port                    = optional(number)
+    to_port                      = optional(number)
     cidr_ipv4                    = optional(string)
     cidr_ipv6                    = optional(string)
     prefix_list_id               = optional(string)

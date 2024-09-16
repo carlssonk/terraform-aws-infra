@@ -40,9 +40,9 @@ module "ecs_service" {
   app_name             = local.app_name
   subnet_ids           = var.subnet_ids
   cluster_id           = var.cluster_id
-  task_definition_arn  = module.ecs_task_definition.task_definition_arn
+  task_definition_arn  = module.ecs_task_definition.arn
   security_group_id    = var.ecs_security_group_id
-  alb_target_group_arn = module.ecs_target_group.target_group_arn
+  alb_target_group_arn = module.ecs_target_group.arn
   container_name       = local.container_name
   container_port       = local.container_port
 }
@@ -61,7 +61,7 @@ module "iam_policy" {
   source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
-    for mod in values(module) :
+    for name, mod in module :
     mod.policy_document
     if can(mod.policy_document)
   ]
