@@ -159,7 +159,10 @@ resource "aws_iam_policy" "terraform_base_policy" {
         // Used when fetching a policy
         Effect = "Allow"
         Action = [
-          "iam:ListPolicies"
+          "iam:ListPolicies",
+          "*:DeleteTags*",
+          "*:CreateTags",
+          "*:AddTags*"
         ]
         Resource = "*"
       }

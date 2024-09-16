@@ -8,8 +8,6 @@ data "aws_iam_policy_document" "this" {
         "ec2:CreateVpcEndpoint",
         "ec2:DeleteVpcEndpoints",
         "ec2:ModifyVpcAttribute",
-        "ec2:CreateTags",
-        "ec2:DeleteTags",
         "ec2:CreateSubnet",
         "ec2:DeleteSubnet",
         "ec2:ModifySubnetAttribute",

@@ -30,4 +30,14 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
+
+  statement {
+    actions = concat(
+      [
+        "elasticloadbalancing:DescribeLoadBalancers",
+      ],
+    )
+    resources = ["*"]
+    effect    = "Allow"
+  }
 }

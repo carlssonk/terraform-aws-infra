@@ -9,8 +9,7 @@ data "aws_iam_policy_document" "this" {
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSecurityGroupRules",
         "ec2:DescribeVpcs",
-        "ec2:DescribePrefixLists",
-        "ec2:CreateTags"
+        "ec2:DescribePrefixLists"
       ]
     )
     resources = ["*"]
