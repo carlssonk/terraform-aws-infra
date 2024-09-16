@@ -1,8 +1,22 @@
-# !/bin/bash
-
+#!/bin/bash
 
 STEP_NAME=${1:-resources}
 MODULES_DIR="./modules"
+
+# Function to remove existing default symlink or directory
+remove_existing_default() {
+    if [ -L "$module_dir/default" ] || [ -d "$module_dir/default" ]; then
+        rm -rf "$module_dir/default"
+    fi
+}
+
+# Function to create variables.tf symlink
+create_variables_symlink() {
+    if [ -f "$module_dir/variables.tf" ]; then
+        echo "    Creating variables.tf symlink in default"
+        ln -sf "../variables.tf" "$module_dir/default/variables.tf"
+    fi
+}
 
 # Check if the modules directory exists
 if [ ! -d "$MODULES_DIR" ]; then
@@ -35,23 +49,25 @@ for module_dir in "$MODULES_DIR"/*; do
         if [ -d "$module_dir/$STEP_NAME" ]; then
             echo "  Creating symlink: default -> $STEP_NAME"
             
-            # Remove existing symlink if it exists
-            if [ -L "$module_dir/default" ]; then
-                rm "$module_dir/default"
-            fi
+            remove_existing_default
             
             # Create new symlink
             ln -s "$STEP_NAME" "$module_dir/default"
             
-            # Create variables.tf symlink in the default directory
-            if [ -f "$module_dir/variables.tf" ]; then
-                echo "    Creating variables.tf symlink in default"
-                ln -sf "../variables.tf" "$module_dir/default/variables.tf"
-            fi
+            create_variables_symlink
         else
-            echo "  Warning: Step '$STEP_NAME' not found in $module_name"
+            echo "  Step '$STEP_NAME' not found in $module_name. Creating default directory."
+
+            remove_existing_default
+
+            # Create default directory and empty main.tf
+            mkdir -p "$module_dir/default"
+            touch "$module_dir/default/main.tf"
+            echo "    Created empty main.tf in default directory"
+            
+            create_variables_symlink
         fi
     fi
 done
 
-echo "Symlinking complete!"
+echo "Processing complete!"
