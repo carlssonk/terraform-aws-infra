@@ -67,6 +67,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      - name: Symlink modules
+        run: |
+          chmod +x symlink_modules.sh
+          ./symlink_modules.sh ${{ matrix.step }}
+          
       - name: Terraform Init
         run: |
           terraform init \

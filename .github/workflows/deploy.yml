@@ -68,6 +68,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
+      - name: Symlink modules
+        run: |
+          chmod +x symlink_modules.sh
+          ./symlink_modules.sh ${{ matrix.step }}
+
       - name: Terraform Init
         run: |
           terraform init \
@@ -84,10 +89,6 @@ jobs:
           chmod +x retry_command.sh
           chmod +x symlink_modules.sh
           ./symlink_modules.sh ${{ matrix.step }}
-          echo "Contents of ./modules/s3:"
-          ls -la ./modules/s3
-          echo "Contents of ./modules/s3/default:"
-          ls -la ./modules/s3/default
 
       - name: Check for State Removal Command
         if: matrix.step == 'resources'
