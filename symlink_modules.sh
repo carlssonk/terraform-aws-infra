@@ -2,8 +2,8 @@
 
 # Script does the following
 # Creates symlink for iam/ and resources/ -> modules/*/variables.tf
-# Creates symlink modules/*/default/ -> iam/ or resources/ based on STEP_NAME (or creates a default/ with empty main.tf file if STEP_NAME folder doesn't exist)
-# If COMBINE_OUTPUTS is true; Adds combined outputs.tf files togeter and writes to default/
+# Creates symlink for modules/*/default/ -> iam/ or resources/ based on STEP_NAME (or creates a default/ with empty main.tf and symlinks variables.tf if STEP_NAME folder doesn't exist)
+# If COMBINE_OUTPUTS is true; Combines iam/ouputs.tf and resource/outputs.tf into one. If STEP_NAME is 'iam', the outputs in resources/ values will be replaced with null before adding it to combined_outputs
 
 STEP_NAME=${1:-resources}
 COMBINE_OUTPUTS=${2:-false}
@@ -47,7 +47,16 @@ for module_dir in "$MODULES_DIR"/*; do
                 output_file="$subdir/outputs.tf"
                 if [ -f "$output_file" ]; then
                     combined_outputs+="# Outputs from $(basename "$subdir")\n"
-                    combined_outputs+="$(cat "$output_file")\n\n"
+    
+                    if [ "$subdir_name" != "$STEP_NAME" ]; then
+                        # Modify the outputs.tf content for non-matching subdirectories
+                        # This will replace all output values with null
+                        modified_content=$(sed -E 's/(output[[:space:]]+".+"[[:space:]]*\{[[:space:]]*value[[:space:]]*=)[^}]+/\1 null/' "$output_file")
+                        combined_outputs+="$modified_content\n\n"
+                    else
+                        # Use the original content for the matching subdirectory
+                        combined_outputs+="$(cat "$output_file")\n\n"
+                    fi
                 fi
             fi
         done
