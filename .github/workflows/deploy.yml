@@ -45,8 +45,7 @@ jobs:
     environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       id-token: write
-      contents: write
-      pull-requests: write
+      contents: read
     strategy:
       matrix:
         step: [iam, resources]
@@ -122,27 +121,6 @@ jobs:
             fi
           fi
 
-      - name: Terraform Show
+      - name: Create Terraform State File
         if: github.event_name != 'pull_request' && matrix.step == 'resources'
-        run: terraform show -json | sed -n '2p' > terraform_show.json
-
-      - name: Check for changes
-        if: github.event_name != 'pull_request' && matrix.step == 'resources'
-        id: git-check
-        run: |
-          git add terraform_show.json
-          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
-
-      - name: Commit changes
-        if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -m "[skip ci] Update terraform_show.json" -a
-
-      - name: Push changes
-        if: steps.git-check.outputs.changes == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+        uses: ./.github/workflows/create-terraform-state-file.yml
