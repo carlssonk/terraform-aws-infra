@@ -63,5 +63,5 @@ resource "aws_lb_listener" "front_end" {
 resource "aws_lb_listener_certificate" "this" {
   for_each        = toset(var.domains_for_certificates)
   listener_arn    = aws_lb_listener.front_end.arn
-  certificate_arn = aws_acm_certificate[each.value].arn
+  certificate_arn = aws_acm_certificate.this[each.value].arn
 }
