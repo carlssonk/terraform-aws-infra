@@ -122,16 +122,12 @@ jobs:
             fi
           fi
 
-      - name: Complete workflow
-        if: github.event_name == 'pull_request'
-        run: exit 78
-
       - name: Terraform Show
-        if: matrix.step == 'resources'
+        if: github.event_name != 'pull_request' && matrix.step == 'resources'
         run: terraform show -json | sed -n '2p' > terraform_show.json
 
       - name: Check for changes
-        if: matrix.step == 'resources'
+        if: github.event_name != 'pull_request' && matrix.step == 'resources'
         id: git-check
         run: |
           git add terraform_show.json
