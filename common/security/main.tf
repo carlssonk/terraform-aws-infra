@@ -11,18 +11,25 @@ locals {
     referenced_security_group_id = module.security_group_vpc_endpoints.id
   }
 
-  allow_https_to_anywhere = {
+  allow_https_to_anywhere_ipv4 = {
     description = "Allow HTTPS to any destination"
     from_port   = 443
     to_port     = 443
     ip_protocol = "tcp"
     cidr_ipv4   = "0.0.0.0/0"
+  }
+
+  allow_https_to_anywhere_ipv6 = {
+    description = "Allow HTTPS to any destination"
+    from_port   = 443
+    to_port     = 443
+    ip_protocol = "tcp"
     cidr_ipv6   = "::/0"
   }
 
   ecs_ports = {
     8080 = {
-      egress_rules = [local.allow_https_to_vpc_endpoints, local.allow_https_to_anywhere]
+      egress_rules = [local.allow_https_to_vpc_endpoints, local.allow_https_to_anywhere_ipv4, local.allow_https_to_anywhere_ipv6]
     }
   }
 }
