@@ -16,14 +16,4 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
-
-  statement {
-    actions = concat(
-      [
-        "elasticloadbalancing:DescribeTargetGroups",
-      ],
-    )
-    resources = ["*"]
-    effect    = "Allow"
-  }
 }
