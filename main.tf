@@ -87,7 +87,7 @@ module "iam_policy" {
 }
 
 output "common_policy_document" {
-  value = module.common.policy_document
+  value = module.iam_policy.policy_document
 }
 
 ########################################################################

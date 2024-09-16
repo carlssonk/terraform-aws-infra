@@ -18,8 +18,8 @@ data "http" "cloudflare_ips_v6" {
 
 locals {
   cloudflare_ip_ranges = concat(
-    split("\n", chomp(try(data.http.cloudflare_ips_v4[0].response_body, ""))),
-    split("\n", chomp(try(data.http.cloudflare_ips_v6[0].response_body, "")))
+    split("\n", chomp(try(data.http.cloudflare_ips_v4.response_body, ""))),
+    split("\n", chomp(try(data.http.cloudflare_ips_v6.response_body, "")))
   )
 }
 
