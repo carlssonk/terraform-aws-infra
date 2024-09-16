@@ -1,25 +1,14 @@
-variable "root_domain" {
-  description = "The root domain name to route to the S3 bucket"
-  type        = string
-}
-
-variable "dns_records" {
-  description = "List of DNS records to create"
-  type = list(object({
-    name  = string
-    value = string
-    type  = optional(string, "CNAME")
+variable "apps" {
+  description = "App configurations"
+  type = map(object({
+    root_domain = string
+    cloudflare_ruleset_rules = list(object({
+      action = string
+      action_parameters = object({
+        ssl = string
+      })
+      expression  = string
+      description = string
+    }))
   }))
-}
-
-variable "zone_settings" {
-  description = "Settings for the Cloudflare zone"
-  type = object({
-    websockets = string
-    ssl        = string
-  })
-  default = {
-    websockets = "on"
-    ssl        = "flexible"
-  }
 }

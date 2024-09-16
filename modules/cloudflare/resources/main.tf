@@ -6,36 +6,53 @@ terraform {
   }
 }
 
-variable "root_domain" {
-  description = "The root domain name to route to the S3 bucket"
-}
-
-variable "dns_records" {
-  description = "List of DNS records to create"
-}
-
-variable "zone_settings" {
-  description = "Settings for the Cloudflare zone"
-}
-
-data "cloudflare_zone" "domain" {
-  name = var.root_domain
-}
-
-resource "cloudflare_zone_settings_override" "websocket_support" {
-  zone_id = data.cloudflare_zone.domain.id
-  settings {
-    websockets = var.zone_settings.websockets
-    ssl        = var.zone_settings.ssl
+locals {
+  // Group apps by root_domain
+  apps_grouped = {
+    for root_domain in distinct(values(var.apps)[*].root_domain) :
+    root_domain => [
+      for _, app_config in var.apps : app_config
+      if app_config.root_domain == root_domain
+    ]
   }
 }
 
-resource "cloudflare_record" "dns_records" {
-  count   = length(var.dns_records)
-  zone_id = data.cloudflare_zone.domain.id
-  name    = var.dns_records[count.index].name
-  content = var.dns_records[count.index].value
-  type    = var.dns_records[count.index].type
-  ttl     = 1
-  proxied = true
+data "cloudflare_zone" "domain" {
+  for_each = local.apps_grouped
+  name     = each.key
+}
+
+resource "cloudflare_zone_settings_override" "this" {
+  for_each = local.apps_grouped
+  zone_id  = data.cloudflare_zone.domain[each.key].id
+
+  settings {
+    ssl = "full"
+  }
+}
+
+resource "cloudflare_ruleset" "this" {
+  for_each    = local.apps_grouped
+  zone_id     = data.cloudflare_zone.domain[each.key].id
+  name        = "Dynamic Main Ruleset"
+  description = "Dynamic ruleset for managing app settings"
+  kind        = "zone"
+  phase       = "http_request_late_transform"
+
+  dynamic "rules" {
+    for_each = flatten([for _, value in local.apps_grouped[each.key] : value.cloudflare_ruleset_rules])
+    content {
+      action = rules.value.action
+
+      dynamic "action_parameters" {
+        for_each = rules.value.action_parameters.ssl != null ? [rules.value.action_parameters.ssl] : []
+        content {
+          ssl = action_parameters.value
+        }
+      }
+
+      expression  = rules.value.expression
+      description = rules.value.description
+    }
+  }
 }

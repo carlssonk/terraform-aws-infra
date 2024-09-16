@@ -1,8 +1,6 @@
 name: Destroy Infrastructure
 
 on:
-  push:
-    branches: [prod, dev]
   workflow_dispatch:
     inputs:
       confirm_destroy:
@@ -12,14 +10,13 @@ on:
         description: 'Removes resource from state bucket'
 
 concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
   cancel-in-progress: false
 
 env:
   TARGET_BRANCH: ${{ github.ref_name }}
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-  TF_VAR_region: eu-north-1
-  TF_VAR_organization: carlssonk
+  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   TF_VAR_cleanup_policies: true
 
@@ -64,24 +61,29 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/terraform-execution-role
-          aws-region: ${{ env.TF_VAR_region }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/terraform-execution-role
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+
+      - name: Symlink modules
+        run: |
+          chmod +x symlink_modules.sh
+          ./symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
         run: |
           terraform init \
             -backend-config="encrypt=true" \
-            -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
 
       - name: Prepare Environment
         run: |
-          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
+          python create_globals.py '${{ toJson(vars) }}' workflow_step=${{ env.TF_VAR_workflow_step }} cleanup_policies=${{ env.TF_VAR_cleanup_policies }}
           cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
@@ -96,8 +98,13 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Destroy
+        if: inputs.tf-rm == ''
         run: |
-          if ! ./retry_command.sh "terraform destroy -lock=false -auto-approve"; then
+          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
+          
+      - name: Create Terraform State File
+        if: matrix.step == 'resources'
+        uses: ./.github/workflows/create-terraform-state-file.yml

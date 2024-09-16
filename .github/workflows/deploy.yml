@@ -3,21 +3,20 @@ name: Upsert Infrastructure
 on:
   workflow_dispatch: # Manual trigger
   schedule:
-  - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up potential old policies
+  - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up unused policies
   push:
     branches: [prod, dev]
   pull_request:
     branches: [prod, dev]
   
 concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
   cancel-in-progress: false
 
 env:
   TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
-  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
-  TF_VAR_region: eu-north-1
-  TF_VAR_organization: carlssonk
+  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   TF_VAR_cleanup_policies: ${{ github.event_name == 'schedule' }}
 
@@ -46,8 +45,7 @@ jobs:
     environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       id-token: write
-      contents: write
-      pull-requests: write
+      contents: read
     strategy:
       matrix:
         step: [iam, resources]
@@ -63,24 +61,29 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/terraform-execution-role
-          aws-region: ${{ env.TF_VAR_region }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/terraform-execution-role
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+
+      - name: Symlink modules
+        run: |
+          chmod +x symlink_modules.sh
+          ./symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
         run: |
           terraform init \
             -backend-config="encrypt=true" \
-            -backend-config="region=${{ env.TF_VAR_region }}" \
-            -backend-config="bucket=${{ env.TF_VAR_organization }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ env.TF_VAR_organization }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
+            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
 
       - name: Prepare Environment
         run: |
-          python create_globals.py '${{ toJson(env) }}' workflow_step=${{ matrix.step }}
+          python create_globals.py '${{ toJson(vars) }}' workflow_step=${{ env.TF_VAR_workflow_step }} cleanup_policies=${{ env.TF_VAR_cleanup_policies }}
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
 
@@ -102,38 +105,22 @@ jobs:
           terraform state rm '${{ steps.check_commit.outputs.resource_address }}'
         continue-on-error: true
 
-      - name: ${{ (github.event_name == 'pull_request' && 'Terraform Plan') || 'Terraform Apply' }}
+      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
         run: |
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            terraform plan ${{ matrix.step == 'iam' && '-lock=false' || '' }}
+            if [ "${{ matrix.step }}" == "iam" ]; then
+              terraform plan -lock=false
+              terraform apply -auto-approve
+            else
+              terraform plan
+            fi
           else
-            if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '-lock=false' }} -auto-approve"; then
+            if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
               echo "Terraform failed after all retry attempts"
               exit 1
             fi
           fi
 
-      - name: Terraform Show
-        if: matrix.step == 'resources'
-        run: terraform show -json | sed -n '2p' > terraform_show.json
-
-      - name: Check for changes
-        if: matrix.step == 'resources'
-        id: git-check
-        run: |
-          git add terraform_show.json
-          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
-
-      - name: Commit changes
-        if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git commit -m "Update terraform_show.json [skip ci]" -a
-
-      - name: Push changes
-        if: steps.git-check.outputs.changes == 'true'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+      - name: Create Terraform State File
+        if: github.event_name != 'pull_request' && matrix.step == 'resources'
+        uses: ./.github/workflows/create-terraform-state-file.yml

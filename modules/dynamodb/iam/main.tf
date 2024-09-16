@@ -1,5 +1,5 @@
-variable "table_name_full" {
-  description = "Name of dynamodb table prefixed with organization and suffixed with environment"
+module "globals" {
+  source = "../../../globals"
 }
 
 data "aws_iam_policy_document" "this" {
@@ -14,13 +14,9 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:dynamodb:::${var.table_name_full}",
-      "arn:aws:dynamodb:::${var.table_name_full}/*"
+      "arn:aws:dynamodb:::${module.globals.var.ORGANIZATION}-${var.table_name}-${terraform.workspace}",
+      "arn:aws:dynamodb:::${module.globals.var.ORGANIZATION}-${var.table_name}-${terraform.workspace}/*"
     ]
     effect = "Allow"
   }
-}
-
-output "policy_document" {
-  value = data.aws_iam_policy_document.this.json
 }

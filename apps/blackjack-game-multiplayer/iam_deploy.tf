@@ -1,9 +1,10 @@
 locals {
-  oidc_domain = "token.actions.githubusercontent.com"
+  github_repo_name = "carlssonk/Blackjack-Game-Multiplayer"
+  oidc_domain      = "token.actions.githubusercontent.com"
 }
 
 resource "aws_iam_role" "this" {
-  count = var.workflow_step == "iam" ? 1 : 0
+  count = var.workflow_step == "resources" ? 1 : 0
   name  = "${local.app_name}-deploy-role"
 
   assume_role_policy = jsonencode({
@@ -19,7 +20,7 @@ resource "aws_iam_role" "this" {
           "${local.oidc_domain}:aud" : "sts.amazonaws.com"
         }
         StringLike = {
-          "${local.oidc_domain}:sub" : "repo:${local.repo_name}:*"
+          "${local.oidc_domain}:sub" : "repo:${local.github_repo_name}:*"
         }
       }
     }]
@@ -27,7 +28,7 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_policy" "this" {
-  count = var.workflow_step == "iam" ? 1 : 0
+  count = var.workflow_step == "resources" ? 1 : 0
   name  = "${local.app_name}-deploy-policy"
 
   policy = jsonencode({
@@ -52,8 +53,8 @@ resource "aws_iam_policy" "this" {
           "ecr:PutImage"
         ]
         Resource = [
-          "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}",
-          "arn:aws:ecr:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}/*"
+          "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}",
+          "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}/*"
         ]
       },
       {
@@ -74,8 +75,8 @@ resource "aws_iam_policy" "this" {
           "ecs:UpdateService"
         ]
         Resource = [
-          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}",
-          "arn:aws:ecs:${module.globals.var.region}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}/*"
+          "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}",
+          "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}/*"
         ]
       },
       {
@@ -95,7 +96,7 @@ resource "aws_iam_policy" "this" {
 }
 
 resource "aws_iam_role_policy_attachment" "this" {
-  count      = var.workflow_step == "iam" ? 1 : 0
+  count      = var.workflow_step == "resources" ? 1 : 0
   policy_arn = aws_iam_policy.this[0].arn
   role       = aws_iam_role.this[0].name
 }

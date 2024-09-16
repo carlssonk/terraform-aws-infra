@@ -1,64 +1,67 @@
-variable "alb_name" {
-  description = "Name of Application Load Balancer"
-}
-
-variable "vpc_id" {
-  description = "ID of VPC"
-}
-
-variable "public_subnet_ids" {
-  description = "List of public subnet IDS"
-}
-
-resource "aws_security_group" "alb" {
-  name        = "${var.alb_name}-sg"
-  description = "Allow HTTP inbound traffic"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 resource "aws_lb" "this" {
-  name               = var.alb_name
+  name               = "${var.name}-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = var.public_subnet_ids
+  security_groups    = [var.security_group_id]
+  subnets            = var.subnet_ids
 
-  enable_deletion_protection = false
+  enable_deletion_protection = true
 }
 
-resource "aws_lb_listener" "http" {
+resource "aws_acm_certificate" "this" {
+  for_each                  = toset(var.domains_for_certificates)
+  domain_name               = each.value
+  validation_method         = "DNS"
+  subject_alternative_names = ["*.${each.value}"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "acm-certificate-${each.value}"
+  }
+}
+
+module "cloudflare_records" {
+  for_each    = toset(var.domains_for_certificates)
+  source      = "../../cloudflare-record/default"
+  root_domain = each.value
+  dns_records = [for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
+    name    = dvo.resource_record_name
+    value   = dvo.resource_record_value
+    type    = dvo.resource_record_type
+    ttl     = 60
+    proxied = false
+  }]
+}
+
+resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.this.arn
-  port              = "80"
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
   default_action {
     type = "fixed-response"
     fixed_response {
       content_type = "text/plain"
       message_body = "Please use a valid hostname"
-      status_code  = "200"
+      status_code  = "404"
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "lb_listener"
   }
 }
 
-output "alb_dns_name" {
-  value = aws_lb.this.dns_name
-}
-
-output "listener_arn" {
-  value = aws_lb_listener.http.arn
+resource "aws_lb_listener_certificate" "this" {
+  for_each        = toset(var.domains_for_certificates)
+  listener_arn    = aws_lb_listener.front_end.arn
+  certificate_arn = aws_acm_certificate.this[each.value].arn
 }

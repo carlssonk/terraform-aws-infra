@@ -3,7 +3,7 @@ variable "workflow_step" {
   type        = string
 }
 
-variable "region" {
+variable "AWS_REGION" {
   description = "AWS Region"
   type        = string
 }
