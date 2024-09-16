@@ -49,14 +49,16 @@ module "security_group_alb_rules" {
   source            = "../../modules/security-group-rules/default"
   name              = "alb"
   security_group_id = module.security_group_alb.id
-  ingress_rules = [{
-    description = "Allow HTTPS from Cloudflare"
-    from_port   = 443
-    to_port     = 443
-    ip_protocol = "tcp"
-    cidr_ipv4   = module.globals.var.cloudflare_ipv4_ranges
-    cidr_ipv6   = module.globals.var.cloudflare_ipv6_ranges
-  }]
+  ingress_rules = [
+    for ip in module.globals.var.cloudflare_all_ip_ranges : {
+      description = "Allow inbound HTTPS from Cloudflare IP: ${ip}"
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = can(cidrhost(ip, 0)) ? ip : null
+      cidr_ipv6   = can(cidrhost(ip, 0)) ? null : ip
+    }
+  ]
   egress_rules = flatten([
     for port, _ in local.ecs_ports :
     {
