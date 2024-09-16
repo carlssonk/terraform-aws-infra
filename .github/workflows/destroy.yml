@@ -70,7 +70,7 @@ jobs:
       - name: Symlink modules
         run: |
           chmod +x symlink_modules.sh
-          ./symlink_modules.sh ${{ matrix.step }}
+          ./symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
         run: |
