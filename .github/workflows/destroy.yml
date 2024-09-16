@@ -71,7 +71,7 @@ jobs:
         run: |
           chmod +x symlink_modules.sh
           ./symlink_modules.sh ${{ matrix.step }}
-          
+
       - name: Terraform Init
         run: |
           terraform init \
@@ -87,8 +87,6 @@ jobs:
           cat globals.json
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
-          chmod +x symlink_modules.sh
-          ./symlink_modules.sh ${{ matrix.step }}
 
       - name: Check and Remove Resource from Terraform State
         if: matrix.step == 'resources' && inputs.tf-rm != ''

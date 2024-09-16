@@ -87,8 +87,6 @@ jobs:
           python create_globals.py '${{ toJson(vars) }}' workflow_step=${{ env.TF_VAR_workflow_step }} cleanup_policies=${{ env.TF_VAR_cleanup_policies }}
           terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
           chmod +x retry_command.sh
-          chmod +x symlink_modules.sh
-          ./symlink_modules.sh ${{ matrix.step }}
 
       - name: Check for State Removal Command
         if: matrix.step == 'resources'
