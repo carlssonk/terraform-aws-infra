@@ -125,7 +125,7 @@ module "vpc_endpoints_gateway" {
     "com.amazonaws.${module.globals.var.AWS_REGION}.dynamodb"
   ]
   vpc_id          = var.networking_outputs.main_vpc_id
-  route_table_ids = module.networking_outputs.main_vpc_private_route_table_ids
+  route_table_ids = var.networking_outputs.main_vpc_private_route_table_ids
 }
 
 // Commented out for cost optimization

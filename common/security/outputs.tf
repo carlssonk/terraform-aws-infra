@@ -6,7 +6,7 @@ output "policy_documents" {
     module.security_group_alb_rules.policy_document,
     module.security_group_ecs_tasks_rules.policy_document,
     module.security_group_vpc_endpoints_rules.policy_document,
-    module.vpc_endpoints.policy_document
+    module.vpc_endpoints_gateway.policy_document
   ]
 }
 
