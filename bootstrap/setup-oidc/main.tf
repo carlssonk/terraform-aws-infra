@@ -160,9 +160,11 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Effect = "Allow"
         Action = [
           "iam:ListPolicies",
-          "*:DeleteTags*",
-          "*:CreateTags",
-          "*:AddTags*"
+          "ecs:*Tags*",
+          "ec2:*Tags*",
+          "s3:*Tags*",
+          "dynamodb:*Tags*",
+          "elasticloadbalancing:*Tags*"
         ]
         Resource = "*"
       }
