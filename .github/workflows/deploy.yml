@@ -84,6 +84,8 @@ jobs:
           chmod +x retry_command.sh
           chmod +x symlink_modules.sh
           ./symlink_modules.sh ${{ matrix.step }}
+          ls -la ./modules/s3
+          ls -la ./modules/s3/default
 
       - name: Check for State Removal Command
         if: matrix.step == 'resources'
