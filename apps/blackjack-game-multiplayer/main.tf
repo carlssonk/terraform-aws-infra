@@ -61,8 +61,8 @@ module "iam_policy" {
   source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
-    for name, mod in module :
-    mod.policy_document
-    if can(mod.policy_document)
+    module.ecs_task_definition.policy_document,
+    module.ecs_target_group.policy_document,
+    module.ecs_service.policy_document
   ]
 }

@@ -1,8 +1,12 @@
 output "policy_documents" {
   value = [
-    for name, mod in module :
-    mod.policy_document
-    if can(mod.policy_document)
+    module.security_group_alb.policy_document,
+    module.security_group_ecs_tasks.policy_document,
+    module.security_group_vpc_endpoints.policy_document,
+    module.security_group_alb_rules.policy_document,
+    module.security_group_ecs_tasks_rules.policy_document,
+    module.security_group_vpc_endpoints_rules.policy_document,
+    module.vpc_endpoints.policy_document
   ]
 }
 

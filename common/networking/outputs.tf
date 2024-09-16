@@ -1,9 +1,5 @@
 output "policy_documents" {
-  value = [
-    for name, mod in module :
-    mod.policy_document
-    if can(mod.policy_document)
-  ]
+  value = [module.main_vpc.policy_document]
 }
 
 output "main_vpc_id" {

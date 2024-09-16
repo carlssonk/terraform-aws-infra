@@ -1,8 +1,7 @@
 output "policy_documents" {
   value = [
-    for name, mod in module :
-    mod.policy_document
-    if can(mod.policy_document)
+    module.main_alb.policy_document,
+    module.main_ecs_cluster.policy_document
   ]
 }
 

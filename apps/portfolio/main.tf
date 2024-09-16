@@ -44,8 +44,7 @@ module "iam_policy" {
   source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
-    for name, mod in module :
-    mod.policy_document
-    if can(mod.policy_document)
+    module.www_bucket.policy_document,
+    module.apex_bucket.policy_document
   ]
 }
