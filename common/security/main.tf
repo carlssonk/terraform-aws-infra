@@ -100,7 +100,7 @@ module "security_group_vpc_endpoints_rules" {
 }
 
 module "vpc_endpoints" {
-  source = "../modules/vpc-endpoint/default"
+  source = "../../modules/vpc-endpoint/default"
   endpoints = [
     "com.amazonaws.${module.globals.var.AWS_REGION}.s3", // s3 vpc endpoints are free
     // Commented out for cost optimization
