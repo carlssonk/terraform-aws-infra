@@ -122,6 +122,10 @@ jobs:
             fi
           fi
 
+      - name: Complete workflow
+        if: github.event_name == 'pull_request'
+        run: exit 0
+
       - name: Terraform Show
         if: matrix.step == 'resources'
         run: terraform show -json | sed -n '2p' > terraform_show.json
