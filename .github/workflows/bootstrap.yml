@@ -66,5 +66,5 @@ jobs:
 
           terraform workspace select ${{ env.WORKSPACE }} || terraform workspace new ${{ env.WORKSPACE }}
 
-          terraform apply -auto-approve
+          terraform apply -auto-approve -lock=false
         working-directory: ./bootstrap/setup-oidc
