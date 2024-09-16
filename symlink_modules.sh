@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Script does the following
+# Creates symlink for iam/ and resources/ -> modules/*/variables.tf
+# Creates symlink modules/*/default/ -> iam/ or resources/ based on STEP_NAME (or creates a default/ with empty main.tf file if STEP_NAME folder doesn't exist)
+# If COMBINE_OUTPUTS is true; Adds combined outputs.tf files togeter and writes to default/
+
 STEP_NAME=${1:-resources}
 COMBINE_OUTPUTS=${2:-false}
 MODULES_DIR="./modules"
