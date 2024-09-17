@@ -11,6 +11,11 @@ locals {
   container_port = 8080
 }
 
+module "cloudwatch" {
+  source         = "../../modules/cloudwatch/default"
+  log_group_name = "/ecs/${local.app_name}"
+}
+
 module "ecs_task_definition" {
   source   = "../../modules/ecs-task-definition/default"
   app_name = local.app_name
