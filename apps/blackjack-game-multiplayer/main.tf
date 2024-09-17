@@ -14,14 +14,20 @@ locals {
 module "ecs_task_definition" {
   source   = "../../modules/ecs-task-definition/default"
   app_name = local.app_name
-  cpu      = 256
-  memory   = 512
+  cpu      = 512
+  memory   = 1024
   container_definitions = jsonencode([{
     name  = local.container_name
     image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.AWS_REGION}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
     }]
+    environment = [
+      {
+        name  = "DOMAIN_NAME"
+        value = local.domain_name
+      },
+    ]
   }])
 }
 
