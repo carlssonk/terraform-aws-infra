@@ -121,4 +121,4 @@ jobs:
 
       - name: Push to terraform-state branch
         run: |
-          git push origin HEAD:terraform-state
+          git push origin HEAD:terraform-state --force
