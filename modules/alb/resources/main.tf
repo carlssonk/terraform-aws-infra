@@ -23,17 +23,17 @@ resource "aws_acm_certificate" "this" {
   }
 }
 
-module "cloudflare_records" {
+module "cloudflare" {
   for_each    = toset(var.domains_for_certificates)
   source      = "../../cloudflare-record/default"
   root_domain = each.value
-  dns_records = [for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
+  dns_records = distinct([for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
     name    = dvo.resource_record_name
     value   = dvo.resource_record_value
     type    = dvo.resource_record_type
     ttl     = 60
     proxied = false
-  }]
+  }])
 }
 
 resource "aws_lb_listener" "front_end" {
