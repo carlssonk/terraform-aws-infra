@@ -60,7 +60,10 @@ locals {
 
   policy_statement = lookup(local.policy_types, coalesce(var.bucket_access_and_policy, "default"), null)
 
-  policy_statement_combined = compact([local.policy_statement, var.custom_bucket_policy])
+  policy_statement_combined = concat(
+    local.policy_statement != null ? [local.policy_statement] : [],
+    var.custom_bucket_policy != null ? [var.custom_bucket_policy] : []
+  )
 }
 
 resource "aws_s3_bucket_policy" "this" {
