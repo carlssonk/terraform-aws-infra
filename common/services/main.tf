@@ -30,7 +30,7 @@ module "main_alb" {
   security_group_id        = var.security_outputs.security_group_alb_id
   domains_for_certificates = ["carlssonk.com"]
   access_logs_bucket_name  = local.main_alb_access_logs_bucket_name
-  access_logs_enabled      = true
+  access_logs_enabled      = false
 }
 
 module "main_ecs_cluster" {

@@ -28,6 +28,14 @@ module "ecs_task_definition" {
         value = local.domain_name
       },
     ]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = "/ecs/${local.app_name}"
+        awslogs-region        = module.globals.var.AWS_REGION
+        awslogs-stream-prefix = "ecs"
+      }
+    }
   }])
 }
 
