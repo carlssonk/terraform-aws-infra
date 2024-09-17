@@ -126,9 +126,10 @@ jobs:
         run: sleep 15
 
   create_terraform_state_file:
+    name: Create Terraform State File
     if: github.event_name != 'pull_request'
     uses: ./.github/workflows/create-terraform-state-file.yml
     with:
       AWS_REGION: ${{ vars.AWS_REGION }}
       ORGANIZATION: ${{ vars.ORGANIZATION }}
-      TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+      TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}

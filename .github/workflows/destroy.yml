@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  TARGET_BRANCH: ${{ github.ref_name }}
+  TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
   TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
   TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -106,9 +106,10 @@ jobs:
           fi
           
   create_terraform_state_file:
+    name: Create Terraform State File
     if: github.event_name != 'pull_request'
     uses: ./.github/workflows/create-terraform-state-file.yml
     with:
       AWS_REGION: ${{ vars.AWS_REGION }}
       ORGANIZATION: ${{ vars.ORGANIZATION }}
-      TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+      TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
