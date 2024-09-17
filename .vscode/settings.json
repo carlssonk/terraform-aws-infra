@@ -1,6 +1,6 @@
 {
   "files.exclude": {
-    "modules/*/default": true,
-    "modules/*/*/variables.tf": true
+    "modules/*/default": false,
+    "modules/*/*/variables.tf": false
   }
 }
