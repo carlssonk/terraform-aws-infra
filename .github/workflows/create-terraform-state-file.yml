@@ -2,15 +2,15 @@ name: Create Terraform State File
 on:
   workflow_call:
     inputs:
-    AWS_REGION:
-      required: true
-      type: string
-    ORGANIZATION:
-      required: true
-      type: string
-    TARGET_BRANCH:
-      required: true
-      type: string
+      AWS_REGION:
+        required: true
+        type: string
+      ORGANIZATION:
+        required: true
+        type: string
+      TARGET_BRANCH:
+        required: true
+        type: string
 
 jobs:
   create_terraform_state_file:

@@ -124,6 +124,10 @@ jobs:
       - name: Create Terraform State File
         if: github.event_name != 'pull_request' && matrix.step == 'resources'
         uses: ./.github/workflows/create-terraform-state-file.yml
+        with:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          ORGANIZATION: ${{ vars.ORGANIZATION }}
+          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
 
       - name: Delay for 15 seconds
         if: matrix.step == 'iam'
