@@ -143,7 +143,7 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          branch: terraform-state
 
       - name: Delay for 15 seconds
         if: matrix.step == 'iam'
