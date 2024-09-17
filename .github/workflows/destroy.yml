@@ -20,8 +20,6 @@ env:
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   TF_VAR_cleanup_policies: true
 
-environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
-
 jobs:
   check_destroy_condition:
     name: Should Destroy Condition
@@ -44,6 +42,7 @@ jobs:
     needs: check_destroy_condition
     if: needs.check_destroy_condition.outputs.should_destroy == 'true'
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       id-token: write
       contents: read

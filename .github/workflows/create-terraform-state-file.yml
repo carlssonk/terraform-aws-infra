@@ -15,6 +15,7 @@ on:
 jobs:
   create_terraform_state_file:
     runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       contents: write
       pull-requests: write
