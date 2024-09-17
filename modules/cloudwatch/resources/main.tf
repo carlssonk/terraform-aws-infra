@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${var.log_group_name}"
+resource "aws_cloudwatch_log_group" "thi" {
+  name              = var.log_group_name
   retention_in_days = 30
 }
