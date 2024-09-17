@@ -21,6 +21,6 @@ variable "bucket_access_and_policy" {
 
 variable "custom_bucket_policy" {
   description = "Bucket policy document"
-  type        = object(any)
+  type        = any
   default     = null
 }
