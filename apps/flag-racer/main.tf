@@ -3,14 +3,14 @@ module "globals" {
 }
 
 locals {
-  app_name       = "blackjack"
+  app_name       = "flagracer"
   subdomain      = local.app_name
   root_domain    = "carlssonk.com"
   domain_name    = "${local.app_name}.${local.root_domain}"
   container_name = "container-${local.app_name}"
   container_port = 8080
 
-  github_repo_name = "carlssonk/Blackjack-Game-Multiplayer"
+  github_repo_name = "carlssonk/flag-racer"
   oidc_domain      = "token.actions.githubusercontent.com"
 }
 

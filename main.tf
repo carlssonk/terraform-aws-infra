@@ -127,3 +127,19 @@ module "blackjack" {
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document
 }
+
+########################################################################
+
+module "flagracer" {
+  workflow_step         = var.workflow_step
+  source                = "./apps/flag-racer"
+  vpc_id                = module.networking.main_vpc_id
+  subnet_ids            = module.networking.main_vpc_public_subnet_ids
+  ecs_security_group_id = module.security.security_group_ecs_tasks_id
+  cluster_id            = module.services.main_ecs_cluster_id
+  alb_dns_name          = module.services.main_alb_dns_name
+  alb_listener_arn      = module.services.main_alb_listener_arn
+}
+output "flagracer_policy_document" {
+  value = module.flagracer.policy_document
+}
