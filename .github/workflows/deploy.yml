@@ -45,8 +45,7 @@ jobs:
     environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
     permissions:
       id-token: write
-      contents: write
-      pull-requests: write
+      contents: read
     strategy:
       matrix:
         step: [iam, resources]
