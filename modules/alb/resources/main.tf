@@ -8,7 +8,7 @@ resource "aws_lb" "this" {
   enable_deletion_protection = true
 
   dynamic "access_logs" {
-    for_each = var.access_logs_bucket_uri != "" ? [1] : 0
+    for_each = var.access_logs_bucket_uri != "" ? [1] : []
     content {
       bucket  = var.access_logs_bucket_uri
       enabled = var.access_logs_enabled
