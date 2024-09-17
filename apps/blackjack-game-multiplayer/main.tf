@@ -25,7 +25,7 @@ module "ecs_task_definition" {
   }])
 }
 
-module "ecs_target_group" {
+module "alb_target_group" {
   source         = "../../modules/alb-target/default"
   app_name       = local.app_name
   container_port = local.container_port
@@ -42,7 +42,7 @@ module "ecs_service" {
   cluster_id           = var.cluster_id
   task_definition_arn  = module.ecs_task_definition.arn
   security_group_id    = var.ecs_security_group_id
-  alb_target_group_arn = module.ecs_target_group.arn
+  alb_target_group_arn = module.alb_target_group.arn
   container_name       = local.container_name
   container_port       = local.container_port
 }

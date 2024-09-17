@@ -41,6 +41,8 @@ resource "aws_lb_listener" "front_end" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = aws_acm_certificate.this[var.domains_for_certificates[0]].arn
+
 
   default_action {
     type = "fixed-response"
@@ -61,7 +63,7 @@ resource "aws_lb_listener" "front_end" {
 }
 
 resource "aws_lb_listener_certificate" "this" {
-  for_each        = toset(var.domains_for_certificates)
+  count           = length(var.domains_for_certificates) > 1 ? length(var.domains_for_certificates) - 1 : 0
   listener_arn    = aws_lb_listener.front_end.arn
-  certificate_arn = aws_acm_certificate.this[each.value].arn
+  certificate_arn = aws_acm_certificate.this[var.domains_for_certificates[count.index + 1]].arn
 }
