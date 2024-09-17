@@ -23,12 +23,9 @@ data "aws_iam_policy_document" "this" {
         "ec2:AuthorizeSecurityGroupEgress",
         "ec2:RevokeSecurityGroupIngress",
         "ec2:RevokeSecurityGroupEgress",
-        "ec2:CreateSecurityGroupIngress",
-        "ec2:CreateSecurityGroupEgress",
         "ec2:UpdateSecurityGroupRuleDescriptionsIngress",
         "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
-        "ec2:ModifySecurityGroupRules",
-        "ec2:DeleteSecurityGroupRules"
+        "ec2:ModifySecurityGroupRules"
       ]
     )
     resources = [
