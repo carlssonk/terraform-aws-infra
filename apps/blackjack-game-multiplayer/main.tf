@@ -45,6 +45,7 @@ module "ecs_service" {
   alb_target_group_arn = module.alb_target_group.arn
   container_name       = local.container_name
   container_port       = local.container_port
+  assign_public_ip     = true
 }
 
 module "cloudflare" {
