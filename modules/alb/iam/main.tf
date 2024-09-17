@@ -10,6 +10,7 @@ data "aws_iam_policy_document" "this" {
         "elasticloadbalancing:*Listener*",
         "elasticloadbalancing:*Certificates*",
         "elasticloadbalancing:Describe*",
+        "elasticloadbalancing:CreateRule"
       ],
     )
     resources = [
