@@ -22,3 +22,15 @@ variable "domains_for_certificates" {
   description = "Root domain names used for creating ACM Certificates"
   type        = list(string)
 }
+
+variable "access_logs_bucket_uri" {
+  description = "s3 bucket uri for alb access logs"
+  type        = string
+  default     = ""
+}
+
+variable "access_logs_enabled" {
+  description = "Toggle access logs"
+  type        = bool
+  default     = false
+}

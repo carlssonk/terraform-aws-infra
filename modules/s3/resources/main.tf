@@ -43,7 +43,7 @@ locals {
       Principal = "*"
       Action    = "s3:GetObject"
       Resource  = "${aws_s3_bucket.this.arn}/*"
-    },
+    }
     cloudflare = {
       Effect    = "Allow"
       Principal = "*"
@@ -59,14 +59,16 @@ locals {
   }
 
   policy_statement = lookup(local.policy_types, coalesce(var.bucket_access_and_policy, "default"), null)
+
+  policy_statement_combined = compact([local.policy_statement, var.custom_bucket_policy])
 }
 
 resource "aws_s3_bucket_policy" "this" {
-  count  = local.policy_statement != null ? 1 : 0
+  count  = length(local.policy_statement_combined) > 0 ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   policy = jsonencode({
     Version   = "2012-10-17"
-    Statement = [local.policy_statement]
+    Statement = local.policy_statement_combined
   })
 }

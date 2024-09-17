@@ -18,3 +18,9 @@ variable "bucket_access_and_policy" {
   default     = null
   nullable    = true
 }
+
+variable "custom_bucket_policy" {
+  description = "Bucket policy document"
+  type        = object(any)
+  default     = null
+}

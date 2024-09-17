@@ -1,6 +1,7 @@
 output "policy_documents" {
   value = [
     module.main_alb.policy_document,
+    module.main_alb_access_logs_bucket.policy_document,
     module.main_ecs_cluster.policy_document
   ]
 }

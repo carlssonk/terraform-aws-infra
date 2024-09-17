@@ -6,6 +6,14 @@ resource "aws_lb" "this" {
   subnets            = var.subnet_ids
 
   enable_deletion_protection = true
+
+  dynamic "access_logs" {
+    for_each = var.access_logs_bucket_uri != "" ? [1] : 0
+    content {
+      bucket  = var.access_logs_bucket_uri
+      enabled = var.access_logs_enabled
+    }
+  }
 }
 
 resource "aws_acm_certificate" "this" {
