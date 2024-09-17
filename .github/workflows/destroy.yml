@@ -105,10 +105,10 @@ jobs:
             exit 1
           fi
           
-      - name: Create Terraform State File
-        if: github.event_name != 'pull_request' && matrix.step == 'resources'
-        uses: ./.github/workflows/create-terraform-state-file/action.yml
-        with:
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          ORGANIZATION: ${{ vars.ORGANIZATION }}
-          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+  create_terraform_state_file:
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/create-terraform-state-file.yml
+    with:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ORGANIZATION: ${{ vars.ORGANIZATION }}
+      TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
