@@ -3,12 +3,13 @@ module "globals" {
 }
 
 locals {
-  app_name       = "flagracer"
-  subdomain      = local.app_name
-  root_domain    = "carlssonk.com"
-  domain_name    = "${local.app_name}.${local.root_domain}"
-  container_name = "container-${local.app_name}"
-  container_port = 8080
+  app_name               = "flagracer"
+  subdomain              = local.app_name
+  root_domain            = "carlssonk.com"
+  domain_name            = "${local.app_name}.${local.root_domain}"
+  container_name         = "container-${local.app_name}"
+  container_port         = 8080
+  listener_rule_priority = 99
 
   github_repo_name = "carlssonk/flag-racer"
   oidc_domain      = "token.actions.githubusercontent.com"
@@ -30,12 +31,6 @@ module "ecs_task_definition" {
     portMappings = [{
       containerPort = local.container_port
     }]
-    environment = [
-      {
-        name  = "DOMAIN_NAME"
-        value = local.domain_name
-      },
-    ]
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -48,13 +43,14 @@ module "ecs_task_definition" {
 }
 
 module "alb_target_group" {
-  source         = "../../modules/alb-target/default"
-  app_name       = local.app_name
-  container_port = local.container_port
-  vpc_id         = var.vpc_id
-  listener_arn   = var.alb_listener_arn
-  host_header    = local.domain_name
-  use_stickiness = true
+  source                 = "../../modules/alb-target/default"
+  app_name               = local.app_name
+  container_port         = local.container_port
+  vpc_id                 = var.vpc_id
+  listener_arn           = var.alb_listener_arn
+  host_header            = local.domain_name
+  use_stickiness         = true
+  listener_rule_priority = local.listener_rule_priority
 }
 
 module "ecs_service" {

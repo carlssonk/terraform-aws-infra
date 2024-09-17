@@ -18,6 +18,11 @@ variable "listener_arn" {
   type        = string
 }
 
+variable "listener_rule_priority" {
+  description = "Specify load balancer priority"
+  type        = number
+}
+
 variable "host_header" {
   description = "Domain name"
   type        = string
