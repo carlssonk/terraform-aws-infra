@@ -132,14 +132,14 @@ jobs:
           git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Commit changes
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && github.event_name != 'pull_request' && matrix.step == 'resources'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git commit -m "[skip ci] Update terraform_show.json" -a
 
       - name: Push changes
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.git-check.outputs.changes == 'true' && github.event_name != 'pull_request' && matrix.step == 'resources'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
