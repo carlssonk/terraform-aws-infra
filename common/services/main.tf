@@ -18,7 +18,7 @@ module "main_alb_access_logs_bucket" {
       {
         Effect = "Allow",
         Principal : {
-          "AWS" : "arn:aws:iam::${local.elb_account_ids[module.globals.var.REGION]}:root"
+          "AWS" : "arn:aws:iam::${local.elb_account_ids[module.globals.var.AWS_REGION]}:root"
         },
         "Action" : "s3:PutObject",
         "Resource" : "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${module.globals.var.AWS_ACCOUNT_ID}/*"
