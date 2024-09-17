@@ -23,8 +23,8 @@ variable "domains_for_certificates" {
   type        = list(string)
 }
 
-variable "access_logs_bucket_uri" {
-  description = "s3 bucket uri for alb access logs"
+variable "access_logs_bucket_name" {
+  description = "s3 bucket name for alb access logs"
   type        = string
   default     = ""
 }

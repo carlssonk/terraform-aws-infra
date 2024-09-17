@@ -34,7 +34,7 @@ module "main_alb" {
   subnet_ids               = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id        = var.security_outputs.security_group_alb_id
   domains_for_certificates = ["carlssonk.com"]
-  access_logs_bucket_uri   = "s3://${local.main_alb_access_logs_bucket_name}"
+  access_logs_bucket_name  = local.main_alb_access_logs_bucket_name
   access_logs_enabled      = true
 }
 

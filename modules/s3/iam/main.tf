@@ -13,6 +13,9 @@ data "aws_iam_policy_document" "this" {
       var.bucket_access_and_policy != null ? [
         "s3:*PublicAccessBlock",
         "s3:*BucketPolicy"
+      ] : [],
+      var.custom_bucket_policy != null ? [
+        "s3:*BucketPolicy"
       ] : []
     )
     resources = [
