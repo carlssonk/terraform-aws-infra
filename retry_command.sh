@@ -1,5 +1,5 @@
 #!/bin/bash
-max_attempts=3
+max_attempts=2
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do

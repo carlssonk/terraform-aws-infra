@@ -164,7 +164,8 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "ec2:*Tags*",
           "s3:*Tags*",
           "dynamodb:*Tags*",
-          "elasticloadbalancing:*Tags*"
+          "elasticloadbalancing:*Tags*",
+          "acm:*Tags*"
         ]
         Resource = "*"
       }

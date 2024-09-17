@@ -37,7 +37,7 @@ resource "cloudflare_ruleset" "this" {
   name        = "Dynamic Main Ruleset"
   description = "Dynamic ruleset for managing app settings"
   kind        = "zone"
-  phase       = "http_request_late_transform"
+  phase       = "http_config_settings"
 
   dynamic "rules" {
     for_each = flatten([for _, value in local.apps_grouped[each.key] : value.cloudflare_ruleset_rules])
