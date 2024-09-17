@@ -9,6 +9,9 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Terraform Show
         run: terraform show -json | sed -n '2p' > terraform_show.json
 
