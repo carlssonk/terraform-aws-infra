@@ -2,7 +2,7 @@ resource "aws_lb_target_group" "this" {
   name        = "${var.app_name}-tg"
   port        = var.container_port
   vpc_id      = var.vpc_id
-  protocol    = "HTTPS"
+  protocol    = "HTTP"
   target_type = "ip"
 
   health_check {
