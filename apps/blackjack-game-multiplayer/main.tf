@@ -62,7 +62,7 @@ module "iam_policy" {
   name          = local.app_name
   policy_documents = [
     module.ecs_task_definition.policy_document,
-    module.ecs_target_group.policy_document,
+    module.alb_target_group.policy_document,
     module.ecs_service.policy_document
   ]
 }
