@@ -1,5 +1,5 @@
 ## Pipeline Overview
-TODO (flowchart/diagram of CI flow)
+[CI Pipeline Diagram](ci-pipeline-diagram.png)
 
 ## Guide
 > Note: Use `chmod +x symlink_modules.sh` and `./symlink_modules.sh` to create a symlinked default/ folder
