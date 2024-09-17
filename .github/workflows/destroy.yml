@@ -46,7 +46,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
-      pull_requests: write
+      pull-requests: write
     strategy:
       matrix:
         step: [resources, iam]
