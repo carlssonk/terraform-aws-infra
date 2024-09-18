@@ -48,6 +48,17 @@ locals {
         description = "Cloudflare rules for terraform-diagram"
       }]
     }
+    fps = {
+      root_domain = "carlssonk.com"
+      cloudflare_ruleset_rules = [{
+        action = "set_config"
+        action_parameters = {
+          ssl = "flexible"
+        }
+        expression  = "(http.host eq \"fps.carlssonk.com\")"
+        description = "Cloudflare rules for fps"
+      }]
+    }
   }
 }
 
@@ -142,4 +153,14 @@ module "flagracer" {
 }
 output "flagracer_policy_document" {
   value = module.flagracer.policy_document
+}
+
+########################################################################
+
+module "fps" {
+  workflow_step = var.workflow_step
+  source        = "./apps/fps"
+}
+output "fps_policy_document" {
+  value = module.fps.policy_document
 }

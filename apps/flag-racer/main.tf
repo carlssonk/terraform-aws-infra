@@ -3,6 +3,9 @@ module "globals" {
 }
 
 locals {
+  github_repo_name = "carlssonk/flag-racer"
+  oidc_domain      = "token.actions.githubusercontent.com"
+
   app_name               = "flagracer"
   subdomain              = local.app_name
   root_domain            = "carlssonk.com"
@@ -10,9 +13,6 @@ locals {
   container_name         = "container-${local.app_name}"
   container_port         = 8080
   listener_rule_priority = 99
-
-  github_repo_name = "carlssonk/flag-racer"
-  oidc_domain      = "token.actions.githubusercontent.com"
 }
 
 module "cloudwatch" {
