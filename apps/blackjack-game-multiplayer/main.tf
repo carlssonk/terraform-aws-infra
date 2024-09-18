@@ -3,9 +3,7 @@ module "globals" {
 }
 
 locals {
-  github_repo_name = "carlssonk/Blackjack-Game-Multiplayer"
-  oidc_domain      = "token.actions.githubusercontent.com"
-
+  github_repo_name       = "carlssonk/Blackjack-Game-Multiplayer"
   app_name               = "blackjack"
   subdomain              = local.app_name
   root_domain            = "carlssonk.com"

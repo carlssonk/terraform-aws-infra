@@ -1,3 +1,8 @@
+
+locals {
+  oidc_domain = "token.actions.githubusercontent.com"
+}
+
 resource "aws_iam_role" "this" {
   count = var.workflow_step == "resources" ? 1 : 0
   name  = "${local.app_name}-deploy-role"

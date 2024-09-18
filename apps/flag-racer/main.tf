@@ -3,9 +3,7 @@ module "globals" {
 }
 
 locals {
-  github_repo_name = "carlssonk/flag-racer"
-  oidc_domain      = "token.actions.githubusercontent.com"
-
+  github_repo_name       = "carlssonk/flag-racer"
   app_name               = "flagracer"
   subdomain              = local.app_name
   root_domain            = "carlssonk.com"

@@ -2,12 +2,10 @@
 
 locals {
   github_repo_name = "carlssonk/fps"
-  oidc_domain      = "token.actions.githubusercontent.com"
-
-  app_name    = "fps"
-  subdomain   = local.app_name
-  root_domain = "carlssonk.com"
-  domain_name = "${local.subdomain}.${local.root_domain}"
+  app_name         = "fps"
+  subdomain        = local.app_name
+  root_domain      = "carlssonk.com"
+  domain_name      = "${local.subdomain}.${local.root_domain}"
 }
 
 module "bucket" {
