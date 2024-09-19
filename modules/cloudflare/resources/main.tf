@@ -27,7 +27,8 @@ resource "cloudflare_zone_settings_override" "this" {
   zone_id  = data.cloudflare_zone.domain[each.key].id
 
   settings {
-    ssl = "full"
+    ssl              = "full"
+    always_use_https = "on"
   }
 }
 
