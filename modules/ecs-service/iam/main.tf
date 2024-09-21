@@ -37,4 +37,16 @@ data "aws_iam_policy_document" "this" {
     ]
     effect = "Allow"
   }
+
+  statement {
+    actions = concat(
+      [
+        "servicediscovery:CreateHttpNamespace"
+      ]
+    )
+    resources = [
+      "arn:aws:servicediscovery:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:*/*"
+    ]
+    effect = "Allow"
+  }
 }
