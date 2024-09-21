@@ -29,6 +29,7 @@ module "ecs_task_definition" {
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
+      name          = "port-mapping-${local.container_port}"
     }]
     environment = [
       {
