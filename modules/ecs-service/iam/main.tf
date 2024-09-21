@@ -42,9 +42,9 @@ data "aws_iam_policy_document" "this" {
     actions = concat(
       [
         "servicediscovery:CreateHttpNamespace",
-        "ecr:Get*",
-        "ecr:List*",
-        "ecr:Describe*"
+        "servicediscovery:Get*",
+        "servicediscovery:List*",
+        "servicediscovery:Describe*"
       ]
     )
     resources = [
