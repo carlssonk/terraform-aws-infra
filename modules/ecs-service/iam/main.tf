@@ -41,7 +41,10 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "servicediscovery:CreateHttpNamespace"
+        "servicediscovery:CreateHttpNamespace",
+        "ecr:Get*",
+        "ecr:List*",
+        "ecr:Describe*"
       ]
     )
     resources = [
