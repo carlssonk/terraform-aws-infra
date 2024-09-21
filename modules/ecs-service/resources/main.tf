@@ -1,3 +1,7 @@
+resource "aws_service_discovery_http_namespace" "this" {
+  name = var.app_name
+}
+
 resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
   cluster         = var.cluster_id
@@ -15,6 +19,19 @@ resource "aws_ecs_service" "this" {
     target_group_arn = var.alb_target_group_arn
     container_name   = var.container_name
     container_port   = var.container_port
+  }
+
+  service_connect_configuration {
+    enabled   = true
+    namespace = aws_service_discovery_http_namespace.this.arn
+    service {
+      port_name      = "http"
+      discovery_name = "app"
+      client_alias {
+        port     = 80
+        dns_name = "app.local"
+      }
+    }
   }
 
   force_delete = true
