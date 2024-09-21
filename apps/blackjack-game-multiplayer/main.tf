@@ -28,6 +28,7 @@ module "ecs_task_definition" {
     image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.AWS_REGION}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
+      hostPort      = local.container_port
     }]
     environment = [
       {
