@@ -45,6 +45,7 @@ locals {
     }
     terraform_diagram = {
       root_domain = "carlssonk.com"
+      source      = "../apps/terraform-diagram"
       cloudflare_ruleset_rules = [{
         action = "set_config"
         action_parameters = {
@@ -56,6 +57,7 @@ locals {
     }
     fps = {
       root_domain = "carlssonk.com"
+      source      = "../apps/fps"
       cloudflare_ruleset_rules = [{
         action = "set_config"
         action_parameters = {
@@ -81,28 +83,28 @@ locals {
 ########################################################################
 
 module "networking" {
-  source = "./common/networking"
+  source = "../common/networking"
 }
 
 module "security" {
-  source             = "./common/security"
+  source             = "../common/security"
   networking_outputs = module.networking
 }
 
 module "services" {
-  source             = "./common/services"
+  source             = "../common/services"
   networking_outputs = module.networking
   security_outputs   = module.security
 }
 
 module "cloudflare" {
-  source = "./modules/cloudflare/default"
+  source = "../modules/cloudflare/default"
   apps   = local.apps
 }
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "./modules/iam_policy"
+  source        = "../modules/iam_policy"
   name          = "common"
   policy_documents = flatten([
     module.networking.policy_documents,
@@ -121,20 +123,16 @@ output "common_policy_document" {
 
 module "portfolio" {
   workflow_step = var.workflow_step
-  source        = "./apps/portfolio"
+  source        = "../apps/portfolio"
   root_domain   = "carlssonk.com"
   app_name      = "portfolio"
 }
 
 module "static_apps" {
   workflow_step = var.workflow_step
-  for_each = {
-    portfolio         = "./apps/portfolio"
-    terraform_diagram = "./apps/terraform-diagram"
-    fps               = "./apps/fps"
-  }
+  for_each      = local.apps
 
-  source = each.value
+  source = each.value.source
 }
 
 output "portfolio_policy_document" {
@@ -153,7 +151,7 @@ output "fps_policy_document" {
 
 module "blackjack" {
   workflow_step              = var.workflow_step
-  source                     = "./apps/blackjack-game-multiplayer"
+  source                     = "../apps/blackjack-game-multiplayer"
   vpc_id                     = module.networking.main_vpc_id
   subnet_ids                 = module.networking.main_vpc_public_subnet_ids
   ecs_security_group_id      = module.security.security_group_ecs_tasks_id
@@ -170,7 +168,7 @@ output "blackjack_policy_document" {
 
 module "flagracer" {
   workflow_step              = var.workflow_step
-  source                     = "./apps/flag-racer"
+  source                     = "../apps/flag-racer"
   vpc_id                     = module.networking.main_vpc_id
   subnet_ids                 = module.networking.main_vpc_public_subnet_ids
   ecs_security_group_id      = module.security.security_group_ecs_tasks_id
