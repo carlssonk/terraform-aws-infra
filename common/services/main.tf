@@ -3,7 +3,7 @@ module "globals" {
 }
 
 locals {
-  main_alb_access_logs_bucket_name = "${module.globals.var.ORGANIZATION}-main-alb-logs"
+  main_alb_access_logs_bucket_name = "${module.globals.var.organization}-main-alb-logs"
   elb_account_ids = {
     eu-north-1 = "897822967062" // ID found in AWS docs https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html
   }
@@ -15,10 +15,10 @@ module "main_alb_access_logs_bucket" {
   custom_bucket_policy = {
     Effect = "Allow",
     Principal = {
-      AWS = "arn:aws:iam::${local.elb_account_ids[module.globals.var.AWS_REGION]}:root"
+      AWS = "arn:aws:iam::${local.elb_account_ids[module.globals.var.aws_region]}:root"
     },
     Action   = "s3:PutObject",
-    Resource = "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${module.globals.var.AWS_ACCOUNT_ID}/*"
+    Resource = "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${module.globals.var.aws_account_id}/*"
   }
 }
 

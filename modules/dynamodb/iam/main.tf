@@ -14,8 +14,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:dynamodb:::${module.globals.var.ORGANIZATION}-${var.table_name}-${terraform.workspace}",
-      "arn:aws:dynamodb:::${module.globals.var.ORGANIZATION}-${var.table_name}-${terraform.workspace}/*"
+      "arn:aws:dynamodb:::${module.globals.var.organization}-${var.table_name}-${terraform.workspace}",
+      "arn:aws:dynamodb:::${module.globals.var.organization}-${var.table_name}-${terraform.workspace}/*"
     ]
     effect = "Allow"
   }
