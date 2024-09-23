@@ -16,7 +16,7 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:oidc-provider/${local.oidc_domain}"
+        Federated = "arn:aws:iam::${module.globals.var.aws_account_id}:oidc-provider/${local.oidc_domain}"
       }
       Condition = {
         StringEquals = {

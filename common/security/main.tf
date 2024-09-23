@@ -121,8 +121,8 @@ module "vpc_endpoints_gateway" {
   source = "../../modules/vpc-endpoint/default"
   type   = "gateway"
   endpoints = [
-    "com.amazonaws.${module.globals.var.AWS_REGION}.s3",
-    "com.amazonaws.${module.globals.var.AWS_REGION}.dynamodb"
+    "com.amazonaws.${module.globals.var.aws_region}.s3",
+    "com.amazonaws.${module.globals.var.aws_region}.dynamodb"
   ]
   vpc_id          = var.networking_outputs.main_vpc_id
   route_table_ids = var.networking_outputs.main_vpc_private_route_table_ids
@@ -133,8 +133,8 @@ module "vpc_endpoints_gateway" {
 #   source = "../../modules/vpc-endpoint/default"
 #   type   = "interface"
 #   endpoints = [
-#     "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.api",
-#     "com.amazonaws.${module.globals.var.AWS_REGION}.ecr.dkr",
+#     "com.amazonaws.${module.globals.var.aws_region}.ecr.api",
+#     "com.amazonaws.${module.globals.var.aws_region}.ecr.dkr",
 #   ]
 #   vpc_id            = var.networking_outputs.main_vpc_id
 #   subnet_ids        = var.networking_outputs.main_vpc_private_subnet_ids

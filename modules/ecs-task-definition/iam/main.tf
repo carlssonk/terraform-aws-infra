@@ -14,8 +14,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}",
-      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:task-definition/task-${var.app_name}:*"
+      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:task-definition/task-${var.app_name}",
+      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:task-definition/task-${var.app_name}:*"
     ]
     effect = "Allow"
   }
@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole"
+      "arn:aws:iam::${module.globals.var.aws_account_id}:role/ecsTaskExecutionRole"
     ]
     effect = "Allow"
   }

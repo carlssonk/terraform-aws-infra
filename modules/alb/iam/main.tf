@@ -14,8 +14,8 @@ data "aws_iam_policy_document" "this" {
       ],
     )
     resources = [
-      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:loadbalancer/app/${var.name}-alb/*",
-      "arn:aws:elasticloadbalancing:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:listener/app/${var.name}-alb/*"
+      "arn:aws:elasticloadbalancing:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:loadbalancer/app/${var.name}-alb/*",
+      "arn:aws:elasticloadbalancing:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:listener/app/${var.name}-alb/*"
     ]
     effect = "Allow"
   }
@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:acm:eu-north-1:${module.globals.var.AWS_ACCOUNT_ID}:certificate/*"
+      "arn:aws:acm:eu-north-1:${module.globals.var.aws_account_id}:certificate/*"
     ]
     effect = "Allow"
   }

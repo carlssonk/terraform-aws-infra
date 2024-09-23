@@ -39,7 +39,7 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "../../modules/iam_policy"
+  source        = "../../iam_policy"
   name          = var.app_name
   policy_documents = [
     module.www_bucket.policy_document,

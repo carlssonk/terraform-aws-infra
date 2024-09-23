@@ -104,7 +104,7 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "../../modules/iam_policy"
+  source        = "../../iam_policy"
   name          = "common"
   policy_documents = flatten([
     module.networking.policy_documents,

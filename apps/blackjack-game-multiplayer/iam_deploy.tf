@@ -12,7 +12,7 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${module.globals.var.AWS_ACCOUNT_ID}:oidc-provider/${local.oidc_domain}"
+        Federated = "arn:aws:iam::${module.globals.var.aws_account_id}:oidc-provider/${local.oidc_domain}"
       }
       Condition = {
         StringEquals = {
@@ -52,8 +52,8 @@ resource "aws_iam_policy" "this" {
           "ecr:PutImage"
         ]
         Resource = [
-          "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}",
-          "arn:aws:ecr:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:repository/${module.ecs_service.repo_name}/*"
+          "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/${module.ecs_service.repo_name}",
+          "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/${module.ecs_service.repo_name}/*"
         ]
       },
       {
@@ -74,8 +74,8 @@ resource "aws_iam_policy" "this" {
           "ecs:UpdateService"
         ]
         Resource = [
-          "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}",
-          "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:service/MainCluster/${module.ecs_service.service_name}/*"
+          "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/${module.ecs_service.service_name}",
+          "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/${module.ecs_service.service_name}/*"
         ]
       },
       {

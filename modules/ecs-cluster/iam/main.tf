@@ -14,8 +14,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:cluster/${var.cluster_name}",
-      "arn:aws:ecs:${module.globals.var.AWS_REGION}:${module.globals.var.AWS_ACCOUNT_ID}:cluster/${var.cluster_name}/*"
+      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:cluster/${var.cluster_name}",
+      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:cluster/${var.cluster_name}/*"
     ]
     effect = "Allow"
   }

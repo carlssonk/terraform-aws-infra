@@ -25,7 +25,7 @@ module "ecs_task_definition" {
   memory   = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "${module.globals.var.AWS_ACCOUNT_ID}.dkr.ecr.${module.globals.var.AWS_REGION}.amazonaws.com/repo-${local.app_name}:latest"
+    image = "${module.globals.var.aws_account_id}.dkr.ecr.${module.globals.var.aws_region}.amazonaws.com/repo-${local.app_name}:latest"
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
@@ -41,7 +41,7 @@ module "ecs_task_definition" {
       logDriver = "awslogs"
       options = {
         awslogs-group         = "/ecs/${local.app_name}"
-        awslogs-region        = module.globals.var.AWS_REGION
+        awslogs-region        = module.globals.var.aws_region
         awslogs-stream-prefix = "ecs"
       }
     }
@@ -83,7 +83,7 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "../../modules/iam_policy"
+  source        = "../../iam_policy"
   name          = local.app_name
   policy_documents = [
     module.ecs_task_definition.policy_document,
