@@ -89,7 +89,8 @@ jobs:
           ./scripts/symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
-        run: terraform init -input=false \
+        run: terraform init \
+               -input=false \
                -backend-config="encrypt=true" \
                -backend-config="region=${{ vars.AWS_REGION }}" \
                -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ needs.setup.outputs.env }}" \
@@ -99,7 +100,8 @@ jobs:
 
       - name: Prepare Environment
         run: |
-          python ./scripts/create_globals.py ${{ format('%s%s', env.TF_ROOT_DIRECTORY, env.TFVARS_FILE_NAME) }} \ 
+          python ./scripts/create_globals.py \ 
+            ${{ format('%s%s', env.TF_ROOT_DIRECTORY, env.TFVARS_FILE_NAME) }} \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
             cleanup_policies=${{ github.event_name == 'schedule' }}
 
