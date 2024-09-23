@@ -7,18 +7,11 @@ terraform {
 }
 
 locals {
-  apps_with_cloudflare_configuration = {
-    for key, app_config in var.apps :
-    key => app_config
-    if try(app_config.root_domain, null) != null &&
-    try(length(app_config.cloudflare_ruleset_rules) > 0, false)
-  }
-
   // Group apps by root_domain
   apps_grouped = {
-    for root_domain in distinct(values(local.apps_with_cloudflare_configuration)[*].root_domain, []) :
+    for root_domain in distinct(values(var.apps)[*].root_domain) :
     root_domain => [
-      for _, app_config in local.apps_with_cloudflare_configuration : app_config
+      for _, app_config in var.apps : app_config
       if app_config.root_domain == root_domain
     ]
   }

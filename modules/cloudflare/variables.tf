@@ -10,6 +10,5 @@ variable "apps" {
       expression  = optional(string)
       description = optional(string)
     })))
-    alb_listener_rule_priority = optional(number)
   }))
 }

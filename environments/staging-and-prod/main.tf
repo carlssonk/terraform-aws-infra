@@ -24,11 +24,10 @@ terraform {
 }
 
 locals {
-  // App configurations used by common infrastrucutre
-  apps = {
+  cloudflare_configuration = {
     portfolio = {
       root_domain = "carlssonk.com"
-      cloudflare_ruleset_rules = [{
+      ruleset_rules = [{
         action = "set_config"
         action_parameters = {
           ssl = "flexible"
@@ -39,8 +38,7 @@ locals {
     }
     terraform_diagram = {
       root_domain = "carlssonk.com"
-      source      = "../../apps/terraform-diagram"
-      cloudflare_ruleset_rules = [{
+      ruleset_rules = [{
         action = "set_config"
         action_parameters = {
           ssl = "flexible"
@@ -51,8 +49,7 @@ locals {
     }
     fps = {
       root_domain = "carlssonk.com"
-      source      = "../../apps/fps"
-      cloudflare_ruleset_rules = [{
+      ruleset_rules = [{
         action = "set_config"
         action_parameters = {
           ssl = "flexible"
@@ -92,8 +89,8 @@ module "services" {
 }
 
 module "cloudflare" {
-  source = "../../modules/cloudflare/default"
-  apps   = local.apps
+  source                   = "../../modules/cloudflare/default"
+  cloudflare_configuration = local.cloudflare_configuration
 }
 
 module "iam_policy" {
