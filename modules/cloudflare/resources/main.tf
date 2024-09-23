@@ -41,7 +41,7 @@ resource "cloudflare_ruleset" "this" {
   phase       = "http_config_settings"
 
   dynamic "rules" {
-    for_each = flatten([for _, value in local.apps_grouped[each.key] : value.cloudflare_ruleset_rules])
+    for_each = flatten([for _, value in local.apps_grouped[each.key] : value.ruleset_rules])
     content {
       action = rules.value.action
 
