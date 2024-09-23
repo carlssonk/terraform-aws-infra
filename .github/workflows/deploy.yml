@@ -89,13 +89,14 @@ jobs:
           ./scripts/symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
-        run: terraform init \
-               -input=false \
-               -backend-config="encrypt=true" \
-               -backend-config="region=${{ vars.AWS_REGION }}" \
-               -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ needs.setup.outputs.env }}" \
-               -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ needs.setup.outputs.env }}" \
-               -backend-config="key=${{ matrix.step }}/terraform.tfstate"
+        run: |
+          terraform init \
+            -input=false \
+            -backend-config="encrypt=true" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ needs.setup.outputs.env }}" \
+            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ needs.setup.outputs.env }}" \
+            -backend-config="key=${{ matrix.step }}/terraform.tfstate"
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Prepare Environment
