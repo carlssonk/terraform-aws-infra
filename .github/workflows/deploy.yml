@@ -64,7 +64,7 @@ jobs:
       max-parallel: 1
     env:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
-      TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform.tfvars' || needs.setup.outputs.env + '.tfvars' }}
+      TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}
     outputs:
       terraform_state_json: ${{ steps.create_tag.outputs.terraform_state_json }}
     steps:
@@ -102,7 +102,7 @@ jobs:
       - name: Prepare Environment
         run: |
           python ./scripts/create_globals.py \
-            '${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}' \
+            '${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars' \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
             cleanup_policies=${{ github.event_name == 'schedule' }}
 
@@ -114,12 +114,12 @@ jobs:
           if [ ${{ github.event_name }} == 'pull_request' ]; then
             if [ ${{ matrix.step }} == 'iam' ]; then
               terraform plan -lock=false
-              terraform apply -auto-approve -var-file=${{ env.TFVARS_FILE_NAME }}
+              terraform apply -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'
             else
               terraform plan
             fi
           else
-            if ! ./scripts/retry_command.sh 'terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve -var-file=${{ env.TFVARS_FILE_NAME }}'; then
+            if ! ./scripts/retry_command.sh 'terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars"'; then
               echo 'Terraform failed after all retry attempts'
               exit 1
             fi
