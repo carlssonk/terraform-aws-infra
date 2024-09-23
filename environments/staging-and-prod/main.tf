@@ -128,23 +128,26 @@ module "portfolio" {
   app_name      = "portfolio"
 }
 
-module "static_apps" {
-  workflow_step = var.workflow_step
-  for_each      = local.apps
-
-  source = each.value.source
+output "portfolio_policy_document" {
+  value = module.portfolio.policy_document
 }
 
-output "portfolio_policy_document" {
-  value = module.static_apps["portfolio"].policy_document
+module "terraform_diagram" {
+  workflow_step = var.workflow_step
+  source        = "../../apps/terraform-diagram"
 }
 
 output "terraform_diagram_policy_document" {
-  value = module.static_apps["terraform_diagram"].policy_document
+  value = module.terraform_diagram.policy_document
+}
+
+module "fps" {
+  workflow_step = var.workflow_step
+  source        = "../../apps/fps"
 }
 
 output "fps_policy_document" {
-  value = module.static_apps["fps"].policy_document
+  value = module.fps.policy_document
 }
 
 ########################################################################
