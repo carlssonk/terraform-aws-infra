@@ -2,7 +2,7 @@ variable "apps" {
   description = "App configurations"
   type = map(object({
     root_domain = optional(string)
-    cloudflare_ruleset_rules = optional(list(object({
+    ruleset_rules = optional(list(object({
       action = optional(string)
       action_parameters = optional(object({
         ssl = optional(string)
