@@ -60,7 +60,7 @@ jobs:
       contents: read
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
-      fail-fast: ${{ needs.setup.outputs.fail-fast }}
+      fail-fast: ${{ fromJSON(needs.setup.outputs.fail-fast) }}
       max-parallel: 1
     env:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
