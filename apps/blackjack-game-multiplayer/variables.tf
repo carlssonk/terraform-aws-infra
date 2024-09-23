@@ -18,17 +18,22 @@ variable "ecs_security_group_id" {
   type        = string
 }
 
-variable "alb_dns_name" {
-  description = "Application load balancer DNS name"
+variable "vpc_id" {
+  description = "ID of VPC"
   type        = string
 }
 
-variable "vpc_id" {
-  description = "ID of VPC"
+variable "alb_dns_name" {
+  description = "Application load balancer DNS name"
   type        = string
 }
 
 variable "alb_listener_arn" {
   description = "ARN of alb listener"
   type        = string
+}
+
+variable "alb_listener_rule_priority" {
+  description = "Priority for listener rule, must be unique per alb"
+  type        = number
 }

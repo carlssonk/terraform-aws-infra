@@ -1,5 +1,5 @@
 data "local_file" "globals" {
-  filename = "${path.root}/globals.json"
+  filename = "${path.root}../../globals.json"
 }
 
 data "http" "cloudflare_ips_v4" {

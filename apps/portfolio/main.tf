@@ -1,9 +1,7 @@
 // S3 + cloudflare website setup guide: https://developers.cloudflare.com/support/third-party-software/others/configuring-an-amazon-web-services-static-site-to-use-cloudflare/
 
 locals {
-  app_name    = "portfolio"
-  root_domain = "carlssonk.com"
-  domain_name = "www.${local.root_domain}"
+  domain_name = "www.${var.root_domain}"
 }
 
 module "www_bucket" {
@@ -17,7 +15,7 @@ module "www_bucket" {
 
 module "apex_bucket" {
   source      = "../../modules/s3/default"
-  bucket_name = local.root_domain
+  bucket_name = var.root_domain
   website_config = {
     redirect_to = local.domain_name
   }
@@ -26,7 +24,7 @@ module "apex_bucket" {
 
 module "cloudflare" {
   source      = "../../modules/cloudflare-record/default"
-  root_domain = local.root_domain
+  root_domain = var.root_domain
   dns_records = [
     {
       name  = "www"
@@ -41,8 +39,8 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "../../iam_policy"
-  name          = local.app_name
+  source        = "../../modules/iam_policy"
+  name          = var.app_name
   policy_documents = [
     module.www_bucket.policy_document,
     module.apex_bucket.policy_document

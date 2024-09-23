@@ -3,14 +3,14 @@ module "globals" {
 }
 
 locals {
-  github_repo_name       = "carlssonk/flag-racer"
-  app_name               = "flagracer"
-  subdomain              = local.app_name
-  root_domain            = "carlssonk.com"
-  domain_name            = "${local.app_name}.${local.root_domain}"
-  container_name         = "container-${local.app_name}"
-  container_port         = 8080
-  listener_rule_priority = 99
+  github_repo_name = "carlssonk/flag-racer"
+  app_name         = "flagracer"
+  subdomain        = local.app_name
+  root_domain      = "carlssonk.com"
+  domain_name      = "${local.app_name}.${local.root_domain}"
+  container_port   = 8080
+  container_name   = "container-${local.app_name}"
+  port_name        = "port-${local.app_name}"
 }
 
 module "cloudwatch" {
@@ -29,7 +29,7 @@ module "ecs_task_definition" {
     portMappings = [{
       containerPort = local.container_port
       hostPort      = local.container_port
-      name          = "port-mapping-${local.container_port}"
+      name          = local.port_name
     }]
     logConfiguration = {
       logDriver = "awslogs"
@@ -50,7 +50,7 @@ module "alb_target_group" {
   listener_arn           = var.alb_listener_arn
   host_header            = local.domain_name
   use_stickiness         = true
-  listener_rule_priority = local.listener_rule_priority
+  listener_rule_priority = var.alb_listener_rule_priority
 }
 
 module "ecs_service" {
@@ -77,7 +77,7 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "../../iam_policy"
+  source        = "../../modules/iam_policy"
   name          = local.app_name
   policy_documents = [
     module.ecs_task_definition.policy_document,

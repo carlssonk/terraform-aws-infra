@@ -1,60 +1,75 @@
-name: Upsert Infrastructure
+name: Deploy Infrastructure
 
 on:
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Promote to environment'
+        required: true
+        options:
+          - prod
   schedule:
-  - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up unused policies
+    - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up unused policies
   push:
-    branches: [prod, dev]
+    branches: [main, dev/*]
   pull_request:
-    branches: [prod, dev]
+    branches: [main]
   
 concurrency: 
-  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+  group: ${{ startsWith(github.ref_name, 'dev/') && 'dev' || 'main' }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
-  TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
-  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
-  TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  TF_VAR_cleanup_policies: ${{ github.event_name == 'schedule' }}
 
 jobs:
-  check_run:
-    name: Should run condition
+  setup:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.check.outputs.should_run }}
+      env: ${{ steps.set-env.outputs.environment }}
+      matrix: ${{ steps.set-strategy.outputs.matrix }}
+      fail-fast: ${{ steps.set-strategy.outputs.fail-fast }}
     steps:
-      - id: check
+      - id: set-env
         run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ !contains(github.event.head_commit.message, '[DESTROY]') }}" == "true" ]]; then
-            echo "should_run=true" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "should_run=true" >> $GITHUB_OUTPUT
+          if [[ ${{ github.ref_name }} == dev/* ]]; then
+            echo 'environment=dev' >> $GITHUB_OUTPUT
+          elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            echo 'environment=${{ github.event.inputs.environment }}' >> $GITHUB_OUTPUT
           else
-            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo 'environment=prod' >> $GITHUB_OUTPUT 
+          fi
+      - id: set-strategy
+        run: |
+          if [ ${{ github.event_name }} = 'workflow_dispatch' ]; then
+            echo 'matrix={"environment":["dev","staging","prod"],"step":["iam"]}' >> $GITHUB_OUTPUT
+            echo 'fail-fast=false' >> $GITHUB_OUTPUT
+          else
+            echo 'matrix={"step":["iam","resources"]}' >> $GITHUB_OUTPUT
+            echo 'fail-fast=true' >> $GITHUB_OUTPUT
           fi
 
-  terraform_operation:
+  terraform-operation:
     name: Terraform Operation
-    needs: check_run
-    if: needs.check_run.outputs.should_run == 'true'
+    needs: setup
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+    environment: ${{ needs.setup.outputs.env }}
     permissions:
       id-token: write
-      contents: write
-      pull-requests: write
+      contents: read
     strategy:
-      matrix:
-        step: [iam, resources]
-      fail-fast: true
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+      fail-fast: ${{ needs.setup.outputs.fail-fast }}
       max-parallel: 1
+    env:
+      TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
+      TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform.tfvars' || format('%s.tfvars', needs.setup.outputs.env) }}
+    outputs:
+      terraform_state_json: ${{ steps.create_tag.outputs.terraform_state_json }}
     steps:
       - name: Set TF_VAR_workflow_step
-        run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
+        run: echo 'TF_VAR_workflow_step=${{ matrix.step }}' >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,75 +85,93 @@ jobs:
 
       - name: Symlink modules
         run: |
-          chmod +x symlink_modules.sh
-          ./symlink_modules.sh ${{ matrix.step }} true
+          chmod +x ./scripts/symlink_modules.sh
+          ./scripts/symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
-        run: |
-          terraform init \
-            -backend-config="encrypt=true" \
-            -backend-config="region=${{ vars.AWS_REGION }}" \
-            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
-            -backend-config="key=${{ matrix.step }}/terraform.tfstate"
+        run: terraform init -input=false
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Prepare Environment
         run: |
-          python create_globals.py '${{ toJson(vars) }}' workflow_step=${{ env.TF_VAR_workflow_step }} cleanup_policies=${{ env.TF_VAR_cleanup_policies }}
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
+          python ./scripts/create_globals.py ${{ format('%s%s', env.TF_ROOT_DIRECTORY, env.TFVARS_FILE_NAME) }} \ 
+            workflow_step=${{ env.TF_VAR_workflow_step }} \
+            cleanup_policies=${{ github.event_name == 'schedule' }}
 
-      - name: Check for State Removal Command
-        if: matrix.step == 'resources'
-        id: check_commit
-        run: |
-          commit_message=$(git log -1 --pretty=%B)
-          if echo "$commit_message" | grep -q "^tf-rm:"; then
-            echo "remove_resource=true" >> $GITHUB_OUTPUT
-            echo "resource_address=$(echo "$commit_message" | sed -n 's/^tf-rm: *//p')" >> $GITHUB_OUTPUT
-          else
-            echo "remove_resource=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Remove Resource from Terraform State
-        if: matrix.step == 'resources' && steps.check_commit.outputs.remove_resource == 'true'
-        run: |
-          terraform state rm '${{ steps.check_commit.outputs.resource_address }}'
-        continue-on-error: true
+          terraform workspace select ${{ needs.setup.outputs.env }} || terraform workspace new ${{ needs.setup.outputs.env }}
+          chmod +x ./scripts/retry_command.sh
 
       - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            if [ "${{ matrix.step }}" == "iam" ]; then
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            if [ ${{ matrix.step }} == 'iam' ]; then
               terraform plan -lock=false
-              terraform apply -auto-approve
+              terraform apply -auto-approve -var-file=${{ env.TFVARS_FILE_NAME }}
             else
               terraform plan
             fi
           else
-            if ! ./retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve"; then
-              echo "Terraform failed after all retry attempts"
+            if ! ./scripts/retry_command.sh 'terraform apply ${{ matrix.step == "iam" && "-lock=false" || "" }} -auto-approve -var-file=${{ env.TFVARS_FILE_NAME }}'; then
+              echo 'Terraform failed after all retry attempts'
               exit 1
             fi
           fi
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Terraform Show
-        run: terraform show -json | sed -n '2p' > terraform_show.json
+        run: |
+          terraform show -json | sed -n '2p' > terraform_show.json
+          echo 'terraform_state_json=$(cat terraform_show.json)' >> $GITHUB_OUTPUT
+
+      - name: Delay for 15 seconds
+        if: matrix.step == 'iam' && github.event_name != 'workflow_dispatch'
+        run: sleep 15
+
+  create-release-tag:
+    needs: [setup, terraform-operation]
+    runs-on: ubuntu-latest
+    if: needs.setup.outputs.env == 'prod'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+          
+      - name: Create and push tag
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          TAG_NAME='release-${COMMIT_HASH}'
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+  create-terraform-state-json:
+    needs: [setup, terraform-operation]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    if: needs.setup.outputs.env == 'prod'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Setup Git
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config user.name github-actions
+          git config user.email github-actions@github.com
 
-      - name: Commit terraform_show.json
+      - name: Checkout and update branch
+        env:
+          branch_name: terraform-state
         run: |
-          git add terraform_show.json
-          git commit -m "[skip ci] Update terraform_show.json"
+          if git ls-remote --exit-code --heads origin ${{ env.branch_name }}; then
+            git checkout ${{ env.branch_name }}
+          else
+            git checkout -b ${{ env.branch_name }}
+          fi
+        
+          echo '${{ needs.terraform-operation.outputs.terraform_state_json }}' > terraform_state.json
 
-      - name: Push to terraform-state branch
-        run: |
-          git push origin HEAD:terraform-state --force
-
-      - name: Delay for 15 seconds
-        if: matrix.step == 'iam'
-        run: sleep 15
+          git add terraform_state.json
+          git commit -m 'Update terraform_state.json'
+          git push -u origin ${{ env.branch_name }}

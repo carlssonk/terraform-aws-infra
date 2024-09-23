@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.AWS_REGION
+  region = var.aws_region
 }
 
 provider "cloudflare" {
@@ -20,7 +20,13 @@ provider "cloudflare" {
 }
 
 terraform {
-  backend "s3" {}
+  backend "s3" {
+    encrypt        = true
+    region         = var.aws_region
+    bucket         = "${var.organization}-terraform-state-bucket-${terraform.workspace}"
+    dynamodb_table = "${var.organization}-terraform-lock-table-${terraform.workspace}"
+    key            = "${var.workflow_step}/terraform.tfstate"
+  }
 }
 
 locals {
@@ -60,7 +66,15 @@ locals {
       }]
     }
   }
+
+  reverse_proxy_type = "custom" // alb | custom - Custom will use a ec2 instance configured with nginx as a reverse proxy (more cost efficient than alb)
+  # nat_type           = "nat-instance" // nat-gateway | nat-instance | none
 }
+
+// TODO
+// Spin up a ec2 micro instance with nginx and proxypass (a more cost efficient alternative to application load balancer)
+// Change my farget services to Spot Fargate (Up to 70% cost reduction)
+// Set up a NAT instance for fck-nat and remove Assign public IP for my ecs services
 
 ########################################################################
 ######################## COMMON INFRASTRUCTURE #########################
@@ -88,7 +102,7 @@ module "cloudflare" {
 
 module "iam_policy" {
   workflow_step = var.workflow_step
-  source        = "./iam_policy"
+  source        = "./modules/iam_policy"
   name          = "common"
   policy_documents = flatten([
     module.networking.policy_documents,
@@ -108,32 +122,45 @@ output "common_policy_document" {
 module "portfolio" {
   workflow_step = var.workflow_step
   source        = "./apps/portfolio"
-}
-output "portfolio_policy_document" {
-  value = module.portfolio.policy_document
+  root_domain   = "carlssonk.com"
+  app_name      = "portfolio"
 }
 
-########################################################################
-
-module "terraform_diagram" {
+module "static_apps" {
   workflow_step = var.workflow_step
-  source        = "./apps/terraform-diagram"
+  for_each = {
+    portfolio         = "./apps/portfolio"
+    terraform_diagram = "./apps/terraform-diagram"
+    fps               = "./apps/fps"
+  }
+
+  source = each.value
 }
+
+output "portfolio_policy_document" {
+  value = module.static_apps["portfolio"].policy_document
+}
+
 output "terraform_diagram_policy_document" {
-  value = module.terraform_diagram.policy_document
+  value = module.static_apps["terraform_diagram"].policy_document
+}
+
+output "fps_policy_document" {
+  value = module.static_apps["fps"].policy_document
 }
 
 ########################################################################
 
 module "blackjack" {
-  workflow_step         = var.workflow_step
-  source                = "./apps/blackjack-game-multiplayer"
-  vpc_id                = module.networking.main_vpc_id
-  subnet_ids            = module.networking.main_vpc_public_subnet_ids
-  ecs_security_group_id = module.security.security_group_ecs_tasks_id
-  cluster_id            = module.services.main_ecs_cluster_id
-  alb_dns_name          = module.services.main_alb_dns_name
-  alb_listener_arn      = module.services.main_alb_listener_arn
+  workflow_step              = var.workflow_step
+  source                     = "./apps/blackjack-game-multiplayer"
+  vpc_id                     = module.networking.main_vpc_id
+  subnet_ids                 = module.networking.main_vpc_public_subnet_ids
+  ecs_security_group_id      = module.security.security_group_ecs_tasks_id
+  cluster_id                 = module.services.main_ecs_cluster_id
+  alb_dns_name               = module.services.main_alb_dns_name
+  alb_listener_arn           = module.services.main_alb_listener_arn
+  alb_listener_rule_priority = 100
 }
 output "blackjack_policy_document" {
   value = module.blackjack.policy_document
@@ -142,25 +169,16 @@ output "blackjack_policy_document" {
 ########################################################################
 
 module "flagracer" {
-  workflow_step         = var.workflow_step
-  source                = "./apps/flag-racer"
-  vpc_id                = module.networking.main_vpc_id
-  subnet_ids            = module.networking.main_vpc_public_subnet_ids
-  ecs_security_group_id = module.security.security_group_ecs_tasks_id
-  cluster_id            = module.services.main_ecs_cluster_id
-  alb_dns_name          = module.services.main_alb_dns_name
-  alb_listener_arn      = module.services.main_alb_listener_arn
+  workflow_step              = var.workflow_step
+  source                     = "./apps/flag-racer"
+  vpc_id                     = module.networking.main_vpc_id
+  subnet_ids                 = module.networking.main_vpc_public_subnet_ids
+  ecs_security_group_id      = module.security.security_group_ecs_tasks_id
+  cluster_id                 = module.services.main_ecs_cluster_id
+  alb_dns_name               = module.services.main_alb_dns_name
+  alb_listener_arn           = module.services.main_alb_listener_arn
+  alb_listener_rule_priority = 99
 }
 output "flagracer_policy_document" {
   value = module.flagracer.policy_document
-}
-
-########################################################################
-
-module "fps" {
-  workflow_step = var.workflow_step
-  source        = "./apps/fps"
-}
-output "fps_policy_document" {
-  value = module.fps.policy_document
 }
