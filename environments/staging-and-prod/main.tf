@@ -20,13 +20,7 @@ provider "cloudflare" {
 }
 
 terraform {
-  backend "s3" {
-    encrypt        = true
-    region         = var.aws_region
-    bucket         = "${var.organization}-terraform-state-bucket-${terraform.workspace}"
-    dynamodb_table = "${var.organization}-terraform-lock-table-${terraform.workspace}"
-    key            = "${var.workflow_step}/terraform.tfstate"
-  }
+  backend "s3" {}
 }
 
 locals {
