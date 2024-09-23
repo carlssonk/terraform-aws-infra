@@ -89,8 +89,8 @@ module "services" {
 }
 
 module "cloudflare" {
-  source                   = "../../modules/cloudflare/default"
-  cloudflare_configuration = local.cloudflare_configuration
+  source = "../../modules/cloudflare/default"
+  apps   = local.cloudflare_configuration
 }
 
 module "iam_policy" {
