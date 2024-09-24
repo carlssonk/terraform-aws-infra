@@ -158,7 +158,7 @@ jobs:
         id: set-tf-state
         if: matrix.step == 'resources' && github.event_name != 'workflow_dispatch'
         run: |
-          terraform show -json | sed -n "2p" > terraform_show.json
+          terraform show -json > terraform_show.json
           echo "$(cat terraform_show.json)"
           echo "terraform_state_json=$(cat terraform_show.json)" >> $GITHUB_OUTPUT
 
@@ -238,6 +238,8 @@ jobs:
         
           echo "${{ needs.terraform-operation.outputs.terraform_state_json }}" > terraform_state.json
 
-          git add terraform_state.json
-          git commit -m "Update terraform_state.json"
-          git push -u origin ${{ env.branch_name }}
+          if ! git diff --quiet HEAD terraform_state.json; then
+            git add terraform_state.json
+            git commit -m "Update terraform_state.json"
+            git push -u origin ${{ env.branch_name }}
+          fi
