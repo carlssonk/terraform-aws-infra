@@ -185,11 +185,11 @@ jobs:
           COMMIT_HASH=$(git rev-parse --short HEAD)
           TAG_NAME="${COMMIT_HASH}"
 
-          if ! git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             echo "Tag $TAG_NAME already exists. Skipping tag creation."
           else
             git tag $TAG_NAME
-            git push origin $TAG_NAME
+            git push origin $TAG_NAME || true
             echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
             echo "Tag $TAG_NAME created and pushed."
           fi
@@ -239,8 +239,4 @@ jobs:
         
           echo "${{ needs.terraform-operation.outputs.terraform_state_json }}" > terraform_state.json
 
-          if ! git diff --quiet HEAD terraform_state.json; then
-            git add terraform_state.json
-            git commit -m "Update terraform_state.json"
-            git push -u origin ${{ env.branch_name }}
-          fi
+          git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
