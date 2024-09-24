@@ -29,7 +29,7 @@ module "cloudflare" {
   dns_records = concat(
     [
       {
-        name  = subdomain
+        name  = var.subdomain
         value = module.subdomain_bucket.website_endpoint
       }
     ],
