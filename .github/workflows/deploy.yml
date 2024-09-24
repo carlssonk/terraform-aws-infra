@@ -79,7 +79,7 @@ jobs:
 
   terraform-operation:
     name: Terraform Operation
-    needs: [setup, tflint]
+    needs: setup
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     permissions:
