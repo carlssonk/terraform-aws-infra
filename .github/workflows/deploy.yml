@@ -120,23 +120,23 @@ jobs:
           python ./scripts/create_globals.py \
             "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
-            cleanup_policies=${{ github.event_name == "schedule" }}
+            cleanup_policies=${{ github.event_name == 'schedule' }}
 
           terraform workspace new ${{ needs.setup.outputs.env }}
           chmod +x ./scripts/retry_command.sh
 
-      - name: ${{ (github.event_name == "pull_request" && format("Terraform Plan{0}", matrix.step == "iam" && " & Apply" || ")) || "Terraform Apply" }}
+      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || ')) || 'Terraform Apply' }}
         run: |
           terraform workspace select ${{ needs.setup.outputs.env }}
-          if [ ${{ github.event_name }} == "pull_request" ]; then
-            if [ ${{ matrix.step }} == "iam" ]; then
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            if [ ${{ matrix.step }} == 'iam' ]; then
               terraform plan -lock=false
               terraform apply -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars"
             else
               terraform plan
             fi
           else
-            if ! ../../scripts/retry_command.sh "terraform apply ${{ matrix.step == "iam" && "-lock=false" || " }} -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars""; then
+            if ! ../../scripts/retry_command.sh "terraform apply ${{ matrix.step == 'iam' && '-lock=false' || ' }} -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'"; then
               echo "Terraform failed after all retry attempts"
               exit 1
             fi
