@@ -17,7 +17,7 @@ on:
     branches: [main]
   
 concurrency: 
-  group: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'staging') }} # Prevent concurrent runs
+  group: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'prod') }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
@@ -33,7 +33,7 @@ jobs:
       fail-fast: ${{ steps.set-strategy.outputs.fail-fast }}
     steps:
       - id: set-env
-        run: echo "environment=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'staging') }}" >> $GITHUB_OUTPUT
+        run: echo "environment=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'prod') }}" >> $GITHUB_OUTPUT
       - id: set-strategy
         run: |
           if [ ${{ github.event_name }} = "schedule" ]; then
@@ -94,9 +94,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Echo env
-        run: echo ${{ needs.setup.outputs.env }}
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
