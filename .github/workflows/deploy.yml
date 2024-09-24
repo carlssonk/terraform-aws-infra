@@ -194,7 +194,7 @@ jobs:
             git checkout ${{ env.branch_name }}
           else
             git checkout --orphan ${{ env.branch_name }}
-            git rm -rf .
+            git reset --hard
           fi
         
           echo '${{ needs.terraform-operation.outputs.terraform_state_json }}' > terraform_state.json
