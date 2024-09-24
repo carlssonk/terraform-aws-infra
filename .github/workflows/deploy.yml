@@ -145,7 +145,7 @@ jobs:
 
       - name: Terraform Show
         id: set-tf-state
-        if: matrix.step == "resources" && github.event_name != "workflow_dispatch"
+        if: matrix.step == 'resources' && github.event_name != 'workflow_dispatch'
         run: |
           terraform show -json | sed -n "2p" > terraform_show.json
           echo "terraform_state_json=$(cat terraform_show.json)" >> $GITHUB_OUTPUT
@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: needs.setup.outputs.env == "prod"
+    if: needs.setup.outputs.env == 'prod'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -198,7 +198,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: needs.setup.outputs.env == "prod"
+    if: needs.setup.outputs.env == 'prod'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
