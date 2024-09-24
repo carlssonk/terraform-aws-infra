@@ -172,7 +172,7 @@ jobs:
           fi
         
           terraform show -json | sed -n "2p" > terraform_show.json
-
+          git add terraform_show.json
           git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
