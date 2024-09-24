@@ -192,7 +192,7 @@ jobs:
           fi
 
       - name: Create Release
-        if: steps.create_tag.outputs.TAG_NAME != ""
+        if: steps.create_tag.outputs.TAG_NAME != ''
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
