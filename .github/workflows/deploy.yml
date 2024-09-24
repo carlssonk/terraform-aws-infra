@@ -5,25 +5,55 @@ on:
     inputs:
       environment:
         type: choice
-        description: 'Promote to environment'
+        description: "Promote to environment"
         required: true
         options:
           - prod
   schedule:
-    - cron: '0 1 * * 1' # 1AM (UTC) every monday -- this run will clean up unused policies
+    - cron: "0 1 * * 1" # 1AM (UTC) every monday -- this run will clean up unused policies
   push:
     branches: [main, dev/*]
   pull_request:
     branches: [main]
   
 concurrency: 
-  group: ${{ startsWith(github.ref_name, 'dev/') && 'dev' || 'main' }} # Prevent concurrent runs
+  group: ${{ startsWith(github.ref_name, "dev/") && "dev" || "main" }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.set-env.outputs.environment }}
+      matrix: ${{ steps.set-strategy.outputs.matrix }}
+      fail-fast: ${{ steps.set-strategy.outputs.fail-fast }}
+    steps:
+      - id: set-env
+        run: |
+          if [[ ${{ github.ref_name }} == dev/* ]]; then
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "environment=prod" >> $GITHUB_OUTPUT 
+          fi
+      - id: set-strategy
+        run: |
+          if [ ${{ github.event_name }} = "workflow_dispatch" ]; then
+            echo 'matrix={"environment":["dev","staging","prod"],"step":["iam"]}' >> $GITHUB_OUTPUT
+            echo "fail-fast=false" >> $GITHUB_OUTPUT
+          else
+            echo 'matrix={"step":["iam","resources"]}' >> $GITHUB_OUTPUT
+            echo "fail-fast=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Set Terraform Directory and Variables path
+        run: |
+          echo "TF_ROOT_DIRECTORY=./environments/${{ (needs.setup.outputs.env == "staging" || needs.setup.outputs.env == "prod") && "staging-and-prod" || "dev" }}" >> $GITHUB_ENV
+          echo "TFVARS_FILE_NAME=${{ needs.setup.outputs.env == "dev" && "terraform" || needs.setup.outputs.env }}" >> $GITHUB_ENV
+
   tflint:
     runs-on: ubuntu-latest
     steps:
@@ -37,32 +67,7 @@ jobs:
 
       - name: Run TFLint
         run: tflint -f compact
-
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      env: ${{ steps.set-env.outputs.environment }}
-      matrix: ${{ steps.set-strategy.outputs.matrix }}
-      fail-fast: ${{ steps.set-strategy.outputs.fail-fast }}
-    steps:
-      - id: set-env
-        run: |
-          if [[ ${{ github.ref_name }} == dev/* ]]; then
-            echo 'environment=dev' >> $GITHUB_OUTPUT
-          elif [[ ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-            echo 'environment=${{ github.event.inputs.environment }}' >> $GITHUB_OUTPUT
-          else
-            echo 'environment=prod' >> $GITHUB_OUTPUT 
-          fi
-      - id: set-strategy
-        run: |
-          if [ ${{ github.event_name }} = 'workflow_dispatch' ]; then
-            echo 'matrix={"environment":["dev","staging","prod"],"step":["iam"]}' >> $GITHUB_OUTPUT
-            echo 'fail-fast=false' >> $GITHUB_OUTPUT
-          else
-            echo 'matrix={"step":["iam","resources"]}' >> $GITHUB_OUTPUT
-            echo 'fail-fast=true' >> $GITHUB_OUTPUT
-          fi
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
   terraform-operation:
     name: Terraform Operation
@@ -76,14 +81,11 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
       fail-fast: ${{ fromJSON(needs.setup.outputs.fail-fast) }}
       max-parallel: 1
-    env:
-      TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
-      TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}
     outputs:
       terraform_state_json: ${{ steps.set-tf-state.outputs.terraform_state_json }}
     steps:
       - name: Set TF_VAR_workflow_step
-        run: echo 'TF_VAR_workflow_step=${{ matrix.step }}' >> $GITHUB_ENV
+        run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -116,26 +118,26 @@ jobs:
       - name: Prepare Environment
         run: |
           python ./scripts/create_globals.py \
-            '${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars' \
+            "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
-            cleanup_policies=${{ github.event_name == 'schedule' }}
+            cleanup_policies=${{ github.event_name == "schedule" }}
 
           terraform workspace new ${{ needs.setup.outputs.env }}
           chmod +x ./scripts/retry_command.sh
 
-      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
+      - name: ${{ (github.event_name == "pull_request" && format("Terraform Plan{0}", matrix.step == "iam" && " & Apply" || ")) || "Terraform Apply" }}
         run: |
           terraform workspace select ${{ needs.setup.outputs.env }}
-          if [ ${{ github.event_name }} == 'pull_request' ]; then
-            if [ ${{ matrix.step }} == 'iam' ]; then
+          if [ ${{ github.event_name }} == "pull_request" ]; then
+            if [ ${{ matrix.step }} == "iam" ]; then
               terraform plan -lock=false
-              terraform apply -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'
+              terraform apply -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars"
             else
               terraform plan
             fi
           else
-            if ! ../../scripts/retry_command.sh 'terraform apply ${{ matrix.step == 'iam' && '-lock=false' || '' }} -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars"'; then
-              echo 'Terraform failed after all retry attempts'
+            if ! ../../scripts/retry_command.sh "terraform apply ${{ matrix.step == "iam" && "-lock=false" || " }} -auto-approve -var-file="${{ env.TFVARS_FILE_NAME }}.tfvars""; then
+              echo "Terraform failed after all retry attempts"
               exit 1
             fi
           fi
@@ -143,12 +145,13 @@ jobs:
 
       - name: Terraform Show
         id: set-tf-state
+        if: matrix.step == "resources" && github.event_name != "workflow_dispatch"
         run: |
-          terraform show -json | sed -n '2p' > terraform_show.json
+          terraform show -json | sed -n "2p" > terraform_show.json
           echo "terraform_state_json=$(cat terraform_show.json)" >> $GITHUB_OUTPUT
 
       - name: Delay for 15 seconds
-        if: matrix.step == 'iam' && github.event_name != 'workflow_dispatch'
+        if: matrix.step == "iam" && github.event_name != "workflow_dispatch"
         run: sleep 15
 
   create-release-tag:
@@ -156,19 +159,38 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: needs.setup.outputs.env == 'prod'
+    if: needs.setup.outputs.env == "prod"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
           
-      - name: Create and push tag
+      - name: Create and push tag if not exists
+        id: create_tag
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          TAG_NAME='release-${COMMIT_HASH}'
-          git tag $TAG_NAME
-          git push origin $TAG_NAME
+          TAG_NAME="release-${COMMIT_HASH}"
+
+          if ! git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            git tag $TAG_NAME
+            git push origin $TAG_NAME
+            echo "Tag $TAG_NAME created and pushed."
+          else
+            echo "Tag $TAG_NAME already exists. Skipping tag creation."
+          fi
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
+          release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
+          draft: false
+          prerelease: false
+          body: |
+            Automated release for tag ${{ steps.create_tag.outputs.TAG_NAME }}
+            
+            Commit: ${{ github.sha }}
 
   create-terraform-state-json:
     needs: [setup, terraform-operation]
@@ -176,7 +198,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: needs.setup.outputs.env == 'prod'
+    if: needs.setup.outputs.env == "prod"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -190,15 +212,15 @@ jobs:
         env:
           branch_name: terraform-state
         run: |
-          if git ls-remote --exit-code --heads origin ${{ env.branch_name }}; then
+          if git ls-remote --exit-code --heads origin ${{ env.branch_name }} >/dev/null 2>&1; then
             git checkout ${{ env.branch_name }}
           else
             git checkout --orphan ${{ env.branch_name }}
             git reset --hard
           fi
         
-          echo '${{ needs.terraform-operation.outputs.terraform_state_json }}' > terraform_state.json
+          echo "${{ needs.terraform-operation.outputs.terraform_state_json }}" > terraform_state.json
 
           git add terraform_state.json
-          git commit -m 'Update terraform_state.json'
+          git commit -m "Update terraform_state.json"
           git push -u origin ${{ env.branch_name }}
