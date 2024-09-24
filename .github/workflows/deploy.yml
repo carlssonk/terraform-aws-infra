@@ -51,10 +51,20 @@ jobs:
           fi
       - name: Set Terraform Directory and Variables path
         run: |
-          echo "TF_ROOT_DIRECTORY=./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}" >> $GITHUB_ENV
-          echo "TFVARS_FILE_NAME=${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}" >> $GITHUB_ENV
+          if [[ "${{ needs.setup.outputs.env }}" == "staging" || "${{ needs.setup.outputs.env }}" == "prod" ]]; then
+            echo "TF_ROOT_DIRECTORY=./environments/staging-and-prod" >> $GITHUB_ENV
+          else
+            echo "TF_ROOT_DIRECTORY=./environments/dev" >> $GITHUB_ENV
+          fi
+          
+          if [[ "${{ needs.setup.outputs.env }}" == "dev" ]]; then
+            echo "TFVARS_FILE_NAME=terraform" >> $GITHUB_ENV
+          else
+            echo "TFVARS_FILE_NAME=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+          fi
 
   tflint:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
