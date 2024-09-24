@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.AWS_REGION
+  region = var.aws_region
 }
 
 terraform {
@@ -43,7 +43,7 @@ resource "aws_iam_role" "terraform_execution_role" {
             "${local.oidc_domain}:aud" : "sts.amazonaws.com"
           }
           StringLike = {
-            "${local.oidc_domain}:sub" : "repo:${var.ORGANIZATION}/${var.repository}:*"
+            "${local.oidc_domain}:sub" : "repo:${var.organization}/${var.repository}:*"
           }
         }
       },
@@ -67,7 +67,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        // Required for backend management
+        // Required for backend management (s3)
         Effect = "Allow",
         Action = [
           "s3:GetObject",
@@ -75,19 +75,19 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "s3:ListBucket"
         ],
         Resource = [
-          "arn:aws:s3:::${var.ORGANIZATION}-terraform-state-bucket-${terraform.workspace}",
-          "arn:aws:s3:::${var.ORGANIZATION}-terraform-state-bucket-${terraform.workspace}/*"
+          "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}",
+          "arn:aws:s3:::${var.organization}-terraform-state-bucket-${terraform.workspace}/*"
         ]
       },
       {
-        // Required for backend management
+        // Required for backend management (dynamodb)
         Effect = "Allow",
         Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem"
         ],
-        Resource = "arn:aws:dynamodb:*:*:table/${var.ORGANIZATION}-terraform-lock-table-${terraform.workspace}"
+        Resource = "arn:aws:dynamodb:*:*:table/${var.organization}-terraform-lock-table-${terraform.workspace}"
       },
       {
         // Required for communicating with OpenID Connect Provider
@@ -98,17 +98,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource = "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
       },
       {
-        // Enables policy to read itself
-        Effect = "Allow",
-        Action = [
-          "iam:GetPolicy",
-          "iam:GetPolicyVersion",
-          "iam:ListPolicyVersions"
-        ],
-        Resource = "arn:aws:iam::*:policy/${local.terraform_base_policy}"
-      },
-      {
-        // Enables policy to create and manage terraform-*-policy + *-deploy-policy
+        // Enables terraform-execution-role to create and manage terraform-*-policy and *-deploy-policy
         Effect = "Allow",
         Action = [
           "iam:CreatePolicy",
@@ -125,7 +115,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         ]
       },
       {
-        // Enables role to add policies to itself
+        // Enables terraform-execution-role to add policies to itself
         Effect = "Allow"
         Action = [
           "iam:GetRole",
@@ -156,10 +146,9 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Resource = "arn:aws:iam::*:role/*-deploy-role"
       },
       {
-        // Used when fetching a policy
         Effect = "Allow"
         Action = [
-          "iam:ListPolicies",
+          "iam:ListPolicies", // Used when fetching a policy
           "ecs:*Tags*",
           "ec2:*Tags*",
           "s3:*Tags*",

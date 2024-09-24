@@ -3,46 +3,30 @@ name: Destroy Infrastructure
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        type: choice
+        description: "Choose a environment to destroy"
+        required: true
+        options:
+          - dev
+          - staging
+          - prod
       confirm_destroy:
         description: 'Type "DESTROY" to confirm infrastructure destruction'
         required: true
-      tf-rm:
-        description: 'Removes resource from state bucket'
-
+  
 concurrency: 
-  group: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+  group: ${{ github.event.inputs.environment }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
-  TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
-  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
-  TF_VAR_ORGANIZATION: ${{ vars.ORGANIZATION }}
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  TF_VAR_cleanup_policies: true
 
 jobs:
-  check_destroy_condition:
-    name: Should Destroy Condition
-    runs-on: ubuntu-latest
-    outputs:
-      should_destroy: ${{ steps.check.outputs.should_destroy }}
-    steps:
-      - id: check
-        run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ contains(github.event.head_commit.message, '[DESTROY]') }}" == "true" ]]; then
-            echo "should_destroy=true" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.confirm_destroy }}" == "DESTROY" ]]; then
-            echo "should_destroy=true" >> $GITHUB_OUTPUT
-          else
-            echo "should_destroy=false" >> $GITHUB_OUTPUT
-          fi
-
-  terraform_operation:
+  terraform-operation:
     name: Terraform Operation
-    needs: check_destroy_condition
-    if: needs.check_destroy_condition.outputs.should_destroy == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'pull_request' && github.base_ref || github.ref_name }}
+    environment: ${{ github.event.inputs.environment }}
     permissions:
       id-token: write
       contents: write
@@ -52,6 +36,9 @@ jobs:
         step: [resources, iam]
       fail-fast: true
       max-parallel: 1
+    env:
+      TF_ROOT_DIRECTORY: ./environments/${{ (github.event.inputs.environment == 'staging' || github.event.inputs.environment == 'prod') && 'staging-and-prod' || 'dev' }}
+      TFVARS_FILE_NAME: ${{ github.event.inputs.environment == 'dev' && 'terraform' || github.event.inputs.environment }}
     steps:
       - name: Set TF_VAR_workflow_step
         run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
@@ -70,55 +57,103 @@ jobs:
 
       - name: Symlink modules
         run: |
-          chmod +x symlink_modules.sh
-          ./symlink_modules.sh ${{ matrix.step }} true
+          chmod +x ./scripts/symlink_modules.sh
+          ./scripts/symlink_modules.sh ${{ matrix.step }} true
 
       - name: Terraform Init
         run: |
           terraform init \
+            -input=false \
             -backend-config="encrypt=true" \
             -backend-config="region=${{ vars.AWS_REGION }}" \
-            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ env.TARGET_BRANCH }}" \
-            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ env.TARGET_BRANCH }}" \
+            -backend-config="bucket=${{ vars.ORGANIZATION }}-terraform-state-bucket-${{ github.event.inputs.environment }}" \
+            -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ github.event.inputs.environment }}" \
             -backend-config="key=${{ matrix.step }}/terraform.tfstate"
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Prepare Environment
         run: |
-          python create_globals.py '${{ toJson(vars) }}' workflow_step=${{ env.TF_VAR_workflow_step }} cleanup_policies=${{ env.TF_VAR_cleanup_policies }}
-          cat globals.json
-          terraform workspace select ${{ env.TARGET_BRANCH }} || terraform workspace new ${{ env.TARGET_BRANCH }}
-          chmod +x retry_command.sh
+          python ./scripts/create_globals.py \
+            "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
+            workflow_step=${{ env.TF_VAR_workflow_step }} \
+            cleanup_policies=true
 
-      - name: Check and Remove Resource from Terraform State
-        if: matrix.step == 'resources' && inputs.tf-rm != ''
-        run: |
-          echo "Removing resource: ${{ inputs.tf-rm }}"
-          terraform state rm '${{ inputs.tf-rm }}'
-          echo "remove_resource=true" >> $GITHUB_OUTPUT
-          echo "resource_address=${{ inputs.tf-rm }}" >> $GITHUB_OUTPUT
-        continue-on-error: true
+          terraform workspace new ${{ github.event.inputs.environment }}
+          chmod +x ./scripts/retry_command.sh
 
       - name: Terraform Destroy
-        if: inputs.tf-rm == ''
         run: |
-          if ! ./retry_command.sh "terraform destroy -auto-approve"; then
+          if ! ./scripts/retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
+
+      - name: Update Terraform State File
+        id: set-tf-state
+        if: matrix.step == 'resources' && github.event_name != 'workflow_dispatch'
+        env:
+          branch_name: terraform-state
+        run: |
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+
+          git stash
+          terraform show -json | sed -n '2p' > terraform_state.json
           
-      - name: Terraform Show
-        run: terraform show -json | sed -n '2p' > terraform_show.json
+          if git ls-remote --exit-code --heads origin ${{ env.branch_name }} >/dev/null 2>&1; then
+            git fetch --all
+            git checkout ${{ env.branch_name }}
+          else
+            git checkout --orphan ${{ env.branch_name }}
+            git reset --hard
+          fi
 
-      - name: Setup Git
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          mv terraform_state.json ../../
+          git add ../../terraform_state.json
 
-      - name: Commit terraform_show.json
-        run: |
-          git add terraform_show.json
-          git commit -m "[skip ci] Update terraform_show.json"
+          git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
+        working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
-      - name: Push to terraform-state branch
+  create-release-tag:
+    name: Create Release Tag
+    needs: [setup, terraform-operation]
+    if: github.event.inputs.environment == 'prod'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+          
+      - name: Create and push tag if not exists
+        id: create_tag
         run: |
-          git push origin HEAD:terraform-state --force
+          git config --local user.name github-actions
+          git config --local user.email github-actions@github.com
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          TAG_NAME="${COMMIT_HASH}"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists. Skipping tag creation."
+          else
+            git tag $TAG_NAME
+            git push origin $TAG_NAME || true
+            echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "Tag $TAG_NAME created and pushed."
+          fi
+
+      - name: Create Release
+        if: steps.create_tag.outputs.TAG_NAME != ''
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
+          release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
+          draft: false
+          prerelease: false
+          body: |
+            Automated release for tag ${{ steps.create_tag.outputs.TAG_NAME }}
+            
+            Commit: ${{ github.sha }}

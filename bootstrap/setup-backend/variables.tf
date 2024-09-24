@@ -1,9 +1,9 @@
-variable "AWS_REGION" {
+variable "aws_region" {
   description = "AWS Region"
   type        = string
 }
 
-variable "ORGANIZATION" {
+variable "organization" {
   description = "Github username or organization name"
   type        = string
 }

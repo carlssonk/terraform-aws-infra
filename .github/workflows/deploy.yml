@@ -17,7 +17,7 @@ on:
     branches: [main]
   
 concurrency: 
-  group: ${{ startsWith(github.ref_name, 'dev/') && 'dev' || 'main' }} # Prevent concurrent runs
+  group: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'staging') }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
@@ -25,6 +25,7 @@ env:
 
 jobs:
   setup:
+    name: Setup
     runs-on: ubuntu-latest
     outputs:
       env: ${{ steps.set-env.outputs.environment }}
@@ -32,17 +33,10 @@ jobs:
       fail-fast: ${{ steps.set-strategy.outputs.fail-fast }}
     steps:
       - id: set-env
-        run: |
-          if [[ ${{ github.ref_name }} == dev/* ]]; then
-            echo "environment=dev" >> $GITHUB_OUTPUT
-          elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
-            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-          else
-            echo "environment=prod" >> $GITHUB_OUTPUT
-          fi
+        run: echo "environment=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (startsWith(github.ref_name, 'dev/') && 'dev' || 'staging') }}" >> $GITHUB_OUTPUT
       - id: set-strategy
         run: |
-          if [ ${{ github.event_name }} = "workflow_dispatch" ]; then
+          if [ ${{ github.event_name }} = "schedule" ]; then
             echo 'matrix={"environment":["dev","staging","prod"],"step":["iam"]}' >> $GITHUB_OUTPUT
             echo "fail-fast=false" >> $GITHUB_OUTPUT
           else
@@ -51,6 +45,7 @@ jobs:
           fi
 
   tflint:
+    name: Lint Terraform (tflint)
     needs: setup
     runs-on: ubuntu-latest
     strategy:
@@ -184,6 +179,7 @@ jobs:
         run: sleep 15
 
   create-release-tag:
+    name: Create Release Tag
     needs: [setup, terraform-operation]
     if: needs.setup.outputs.env == 'prod'
     runs-on: ubuntu-latest
@@ -224,4 +220,3 @@ jobs:
             Automated release for tag ${{ steps.create_tag.outputs.TAG_NAME }}
             
             Commit: ${{ github.sha }}
-            
