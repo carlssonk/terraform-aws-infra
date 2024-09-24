@@ -17,7 +17,7 @@ on:
     branches: [main]
   
 concurrency: 
-  group: ${{ startsWith(github.ref_name, "dev/") && "dev" || "main" }} # Prevent concurrent runs
+  group: ${{ startsWith(github.ref_name, 'dev/') && 'dev' || 'main' }} # Prevent concurrent runs
   cancel-in-progress: false
 
 env:
