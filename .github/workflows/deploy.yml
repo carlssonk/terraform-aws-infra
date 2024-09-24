@@ -95,8 +95,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Echo AWS_ACCOUNT_ID
-        run: echo "arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/terraform-execution-role"
+      - name: Echo env
+        run: echo ${{ needs.setup.outputs.env }}
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
