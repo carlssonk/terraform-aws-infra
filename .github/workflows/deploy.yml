@@ -38,7 +38,7 @@ jobs:
           elif [[ ${{ github.event_name }} == "workflow_dispatch" ]]; then
             echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
           else
-            echo "environment=prod" >> $GITHUB_OUTPUT 
+            echo "environment=prod" >> $GITHUB_OUTPUT
           fi
       - id: set-strategy
         run: |
@@ -159,6 +159,7 @@ jobs:
         if: matrix.step == 'resources' && github.event_name != 'workflow_dispatch'
         run: |
           terraform show -json | sed -n "2p" > terraform_show.json
+          echo "$(cat terraform_show.json)"
           echo "terraform_state_json=$(cat terraform_show.json)" >> $GITHUB_OUTPUT
 
       - name: Delay for 15 seconds
@@ -186,6 +187,7 @@ jobs:
           if ! git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
             git tag $TAG_NAME
             git push origin $TAG_NAME
+            echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
             echo "Tag $TAG_NAME created and pushed."
           else
             echo "Tag $TAG_NAME already exists. Skipping tag creation."
