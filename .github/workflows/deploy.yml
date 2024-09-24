@@ -193,7 +193,8 @@ jobs:
           if git ls-remote --exit-code --heads origin ${{ env.branch_name }}; then
             git checkout ${{ env.branch_name }}
           else
-            git checkout -b ${{ env.branch_name }}
+            git checkout --orphan ${{ env.branch_name }}
+            git rm -rf .
           fi
         
           echo '${{ needs.terraform-operation.outputs.terraform_state_json }}' > terraform_state.json
