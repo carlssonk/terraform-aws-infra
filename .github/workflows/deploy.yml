@@ -145,7 +145,7 @@ jobs:
         id: set-tf-state
         run: |
           terraform show -json | sed -n '2p' > terraform_show.json
-          echo 'terraform_state_json=$(cat terraform_show.json)' >> $GITHUB_OUTPUT
+          echo "terraform_state_json=$(cat terraform_show.json)" >> $GITHUB_OUTPUT
 
       - name: Delay for 15 seconds
         if: matrix.step == 'iam' && github.event_name != 'workflow_dispatch'
