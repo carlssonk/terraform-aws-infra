@@ -49,23 +49,12 @@ jobs:
             echo 'matrix={"step":["iam","resources"]}' >> $GITHUB_OUTPUT
             echo "fail-fast=true" >> $GITHUB_OUTPUT
           fi
-      - name: Set Terraform Directory and Variables path
-        run: |
-          if [[ "${{ needs.setup.outputs.env }}" == "staging" || "${{ needs.setup.outputs.env }}" == "prod" ]]; then
-            echo "TF_ROOT_DIRECTORY=./environments/staging-and-prod" >> $GITHUB_ENV
-          else
-            echo "TF_ROOT_DIRECTORY=./environments/dev" >> $GITHUB_ENV
-          fi
-          
-          if [[ "${{ needs.setup.outputs.env }}" == "dev" ]]; then
-            echo "TFVARS_FILE_NAME=terraform" >> $GITHUB_ENV
-          else
-            echo "TFVARS_FILE_NAME=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
-          fi
 
   tflint:
     needs: setup
     runs-on: ubuntu-latest
+    env:
+      TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -91,6 +80,9 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
       fail-fast: ${{ fromJSON(needs.setup.outputs.fail-fast) }}
       max-parallel: 1
+    env:
+      TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
+      TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}
     outputs:
       terraform_state_json: ${{ steps.set-tf-state.outputs.terraform_state_json }}
     steps:
