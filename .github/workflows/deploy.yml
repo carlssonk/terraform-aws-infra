@@ -53,6 +53,9 @@ jobs:
   tflint:
     needs: setup
     runs-on: ubuntu-latest
+    strategy:
+      matrix: [iam, resources]
+      max-parallel: 1
     env:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
     steps:
@@ -64,13 +67,18 @@ jobs:
         with:
           tflint_version: v0.52.0
 
+      - name: Symlink modules
+        run: |
+          chmod +x ./scripts/symlink_modules.sh
+          ./scripts/symlink_modules.sh ${{ matrix.step }} true
+
       - name: Run TFLint
         run: tflint -f compact
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
   terraform-operation:
     name: Terraform Operation
-    needs: setup
+    needs: [setup, tflint]
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     permissions:
@@ -184,6 +192,8 @@ jobs:
 
       - name: Create Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.create_tag.outputs.TAG_NAME }}
           release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
