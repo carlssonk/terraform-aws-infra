@@ -84,7 +84,8 @@ jobs:
     environment: ${{ needs.setup.outputs.env }}
     permissions:
       id-token: write
-      contents: read
+      contents: write
+      pull-requests: write
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
       fail-fast: ${{ fromJSON(needs.setup.outputs.fail-fast) }}
@@ -92,8 +93,6 @@ jobs:
     env:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
       TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}
-    outputs:
-      terraform_state_json: ${{ steps.set-tf-state.outputs.terraform_state_json }}
     steps:
       - name: Set TF_VAR_workflow_step
         run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
@@ -154,13 +153,26 @@ jobs:
           fi
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
-      - name: Terraform Show
+      - name: Update Terraform State File
         id: set-tf-state
         if: matrix.step == 'resources' && github.event_name != 'workflow_dispatch'
+        env:
+          branch_name: terraform-state
         run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          if git ls-remote --exit-code --heads origin ${{ env.branch_name }} >/dev/null 2>&1; then
+            git fetch --all
+            git checkout ${{ env.branch_name }}
+          else
+            git checkout --orphan ${{ env.branch_name }}
+            git reset --hard
+          fi
+        
           terraform show -json | sed -n "2p" > terraform_show.json
-          echo "$(cat terraform_show.json)"
-          echo "terraform_state_json='$(cat terraform_show.json)'" >> $GITHUB_OUTPUT
+
+          git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Delay for 15 seconds
@@ -208,35 +220,3 @@ jobs:
             Automated release for tag ${{ steps.create_tag.outputs.TAG_NAME }}
             
             Commit: ${{ github.sha }}
-
-  create-terraform-state-json:
-    needs: [setup, terraform-operation]
-    if: needs.setup.outputs.env == 'prod'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Git
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
-      - name: Checkout and update branch
-        env:
-          branch_name: terraform-state
-        run: |
-          if git ls-remote --exit-code --heads origin ${{ env.branch_name }} >/dev/null 2>&1; then
-            git fetch --all
-            git checkout ${{ env.branch_name }}
-          else
-            git checkout --orphan ${{ env.branch_name }}
-            git reset --hard
-          fi
-        
-          echo "${{ needs.terraform-operation.outputs.terraform_state_json }}" > terraform_state.json
-
-          git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
