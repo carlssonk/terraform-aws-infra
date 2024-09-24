@@ -139,6 +139,8 @@ jobs:
   create-release-tag:
     needs: [setup, terraform-operation]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: needs.setup.outputs.env == 'prod'
     steps:
       - name: Checkout
