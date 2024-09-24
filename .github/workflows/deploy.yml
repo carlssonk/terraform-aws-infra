@@ -54,7 +54,8 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     strategy:
-      matrix: [iam, resources]
+      matrix:
+        step: [iam, resources]
       max-parallel: 1
     env:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
