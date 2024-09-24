@@ -66,7 +66,7 @@ jobs:
       TF_ROOT_DIRECTORY: ./environments/${{ (needs.setup.outputs.env == 'staging' || needs.setup.outputs.env == 'prod') && 'staging-and-prod' || 'dev' }}
       TFVARS_FILE_NAME: ${{ needs.setup.outputs.env == 'dev' && 'terraform' || needs.setup.outputs.env }}
     outputs:
-      terraform_state_json: ${{ steps.create_tag.outputs.terraform_state_json }}
+      terraform_state_json: ${{ steps.set-tf-state.outputs.terraform_state_json }}
     steps:
       - name: Set TF_VAR_workflow_step
         run: echo 'TF_VAR_workflow_step=${{ matrix.step }}' >> $GITHUB_ENV
@@ -128,6 +128,7 @@ jobs:
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Terraform Show
+      - id: set-tf-state
         run: |
           terraform show -json | sed -n '2p' > terraform_show.json
           echo 'terraform_state_json=$(cat terraform_show.json)' >> $GITHUB_OUTPUT
