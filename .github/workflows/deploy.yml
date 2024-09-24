@@ -24,6 +24,20 @@ env:
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 jobs:
+  tflint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.52.0
+
+      - name: Run TFLint
+        run: tflint -f compact
+
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -128,7 +142,7 @@ jobs:
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
 
       - name: Terraform Show
-      - id: set-tf-state
+        id: set-tf-state
         run: |
           terraform show -json | sed -n '2p' > terraform_show.json
           echo 'terraform_state_json=$(cat terraform_show.json)' >> $GITHUB_OUTPUT
