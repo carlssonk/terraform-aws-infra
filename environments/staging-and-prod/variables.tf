@@ -22,3 +22,8 @@ variable "organization" {
   description = "Github account or organization name"
   type        = string
 }
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+}

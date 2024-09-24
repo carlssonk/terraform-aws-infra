@@ -94,7 +94,7 @@ module "cloudflare" {
   apps   = local.cloudflare_configuration
 }
 
-module "iam_policy" {
+module "common_policy" {
   workflow_step = var.workflow_step
   source        = "../../iam_policy"
   name          = "common"
@@ -105,41 +105,25 @@ module "iam_policy" {
   ])
 }
 
-output "common_policy_document" {
-  value = module.iam_policy.policy_document
-}
-
 ########################################################################
 ######################## APPLICATIONS/SERVICES #########################
 ########################################################################
 
-module "portfolio" {
-  workflow_step = var.workflow_step
-  source        = "../../apps/portfolio"
-  root_domain   = "carlssonk.com"
-  app_name      = "portfolio"
+module "s3_websites" {
+  for_each         = local.apps
+  workflow_step    = var.workflow_step
+  source           = "../../apps/s3-website"
+  root_domain      = each.value.root_domain
+  app_name         = each.value.app_name
+  subdomain        = each.value.subdomain
+  github_repo_name = each.value.github_repo_name
 }
 
-output "portfolio_policy_document" {
-  value = module.portfolio.policy_document
-}
-
-module "terraform_diagram" {
-  workflow_step = var.workflow_step
-  source        = "../../apps/terraform-diagram"
-}
-
-output "terraform_diagram_policy_document" {
-  value = module.terraform_diagram.policy_document
-}
-
-module "fps" {
-  workflow_step = var.workflow_step
-  source        = "../../apps/fps"
-}
-
-output "fps_policy_document" {
-  value = module.fps.policy_document
+module "s3_websites_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "s3_websites"
+  policy_documents = flatten(values(module.s3_websites)[*].policy_documents)
 }
 
 ########################################################################
@@ -155,8 +139,12 @@ module "blackjack" {
   alb_listener_arn           = module.services.main_alb_listener_arn
   alb_listener_rule_priority = 100
 }
-output "blackjack_policy_document" {
-  value = module.blackjack.policy_document
+
+module "blackjack_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "blackjack"
+  policy_documents = module.blackjack.policy_documents
 }
 
 ########################################################################
@@ -172,6 +160,10 @@ module "flagracer" {
   alb_listener_arn           = module.services.main_alb_listener_arn
   alb_listener_rule_priority = 99
 }
-output "flagracer_policy_document" {
-  value = module.flagracer.policy_document
+
+module "flagracer_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "flagracer"
+  policy_documents = module.flagracer.policy_documents
 }
