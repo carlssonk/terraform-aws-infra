@@ -125,7 +125,7 @@ jobs:
           terraform workspace new ${{ needs.setup.outputs.env }}
           chmod +x ./scripts/retry_command.sh
 
-      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || ')) || 'Terraform Apply' }}
+      - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
         run: |
           terraform workspace select ${{ needs.setup.outputs.env }}
           if [ ${{ github.event_name }} == 'pull_request' ]; then
