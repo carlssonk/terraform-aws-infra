@@ -163,7 +163,7 @@ jobs:
           git config --local user.email github-actions@github.com
 
           git stash
-          terraform show -json | sed -n '2p' > terraform_show.json
+          terraform show -json | sed -n '2p' > terraform_state.json
           
           if git ls-remote --exit-code --heads origin ${{ env.branch_name }} >/dev/null 2>&1; then
             git fetch --all
@@ -173,8 +173,8 @@ jobs:
             git reset --hard
           fi
 
-          mv terraform_show.json ../../
-          git add ../../terraform_show.json
+          mv terraform_state.json ../../
+          git add ../../terraform_state.json
 
           git diff --staged --quiet || (git commit -m "Updated by github-actions" && git push -u origin ${{ env.branch_name }})
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
