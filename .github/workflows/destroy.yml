@@ -44,10 +44,10 @@ jobs:
         run: echo "TF_VAR_workflow_step=${{ matrix.step }}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/terraform-execution-role
           aws-region: ${{ vars.AWS_REGION }}
@@ -124,7 +124,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
           
       - name: Create and push tag if not exists
         id: create_tag
