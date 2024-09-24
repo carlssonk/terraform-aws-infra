@@ -36,7 +36,7 @@ module "cloudflare" {
     var.subdomain == "www" ? [
       {
         name  = "@"
-        value = module.root_bucket.website_endpoint
+        value = module.root_bucket[0].website_endpoint
       }
     ] : []
   )
