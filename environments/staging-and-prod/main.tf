@@ -92,10 +92,11 @@ module "s3_websites_policy" {
 
 module "fargate_services" {
   for_each = local.fargate-services
-  source   = "../../apps/fargate-service-${var.reverse_proxy_type}"
+  source   = "../../apps/fargate-service"
 
   # Common attributes
   workflow_step           = var.workflow_step
+  reverse_proxy_type      = var.reverse_proxy_type
   vpc_id                  = module.networking.main_vpc_id
   subnet_ids              = try(each.value.assign_public_ip, false) || try(each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
   ecs_security_group_id   = module.security.security_group_ecs_tasks_id
@@ -109,17 +110,16 @@ module "fargate_services" {
   fargate_spot_percentage = try(each.value.fargate_spot_percentage, null)
 
   # ALB-specific attributes
-  alb_dns_name               = var.reverse_proxy_type == "alb" ? module.services.main_alb_dns_name : null
-  alb_listener_arn           = var.reverse_proxy_type == "alb" ? module.services.main_alb_listener_arn : null
-  alb_listener_rule_priority = var.reverse_proxy_type == "alb" ? 100 - index(keys(local.fargate-services), each.key) : null
-  use_stickiness             = var.reverse_proxy_type == "alb" ? try(each.value.use_stickiness, null) : null
+  alb_dns_name               = try(module.services.main_alb_dns_name, null)
+  alb_listener_arn           = try(module.services.main_alb_listener_arn, null)
+  alb_listener_rule_priority = try(100 - index(keys(local.fargate-services), each.key), null)
+  use_stickiness             = try(each.value.use_stickiness, null)
 
   # NGINX-specific attributes
-  service_discovery_namespace_arn = var.reverse_proxy_type == "nginx" ? module.service.service_discovery_namespace.arn : null
+  service_discovery_namespace_arn = try(module.services.service_discovery_namespace_arn)
 }
 
 module "fargate_services_policy" {
-  count            = length(local.fargate-services) > 0 ? 1 : 0
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
   name             = "fargate_services_${var.reverse_proxy_type}"

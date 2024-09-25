@@ -44,6 +44,7 @@ module "ecs_task_definition" {
 }
 
 module "alb_target_group" {
+  count                  = var.reverse_proxy_type == "alb" ? 1 : 0
   source                 = "../../modules/alb-target/default"
   app_name               = var.app_name
   container_port         = var.container_port
@@ -55,18 +56,27 @@ module "alb_target_group" {
 }
 
 module "ecs_service" {
-  source                  = "../../modules/ecs-service/default"
-  reverse_proxy_type      = "alb"
+  source             = "../../modules/ecs-service/default"
+  reverse_proxy_type = var.reverse_proxy_type
+
+  # Common attributes
   app_name                = var.app_name
   subnet_ids              = var.subnet_ids
   cluster_id              = var.cluster_id
   task_definition_arn     = module.ecs_task_definition.arn
   security_group_id       = var.ecs_security_group_id
-  alb_target_group_arn    = module.alb_target_group.arn
-  container_name          = local.container_name
-  container_port          = var.container_port
   assign_public_ip        = var.assign_public_ip
   fargate_spot_percentage = var.fargate_spot_percentage
+
+  # ALB-specific attributes
+  alb_target_group_arn = try(module.alb_target_group[0].arn, null)
+  container_port       = var.container_port
+  container_name       = local.container_name
+
+  # NGINX-specific attributes
+  port_name                       = local.port_name
+  discovery_name                  = var.subdomain
+  service_discovery_namespace_arn = var.service_discovery_namespace_arn
 }
 
 module "cloudflare" {
@@ -74,6 +84,6 @@ module "cloudflare" {
   root_domain = var.root_domain
   dns_records = [{
     name  = var.subdomain
-    value = var.alb_dns_name
+    value = var.reverse_proxy_type == "alb" ? var.alb_dns_name : "reverse proxy elastic ip name"
   }]
 }

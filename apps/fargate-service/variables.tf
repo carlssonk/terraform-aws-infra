@@ -8,6 +8,11 @@ variable "app_name" {
   type        = string
 }
 
+variable "reverse_proxy_type" {
+  description = "nginx|alb - nginx will use a custom ec2 instance with a public Elastic IP, as a replacement for alb because its cheaper"
+  type        = string
+}
+
 variable "root_domain" {
   description = "Root domain name"
   type        = string
@@ -83,4 +88,9 @@ variable "fargate_spot_percentage" {
     condition     = var.fargate_spot_percentage >= 0 && var.fargate_spot_percentage <= 100
     error_message = "fargate_spot_percentage must be between 0 and 100."
   }
+}
+
+variable "service_discovery_namespace_arn" {
+  description = "ARN of service discovery http namespace"
+  type        = string
 }
