@@ -5,13 +5,13 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    template = {
+      source  = "hashicorp/template"
+      version = "~> 2.2.0"
+    }
     cloudflare = {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
-    }
-    template = {
-      source  = "cloudflare/template"
-      version = "~> 2.0"
     }
   }
 }

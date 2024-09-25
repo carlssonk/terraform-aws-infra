@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     template = {
-      source = "cloudflare/template"
+      source = "hashicorp/template"
     }
   }
 }
