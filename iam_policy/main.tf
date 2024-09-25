@@ -1,15 +1,3 @@
-variable "workflow_step" {}
-
-variable "name" {
-  description = "Policy name"
-  type        = string
-}
-
-variable "policy_documents" {
-  description = "List of policy documents"
-  type        = list(string)
-}
-
 module "globals" {
   source = "../globals"
 }
