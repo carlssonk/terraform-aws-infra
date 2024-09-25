@@ -23,7 +23,10 @@ data "aws_iam_policy_document" "this" {
         "ec2:RunInstances"
       ]
     )
-    resources = ["arn:aws:ec2:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:instance/*"]
-    effect    = "Allow"
+    resources = [
+      "arn:aws:ec2:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:instance/*",
+      "arn:aws:ec2:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:network-interface/*"
+    ]
+    effect = "Allow"
   }
 }
