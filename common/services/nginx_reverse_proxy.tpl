@@ -1,10 +1,21 @@
+#!/bin/bash
+apt-get update
+apt-get install -y nginx certbot python3-certbot-nginx
+
+# Create nginx config
+sudo tee /etc/nginx/nginx.conf <<EOF
+events {
+    worker_connections 1024;
+}
+
 http {
 
     map $http_host $upstream {
-        %{ for domain, backend in jsondecode(services_map) }
+        hostnames;
+        %{ for domain, backend in services_map ~}
         ${domain} ${backend};
-        %{ endfor }
-        default "default_backend";
+        %{ endfor ~}
+        default default_backend;
     }
 
     server {
@@ -17,8 +28,10 @@ http {
         listen 443 ssl;
         server_name _;
 
-        ssl_certificate /etc/letsencrypt/live/${element(split(" ", domain_names), 0)}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/${element(split(" ", domain_names), 0)}/privkey.pem;
+        %{ for domain in root_domains ~}
+        ssl_certificate /etc/letsencrypt/live/${domain}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${domain}/privkey.pem;
+        %{ endfor ~}
 
         # Improve SSL settings
         ssl_protocols TLSv1.2 TLSv1.3;
@@ -34,3 +47,14 @@ http {
         }
     }
 }
+EOF
+
+# Obtain SSL certificate
+certbot --nginx -d ${certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
+
+# Ensure Certbot auto-renewal is enabled
+systemctl enable certbot.timer
+systemctl start certbot.timer
+
+# Restart NGINX to apply changes
+systemctl restart nginx

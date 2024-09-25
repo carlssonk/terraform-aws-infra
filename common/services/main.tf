@@ -7,6 +7,17 @@ locals {
   elb_account_ids = {
     eu-north-1 = "897822967062" // ID found in AWS docs https://docs.aws.amazon.com/elasticloadbalancing/latest/application/enable-access-logging.html
   }
+
+  AmazonLinux2023AMI = {
+    eu-north-1 = "ami-0129bfde49ddb0ed6" // ami ID found in AWS console when creating a ec2 instance
+  }
+
+  wildcard_root_domains = {
+    for domain, value in var.root_domains :
+    "*.${domain}" => value
+  }
+
+  certbot_domains = join(" -d ", concat(values(var.root_domains), values(local.wildcard_root_domains)))
 }
 
 module "service_discovery_namespace" {
@@ -16,24 +27,15 @@ module "service_discovery_namespace" {
 }
 
 locals {
-  www_domains = {
-    for domain, value in var.root_domains :
-    "www.${domain}" => value
-  }
-  base_domains = concat(values(var.root_domains), values(local.www_domains))
 
-  certbot_domains = join(" -d ", local.base_domains)
 }
 
 data "template_file" "nginx_config" {
   count    = var.reverse_proxy_type == "nginx" ? 1 : 0
   template = file("${path.module}/nginx_template.conf")
   vars = {
-    services_map = jsonencode({
-      "flagracer.carlssonk.com" = "carlssonk/flagracer",
-      "blackjack.carlssonk.com" = "carlssonk/blackjack",
-    })
-    domain_names = jsonencode(local.base_domains)
+
+
   }
 }
 
@@ -41,31 +43,19 @@ module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
-  ami               = "ami-0129bfde49ddb0ed6"
+  ami               = local.AmazonLinux2023AMI[module.globals.var.aws_region]
   instance_type     = "t3.micro"
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_alb_id # Should have the same security group rules as alb
 
-  user_data = <<-EOF
-    #!/bin/bash
-    apt-get update
-    apt-get install -y nginx certbot python3-certbot-nginx
-
-    # Install NGINX configuration
-    cat <<EOT > /etc/nginx/nginx.conf
-    ${data.template_file.nginx_config[0].rendered}
-    EOT
-
-    # Obtain SSL certificate (replace example.com with your domain)
-    certbot --nginx -d ${local.certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
-
-    # Ensure Certbot auto-renewal is enabled
-    systemctl enable certbot.timer
-    systemctl start certbot.timer
-
-    # Restart NGINX to apply changes
-    systemctl restart nginx
-    EOF
+  user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
+    services_map = {
+      "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
+      "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
+    }
+    root_domains    = var.root_domains
+    certbot_domains = local.certbot_domains
+  })
 
   tags = {
     Name = "Nginx Reverse Proxy"

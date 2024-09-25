@@ -1,3 +1,6 @@
+module "globals" {
+  source = "../../../globals"
+}
 
 data "aws_iam_policy_document" "this" {
   statement {
@@ -20,7 +23,7 @@ data "aws_iam_policy_document" "this" {
         "ec2:RunInstances"
       ]
     )
-    resources = ["arn:aws:ec2:eu-north-1:752502408032:instance/*"]
+    resources = ["arn:aws:ec2:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:instance/*"]
     effect    = "Allow"
   }
 }
