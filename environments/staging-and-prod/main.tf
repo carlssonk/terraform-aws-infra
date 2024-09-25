@@ -93,7 +93,7 @@ module "fargate_services_alb" {
   workflow_step              = var.workflow_step
   source                     = "../../apps/fargate-service-alb"
   vpc_id                     = module.networking.main_vpc_id
-  subnet_ids                 = each.value.assign_public_ip || each.value.use_public_subnets ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
+  subnet_ids                 = coalesce(each.value.assign_public_ip, each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
   ecs_security_group_id      = module.security.security_group_ecs_tasks_id
   cluster_id                 = module.services.main_ecs_cluster_id
   alb_dns_name               = module.services.main_alb_dns_name
@@ -105,8 +105,8 @@ module "fargate_services_alb" {
   subdomain        = each.value.subdomain
   github_repo_name = each.value.github_repo_name
   container_port   = each.value.container_port
-  use_stickiness   = each.value.use_stickiness
-  assign_public_ip = each.value.assign_public_ip
+  use_stickiness   = try(each.value.use_stickiness, null)
+  assign_public_ip = try(each.value.assign_public_ip, null)
 }
 
 module "fargate_services_alb_policy" {
