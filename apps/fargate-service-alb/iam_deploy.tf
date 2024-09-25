@@ -1,11 +1,10 @@
-
 locals {
   oidc_domain = "token.actions.githubusercontent.com"
 }
 
 resource "aws_iam_role" "this" {
   count = var.workflow_step == "resources" ? 1 : 0
-  name  = "${local.app_name}-deploy-role"
+  name  = "${var.app_name}-deploy-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -20,7 +19,7 @@ resource "aws_iam_role" "this" {
           "${local.oidc_domain}:aud" : "sts.amazonaws.com"
         }
         StringLike = {
-          "${local.oidc_domain}:sub" : "repo:${local.github_repo_name}:*"
+          "${local.oidc_domain}:sub" : "repo:${var.github_repo_name}:*"
         }
       }
     }]
@@ -29,7 +28,7 @@ resource "aws_iam_role" "this" {
 
 resource "aws_iam_policy" "this" {
   count = var.workflow_step == "resources" ? 1 : 0
-  name  = "${local.app_name}-deploy-policy"
+  name  = "${var.app_name}-deploy-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"

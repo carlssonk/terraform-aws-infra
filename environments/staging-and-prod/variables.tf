@@ -27,3 +27,8 @@ variable "environment" {
   description = "Environment name"
   type        = string
 }
+
+variable "reverse_proxy_type" {
+  description = "nginx|alb - nginx will use a custom ec2 instance with a public Elastic IP, as a replacement for alb because its cheaper"
+  type        = string
+}
