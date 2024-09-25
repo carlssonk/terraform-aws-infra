@@ -25,8 +25,8 @@ variable "tags" {
   default     = {}
 }
 
-variable "subnet_id" {
-  description = "A subnet ID"
+variable "subnet_ids" {
+  description = "List of subnet ID's to use"
   type        = list(string)
 }
 
