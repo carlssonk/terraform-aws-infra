@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    template = {
+      source = "cloudflare/template"
+    }
+  }
+}
+
 module "globals" {
   source = "../../globals"
 }

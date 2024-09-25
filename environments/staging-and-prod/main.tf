@@ -9,6 +9,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
     }
+    template = {
+      source  = "cloudflare/template"
+      version = "~> 2.0"
+    }
   }
 }
 
