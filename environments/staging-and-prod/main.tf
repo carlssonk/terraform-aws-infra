@@ -25,42 +25,6 @@ terraform {
 }
 
 locals {
-  cloudflare_configuration = {
-    portfolio = {
-      root_domain = "carlssonk.com"
-      ruleset_rules = [{
-        action = "set_config"
-        action_parameters = {
-          ssl = "flexible"
-        }
-        expression  = "(http.host eq \"carlssonk.com\" or http.host eq \"www.carlssonk.com\")"
-        description = "Cloudflare rules for portfolio"
-      }]
-    }
-    terraform_diagram = {
-      root_domain = "carlssonk.com"
-      ruleset_rules = [{
-        action = "set_config"
-        action_parameters = {
-          ssl = "flexible"
-        }
-        expression  = "(http.host eq \"terraform.carlssonk.com\")"
-        description = "Cloudflare rules for terraform-diagram"
-      }]
-    }
-    fps = {
-      root_domain = "carlssonk.com"
-      ruleset_rules = [{
-        action = "set_config"
-        action_parameters = {
-          ssl = "flexible"
-        }
-        expression  = "(http.host eq \"fps.carlssonk.com\")"
-        description = "Cloudflare rules for fps"
-      }]
-    }
-  }
-
   reverse_proxy_type = "custom" // alb | custom - Custom will use a ec2 instance configured with nginx as a reverse proxy (more cost efficient than alb)
   # nat_type           = "nat-instance" // nat-gateway | nat-instance | none
 }
@@ -90,8 +54,9 @@ module "services" {
 }
 
 module "cloudflare" {
-  source = "../../modules/cloudflare/default"
-  apps   = local.cloudflare_configuration
+  source      = "../../modules/cloudflare/default"
+  apps        = local.apps
+  environment = var.environment
 }
 
 module "common_policy" {

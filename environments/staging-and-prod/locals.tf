@@ -1,41 +1,34 @@
 locals {
-  root_domain = "carlssonk.com"
-  env_prefix  = var.environment == "prod" ? "" : "${var.environment}."
+  root_domain         = "carlssonk.com"
+  env_subdomain_prefx = var.environment == "prod" ? "" : "${var.environment}."
 
   apps = {
     portfolio = {
       app_name         = "Portfolio"
       root_domain      = local.root_domain
-      subdomain        = "www"
+      subdomain        = var.environment == "prod" ? "www" : var.environment
       github_repo_name = "carlssonk/website"
+      cloudflare = {
+        ssl_mode = "flexible"
+      }
     }
     fps = {
       app_name         = "FirstPersonShooter"
       root_domain      = local.root_domain
-      subdomain        = "fps"
+      subdomain        = "${local.env_subdomain_prefx}fps"
       github_repo_name = "carlssonk/fps"
+      cloudflare = {
+        ssl_mode = "flexible"
+      }
     }
     terraform = {
       app_name         = "TerraformDiagram"
       root_domain      = local.root_domain
-      subdomain        = "terraform"
+      subdomain        = "${local.env_subdomain_prefx}terraform"
       github_repo_name = "carlssonk/terraform-diagram"
+      cloudflare = {
+        ssl_mode = "flexible"
+      }
     }
   }
-
-  # cloudflare_configuration = {
-  #   for app, config in local.apps : app => {
-  #     root_domain = local.base_domain
-  #     ruleset_rules = [
-  #       for subdomain in config.subdomains : {
-  #         action = "set_config"
-  #         action_parameters = {
-  #           ssl = "flexible"
-  #         }
-  #         expression  = "(http.host eq \"${local.env_prefix}${subdomain}${subdomain == "" ? "" : "."}${local.base_domain}\")"
-  #         description = "Cloudflare rules for ${app}"
-  #       }
-  #     ]
-  #   }
-  # }
 }
