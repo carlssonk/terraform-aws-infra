@@ -27,6 +27,7 @@ module "main_alb_access_logs_bucket" {
     Action   = "s3:PutObject",
     Resource = "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${module.globals.var.aws_account_id}/*"
   }
+  force_destroy = true
 }
 
 module "main_alb" {

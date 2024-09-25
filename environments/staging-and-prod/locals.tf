@@ -7,7 +7,7 @@ locals {
 
   s3-websites = {
     portfolio = {
-      app_name         = "Portfolio"
+      app_name         = "portfolio"
       root_domain      = local.root_domains.carlssonk_com
       subdomain        = var.environment == "prod" ? "www" : var.environment
       github_repo_name = "carlssonk/website"
@@ -16,7 +16,7 @@ locals {
       }
     }
     fps = {
-      app_name         = "FirstPersonShooter"
+      app_name         = "first-person-shooter"
       root_domain      = local.root_domains.carlssonk_com
       subdomain        = "${local.env_subdomain_prefx}fps"
       github_repo_name = "carlssonk/fps"
@@ -25,7 +25,7 @@ locals {
       }
     }
     terraform = {
-      app_name         = "TerraformDiagram"
+      app_name         = "terraform-diagram"
       root_domain      = local.root_domains.carlssonk_com
       subdomain        = "${local.env_subdomain_prefx}terraform"
       github_repo_name = "carlssonk/terraform-diagram"
@@ -37,7 +37,7 @@ locals {
 
   fargate-services = {
     blackjack = {
-      app_name                = "Blackjack"
+      app_name                = "blackjack"
       root_domain             = local.root_domains.carlssonk_com
       subdomain               = "${local.env_subdomain_prefx}blackjack"
       github_repo_name        = "carlssonk/Blackjack-Game-Multiplayer"
@@ -47,7 +47,7 @@ locals {
       fargate_spot_percentage = var.fargate_spot_percentage
     }
     flagracer = {
-      app_name                = "FlagRacer"
+      app_name                = "flag-racer"
       root_domain             = local.root_domains.carlssonk_com
       subdomain               = "${local.env_subdomain_prefx}flagracer"
       github_repo_name        = "carlssonk/flagracer"

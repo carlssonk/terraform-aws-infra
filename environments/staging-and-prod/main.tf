@@ -122,6 +122,6 @@ module "fargate_services" {
 module "fargate_services_policy" {
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
-  name             = "fargate_services_${var.reverse_proxy_type}"
+  name             = "fargate_services"
   policy_documents = flatten(values(module.fargate_services)[*].policy_documents)
 }

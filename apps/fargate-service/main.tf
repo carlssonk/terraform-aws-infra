@@ -79,11 +79,11 @@ module "ecs_service" {
   service_discovery_namespace_arn = var.service_discovery_namespace_arn
 }
 
-module "cloudflare" {
-  source      = "../../modules/cloudflare-record"
-  root_domain = var.root_domain
-  dns_records = [{
-    name  = var.subdomain
-    value = var.reverse_proxy_type == "alb" ? var.alb_dns_name : "reverse proxy elastic ip name"
-  }]
-}
+# module "cloudflare" {
+#   source      = "../../modules/cloudflare-record"
+#   root_domain = var.root_domain
+#   dns_records = [{
+#     name  = var.subdomain
+#     value = var.reverse_proxy_type == "alb" ? var.alb_dns_name : "reverse proxy elastic ip name"
+#   }]
+# }

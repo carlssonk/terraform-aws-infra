@@ -3,6 +3,12 @@ variable "bucket_name" {
   type        = string
 }
 
+variable "force_destroy" {
+  description = "Bucket will be able to be destroyed even if its not empty"
+  type        = bool
+  default     = false
+}
+
 variable "website_config" {
   description = "Website configuration"
   type = object({
