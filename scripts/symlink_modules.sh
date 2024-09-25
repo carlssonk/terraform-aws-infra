@@ -23,7 +23,7 @@ for module_dir in "$MODULES_DIR"/*; do
 
         # If module does not have any subdirectories, continue
         if [ -z "$(find "$module_dir" -mindepth 1 -type d -print -quit)" ]; then
-            if [ "$IS_CI" = true && "$STEP_NAME" = "iam" ]; then
+            if [[ "$IS_CI" = true && "$STEP_NAME" = "iam" ]]; then
                 echo "  Remove content from main.tf"
                 > "$module_dir/main.tf"
             fi
