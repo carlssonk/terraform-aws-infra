@@ -23,17 +23,6 @@ for module_dir in "$MODULES_DIR"/*; do
 
         # If module does not have any subdirectories, continue
         if [ -z "$(find "$module_dir" -mindepth 1 -type d -print -quit)" ]; then
-            echo "  Module has not subdirectories, will copy all files into default/"
-            default_dir="${module_dir}/default"
-            mkdir "$default_dir"
-            
-            # Create symlinks for all files in $module_dir to default/
-            for file in "$module_dir"/*; do
-                if [ -f "$file" ]; then
-                    ln -s "../$(basename "$file")" "$default_dir/"
-                fi
-            done
-
             continue
         fi
         
