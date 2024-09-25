@@ -1,6 +1,6 @@
 variable "apps" {
-  description = "App configurations"
-  type        = map(object)
+  description = "App configurations. cloudflare properties: ssl_mode"
+  type        = map(any)
 }
 
 variable "environment" {
