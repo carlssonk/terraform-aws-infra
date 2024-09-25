@@ -67,7 +67,7 @@ module "ecs_service" {
 }
 
 module "cloudflare" {
-  source      = "../../modules/cloudflare-record/default"
+  source      = "../../modules/cloudflare-record"
   root_domain = local.root_domain
   dns_records = [{
     name  = local.subdomain

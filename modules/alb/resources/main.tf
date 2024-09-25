@@ -5,8 +5,6 @@ resource "aws_lb" "this" {
   security_groups    = [var.security_group_id]
   subnets            = var.subnet_ids
 
-  enable_deletion_protection = true
-
   dynamic "access_logs" {
     for_each = var.access_logs_bucket_name != "" ? [1] : []
     content {
@@ -33,7 +31,7 @@ resource "aws_acm_certificate" "this" {
 
 module "cloudflare" {
   for_each    = toset(var.domains_for_certificates)
-  source      = "../../cloudflare-record/default"
+  source      = "../../cloudflare-record"
   root_domain = each.value
   dns_records = distinct([for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
     name    = dvo.resource_record_name

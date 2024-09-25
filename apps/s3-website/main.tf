@@ -24,7 +24,7 @@ module "root_bucket" {
 }
 
 module "cloudflare" {
-  source      = "../../modules/cloudflare-record/default"
+  source      = "../../modules/cloudflare-record"
   root_domain = var.root_domain
   dns_records = concat(
     [

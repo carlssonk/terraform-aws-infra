@@ -54,14 +54,14 @@ module "services" {
 }
 
 module "cloudflare" {
-  source      = "../../modules/cloudflare/default"
+  source      = "../../modules/cloudflare"
   apps        = local.apps
   environment = var.environment
 }
 
 module "common_policy" {
   workflow_step = var.workflow_step
-  source        = "../../iam_policy"
+  source        = "../../modules/iam_policy"
   name          = "common"
   policy_documents = flatten([
     module.networking.policy_documents,
@@ -86,7 +86,7 @@ module "s3_websites" {
 
 module "s3_websites_policy" {
   workflow_step    = var.workflow_step
-  source           = "../../iam_policy"
+  source           = "../../modules/iam_policy"
   name             = "s3_websites"
   policy_documents = flatten(values(module.s3_websites)[*].policy_documents)
 }
@@ -107,7 +107,7 @@ module "blackjack" {
 
 module "blackjack_policy" {
   workflow_step    = var.workflow_step
-  source           = "../../iam_policy"
+  source           = "../../modules/iam_policy"
   name             = "blackjack"
   policy_documents = module.blackjack.policy_documents
 }
@@ -128,7 +128,7 @@ module "flagracer" {
 
 module "flagracer_policy" {
   workflow_step    = var.workflow_step
-  source           = "../../iam_policy"
+  source           = "../../modules/iam_policy"
   name             = "flagracer"
   policy_documents = module.flagracer.policy_documents
 }

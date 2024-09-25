@@ -24,7 +24,7 @@ locals {
     terraform = {
       app_name         = "TerraformDiagram"
       root_domain      = local.root_domain
-      subdomain        = "${local.env_subdomain_prefx}terraform-updated"
+      subdomain        = "${local.env_subdomain_prefx}updated"
       github_repo_name = "carlssonk/terraform-diagram"
       cloudflare = {
         ssl_mode = "flexible"
