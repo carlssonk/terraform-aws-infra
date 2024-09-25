@@ -20,7 +20,7 @@ locals {
     for domain, value in var.root_domains :
     "www.${domain}" => value
   }
-  base_domains = flatten([values(var.root_domains), local.www_domains])
+  base_domains = concat(values(var.root_domains), values(local.www_domains))
 
   certbot_domains = join(" -d ", local.base_domains)
 }
