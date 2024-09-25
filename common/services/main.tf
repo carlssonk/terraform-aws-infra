@@ -33,7 +33,7 @@ data "template_file" "nginx_config" {
       "flagracer.carlssonk.com" = "carlssonk/flagracer",
       "blackjack.carlssonk.com" = "carlssonk/blackjack",
     })
-    domain_names = local.base_domains
+    domain_names = jsonencode(local.base_domains)
   }
 }
 
