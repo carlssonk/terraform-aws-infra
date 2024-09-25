@@ -15,6 +15,63 @@ module "service_discovery_namespace" {
   namespace_name = module.globals.var.organization
 }
 
+locals {
+  www_domains = {
+    for domain, value in var.root_domains :
+    "www.${domain}" => value
+  }
+  base_domains = flatten([values(var.root_domains), local.www_domains])
+
+  certbot_domains = join(" -d ", local.base_domains)
+}
+
+data "template_file" "nginx_config" {
+  count    = var.reverse_proxy_type == "nginx" ? 1 : 0
+  template = file("${path.module}/nginx_template.conf")
+  vars = {
+    services_map = jsonencode({
+      "flagracer.carlssonk.com" = "carlssonk/flagracer",
+      "blackjack.carlssonk.com" = "carlssonk/blackjack",
+    })
+    domain_names = local.base_domains
+  }
+}
+
+module "ec2_instance_nginx" {
+  count             = var.reverse_proxy_type == "nginx" ? 1 : 0
+  name              = "nginx-reverse-proxy"
+  source            = "../../modules/ec2-instance/default"
+  ami               = "ami-0129bfde49ddb0ed6"
+  instance_type     = "t3.micro"
+  subnet_id         = var.networking_outputs.main_vpc_public_subnet_ids[0]
+  security_group_id = [var.security_outputs.security_group_alb_id] # Should have the same security group rules as alb
+
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y nginx certbot python3-certbot-nginx
+
+    # Install NGINX configuration
+    cat <<EOT > /etc/nginx/nginx.conf
+    ${data.template_file.nginx_config[0].rendered}
+    EOT
+
+    # Obtain SSL certificate (replace example.com with your domain)
+    certbot --nginx -d ${local.certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
+
+    # Ensure Certbot auto-renewal is enabled
+    systemctl enable certbot.timer
+    systemctl start certbot.timer
+
+    # Restart NGINX to apply changes
+    systemctl restart nginx
+    EOF
+
+  tags = {
+    Name = "Nginx Reverse Proxy"
+  }
+}
+
 module "main_alb_access_logs_bucket" {
   count       = var.reverse_proxy_type == "alb" ? 1 : 0
   source      = "../../modules/s3/default"
