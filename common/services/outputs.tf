@@ -1,6 +1,6 @@
 output "policy_documents" {
   value = [
-    try(service_discovery_namespace[0].policy_document, null),
+    try(module.service_discovery_namespace[0].policy_document, null),
     try(module.main_alb[0].policy_document, null),
     try(module.main_alb_access_logs_bucket[0].policy_document, null),
     module.main_ecs_cluster.policy_document
