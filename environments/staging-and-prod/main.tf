@@ -98,7 +98,7 @@ module "fargate_services_alb" {
   cluster_id                 = module.services.main_ecs_cluster_id
   alb_dns_name               = module.services.main_alb_dns_name
   alb_listener_arn           = module.services.main_alb_listener_arn
-  alb_listener_rule_priority = 100 - index(local.fargate-services, each.key)
+  alb_listener_rule_priority = 100 - index(keys(local.fargate-services), each.key)
 
   app_name         = each.value.app_name
   root_domain      = each.value.root_domain
