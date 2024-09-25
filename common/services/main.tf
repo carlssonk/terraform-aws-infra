@@ -43,7 +43,7 @@ module "ec2_instance_nginx" {
   source            = "../../modules/ec2-instance/default"
   ami               = "ami-0129bfde49ddb0ed6"
   instance_type     = "t3.micro"
-  subnet_id         = "10.0.1.0/24"
+  subnet_id         = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_alb_id # Should have the same security group rules as alb
 
   user_data = <<-EOF
