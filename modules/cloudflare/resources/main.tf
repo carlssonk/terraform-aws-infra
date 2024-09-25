@@ -38,7 +38,7 @@ data "cloudflare_zone" "domain" {
 
 # Shared resource
 resource "cloudflare_zone_settings_override" "this" {
-  for_each = var.environment == "prod" ? local.apps_grouped_by_root_domain : []
+  for_each = var.environment == "prod" ? local.apps_grouped_by_root_domain : {}
   zone_id  = data.cloudflare_zone.domain[each.key].id
 
   settings {
