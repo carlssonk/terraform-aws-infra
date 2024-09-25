@@ -2,7 +2,7 @@
 ![CI Pipeline Diagram](ci-pipeline-diagram.png)
 
 ## Guide
-> Note: Use `chmod +x symlink_modules.sh` and `./symlink_modules.sh` to create a symlinked default/ folder
+> Note: Use `chmod +x ./scripts/symlink_modules.sh` and `./scripts/symlink_modules.sh` to create a symlinked default/ folder
 
 ### Set up and create infra on a new environment
 1. Create a new AWS account
