@@ -1,5 +1,5 @@
 module "globals" {
-  source = "../globals"
+  source = "../../globals"
 }
 
 data "terraform_remote_state" "previous" {
