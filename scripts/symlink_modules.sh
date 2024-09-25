@@ -3,10 +3,10 @@
 # Script does the following
 # Creates symlink for iam/ and resources/ -> modules/*/variables.tf
 # Creates symlink for modules/*/default/ -> iam/ or resources/ based on STEP_NAME (or creates a default/ with empty main.tf and symlinks variables.tf if STEP_NAME folder doesn't exist)
-# If COMBINE_OUTPUTS is true; Combines iam/ouputs.tf and resource/outputs.tf into one. If STEP_NAME is 'iam', the outputs in resources/ values will be replaced with null before adding it to combined_outputs
+# If IS_CI is true; it will modify files, for example iam/ouputs.tf and resource/outputs.tf are combined into one. If STEP_NAME is 'iam', the outputs in resources/ values will be replaced with null before adding it to combined_outputs
 
 STEP_NAME=${1:-resources}
-COMBINE_OUTPUTS=${2:-false} # ONLY FOR CI PIPELINE
+IS_CI=${2:-false} # ONLY FOR CI PIPELINE
 MODULES_DIR="./modules"
 
 # Check if the modules directory exists
@@ -23,6 +23,9 @@ for module_dir in "$MODULES_DIR"/*; do
 
         # If module does not have any subdirectories, continue
         if [ -z "$(find "$module_dir" -mindepth 1 -type d -print -quit)" ]; then
+            if [ "$IS_CI" = true && "$STEP_NAME" = "iam" ]; then
+                > "$module_dir/main.tf"
+            fi
             continue
         fi
         
@@ -81,7 +84,7 @@ for module_dir in "$MODULES_DIR"/*; do
         fi
         
         # Write combined_outputs default/outputs.tf (Only do this in CI pipeline since it will also create a outputs.tf in the corresponding symlinked folder as well which we dont need)
-        if [ "$COMBINE_OUTPUTS" = true ]; then
+        if [ "$IS_CI" = true ]; then
             echo -e "$combined_outputs" > "$module_dir/default/outputs.tf"
         fi
     fi
