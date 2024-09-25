@@ -33,7 +33,7 @@ data "aws_iam_policy_document" "this" {
     )
     resources = [
       "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/repo-${var.app_name}",
-      "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/rep-${var.app_name}/*"
+      "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/repo-${var.app_name}/*"
     ]
     effect = "Allow"
   }
