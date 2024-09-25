@@ -27,7 +27,7 @@ variable "tags" {
 
 variable "subnet_id" {
   description = "A subnet ID"
-  type        = string
+  type        = list(string)
 }
 
 variable "security_group_id" {
