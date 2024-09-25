@@ -93,7 +93,7 @@ module "fargate_services_alb" {
   workflow_step              = var.workflow_step
   source                     = "../../apps/fargate-service-alb"
   vpc_id                     = module.networking.main_vpc_id
-  subnet_ids                 = coalesce(each.value.assign_public_ip, each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
+  subnet_ids                 = try(each.value.assign_public_ip, false) || try(each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
   ecs_security_group_id      = module.security.security_group_ecs_tasks_id
   cluster_id                 = module.services.main_ecs_cluster_id
   alb_dns_name               = module.services.main_alb_dns_name
