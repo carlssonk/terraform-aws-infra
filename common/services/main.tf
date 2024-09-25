@@ -26,19 +26,6 @@ module "service_discovery_namespace" {
   namespace_name = module.globals.var.organization
 }
 
-locals {
-
-}
-
-data "template_file" "nginx_config" {
-  count    = var.reverse_proxy_type == "nginx" ? 1 : 0
-  template = file("${path.module}/nginx_template.conf")
-  vars = {
-
-
-  }
-}
-
 module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
