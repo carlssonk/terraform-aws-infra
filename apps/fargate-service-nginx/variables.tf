@@ -48,31 +48,15 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "alb_dns_name" {
-  description = "Application load balancer DNS name"
-  type        = string
-}
-
-variable "alb_listener_arn" {
-  description = "ARN of alb listener"
-  type        = string
-}
-
-variable "alb_listener_rule_priority" {
-  description = "Priority for listener rule, must be unique per alb"
-  type        = number
-}
-
-variable "use_stickiness" {
-  description = "Set this to true if you are using websockets or if you need statefulness"
-  type        = bool
-  default     = false
-}
-
 variable "assign_public_ip" {
   description = "Set this to true if you dont have a NAT gateway/instance and you need your service to make outbound requests (service must also be in a public subnet in this case)"
   type        = bool
   default     = false
+}
+
+variable "service_discovery_namespace_arn" {
+  description = "ARN of service discovery http namespace"
+  type        = string
 }
 
 variable "fargate_spot_percentage" {

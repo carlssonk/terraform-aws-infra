@@ -46,6 +46,8 @@ module "services" {
   source             = "../../common/services"
   networking_outputs = module.networking
   security_outputs   = module.security
+  reverse_proxy_type = var.reverse_proxy_type
+  root_domains       = local.root_domains
 }
 
 module "cloudflare" {
@@ -88,30 +90,38 @@ module "s3_websites_policy" {
 
 ########################################################################
 
-module "fargate_services_alb" {
-  for_each                   = var.reverse_proxy_type == "alb" ? local.fargate-services : {}
-  workflow_step              = var.workflow_step
-  source                     = "../../apps/fargate-service-alb"
-  vpc_id                     = module.networking.main_vpc_id
-  subnet_ids                 = try(each.value.assign_public_ip, false) || try(each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
-  ecs_security_group_id      = module.security.security_group_ecs_tasks_id
-  cluster_id                 = module.services.main_ecs_cluster_id
-  alb_dns_name               = module.services.main_alb_dns_name
-  alb_listener_arn           = module.services.main_alb_listener_arn
-  alb_listener_rule_priority = 100 - index(keys(local.fargate-services), each.key)
+module "fargate_services" {
+  for_each = local.fargate-services
+  source   = "../../apps/fargate-service-${var.reverse_proxy_type}"
 
-  app_name         = each.value.app_name
-  root_domain      = each.value.root_domain
-  subdomain        = each.value.subdomain
-  github_repo_name = each.value.github_repo_name
-  container_port   = each.value.container_port
-  use_stickiness   = try(each.value.use_stickiness, null)
-  assign_public_ip = try(each.value.assign_public_ip, null)
+  # Common attributes
+  workflow_step           = var.workflow_step
+  vpc_id                  = module.networking.main_vpc_id
+  subnet_ids              = try(each.value.assign_public_ip, false) || try(each.value.use_public_subnets, false) ? module.networking.main_vpc_public_subnet_ids : module.networking.main_vpc_private_subnet_ids
+  ecs_security_group_id   = module.security.security_group_ecs_tasks_id
+  cluster_id              = module.services.main_ecs_cluster_id
+  app_name                = each.value.app_name
+  root_domain             = each.value.root_domain
+  subdomain               = each.value.subdomain
+  github_repo_name        = each.value.github_repo_name
+  container_port          = each.value.container_port
+  assign_public_ip        = try(each.value.assign_public_ip, null)
+  fargate_spot_percentage = try(each.value.fargate_spot_percentage, null)
+
+  # ALB-specific attributes
+  alb_dns_name               = var.reverse_proxy_type == "alb" ? module.services.main_alb_dns_name : null
+  alb_listener_arn           = var.reverse_proxy_type == "alb" ? module.services.main_alb_listener_arn : null
+  alb_listener_rule_priority = var.reverse_proxy_type == "alb" ? 100 - index(keys(local.fargate-services), each.key) : null
+  use_stickiness             = var.reverse_proxy_type == "alb" ? try(each.value.use_stickiness, null) : null
+
+  # NGINX-specific attributes
+  service_discovery_namespace_arn = var.reverse_proxy_type == "nginx" ? module.service.service_discovery_namespace.arn : null
 }
 
-module "fargate_services_alb_policy" {
+module "fargate_services_policy" {
+  count            = length(local.fargate-services) > 0 ? 1 : 0
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
-  name             = "fargate_services_alb"
-  policy_documents = flatten(values(module.fargate_services_alb)[*].policy_documents)
+  name             = "fargate_services_${var.reverse_proxy_type}"
+  policy_documents = flatten(values(module.fargate_services)[*].policy_documents)
 }

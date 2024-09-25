@@ -9,7 +9,14 @@ locals {
   }
 }
 
+module "service_discovery_namespace" {
+  count          = var.reverse_proxy_type == "nginx" ? 1 : 0
+  source         = "../../modules/service-discovery/default"
+  namespace_name = module.globals.var.organization
+}
+
 module "main_alb_access_logs_bucket" {
+  count       = var.reverse_proxy_type == "alb" ? 1 : 0
   source      = "../../modules/s3/default"
   bucket_name = local.main_alb_access_logs_bucket_name
   custom_bucket_policy = {
@@ -23,12 +30,13 @@ module "main_alb_access_logs_bucket" {
 }
 
 module "main_alb" {
+  count                    = var.reverse_proxy_type == "alb" ? 1 : 0
   source                   = "../../modules/alb/default"
   name                     = "main"
   vpc_id                   = var.networking_outputs.main_vpc_id
   subnet_ids               = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id        = var.security_outputs.security_group_alb_id
-  domains_for_certificates = ["carlssonk.com"]
+  domains_for_certificates = values(var.root_domains)
   access_logs_bucket_name  = local.main_alb_access_logs_bucket_name
   access_logs_enabled      = false
 }

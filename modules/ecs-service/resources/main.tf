@@ -1,5 +1,8 @@
-resource "aws_service_discovery_http_namespace" "this" {
-  name = var.app_name
+
+
+locals {
+  fargate_spot_weight     = var.fargate_spot_percentage
+  fargate_ondemand_weight = 100 - var.fargate_spot_percentage
 }
 
 resource "aws_ecs_service" "this" {
@@ -15,21 +18,35 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = var.assign_public_ip
   }
 
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = var.container_name
-    container_port   = var.container_port
+  dynamic "capacity_provider_strategy" {
+    for_each = toset(["FARGATE_SPOT", "FARGATE"])
+    content {
+      capacity_provider = capacity_provider_strategy.value
+      weight            = capacity_provider_strategy.value == "FARGATE_SPOT" ? local.fargate_spot_weight : local.fargate_ondemand_weight
+    }
   }
 
-  service_connect_configuration {
-    enabled   = true
-    namespace = aws_service_discovery_http_namespace.this.arn
-    service {
-      port_name      = "http"
-      discovery_name = "app"
-      client_alias {
-        port     = 80
-        dns_name = "app.local"
+  dynamic "load_balancer" {
+    for_each = var.reverse_proxy_type == "alb" ? [1] : []
+    content {
+      target_group_arn = var.alb_target_group_arn
+      container_name   = var.container_name
+      container_port   = var.container_port
+    }
+  }
+
+  dynamic "service_connect_configuration" {
+    for_each = var.reverse_proxy_type == "nginx" ? [1] : []
+    content {
+      enabled   = true
+      namespace = var.service_discovery_namespace_arn
+      service {
+        port_name      = var.port_name
+        discovery_name = var.discovery_name
+        client_alias {
+          port     = 80 # Handle SSL termination in proxy
+          dns_name = "${var.discovery_name}.local"
+        }
       }
     }
   }
