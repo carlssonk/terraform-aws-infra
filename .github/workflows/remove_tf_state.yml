@@ -11,6 +11,13 @@ on:
           - dev
           - staging
           - prod
+      state_bucket:
+        type: choice
+        description: "Workflow type/state bucket"
+        required: true
+        options:
+          - resources
+          - iam
       tf-rm:
         description: 'Terraform resource path to remove'
         required: true
@@ -21,7 +28,7 @@ concurrency:
 
 env:
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  TF_VAR_workflow_step: resources
+  TF_VAR_workflow_step: ${{ github.event.inputs.state_bucket }}
 
 jobs:
   terraform-operation:
