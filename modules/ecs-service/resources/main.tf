@@ -42,10 +42,6 @@ resource "aws_ecs_service" "this" {
       service {
         port_name      = var.port_name
         discovery_name = var.discovery_name
-        client_alias {
-          port     = 80 # Handle SSL termination in proxy
-          dns_name = "${var.discovery_name}.local"
-        }
       }
     }
   }

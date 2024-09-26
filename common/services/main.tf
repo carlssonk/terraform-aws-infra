@@ -44,7 +44,7 @@ data "cloudinit_config" "this" {
       #!/bin/bash
 
       sudo yum update -y
-      sudo yum install -y nginx certbot python3-certbot-nginx
+      sudo yum install -y nginx
 
       # Create nginx config
       sudo tee /etc/nginx/nginx.conf <<'EOF'
@@ -55,9 +55,8 @@ data "cloudinit_config" "this" {
       http {
           map $http_host $upstream {
               hostnames;
-              blackjack.carlssonk.com carlssonk/blackjack;
-              flagracer.carlssonk.com carlssonk/flagracer;
-              default carlssonk.com;
+              blackjack.carlssonk.com blackjack.carlssonk.local;
+              flagracer.carlssonk.com flagracer.carlssonk.local;
           }
 
           server {
