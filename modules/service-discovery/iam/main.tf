@@ -6,8 +6,8 @@ data "aws_iam_policy_document" "this" {
         "servicediscovery:DeleteNamespace",
         "servicediscovery:GetNamespace",
         "servicediscovery:UpdateHttpNamespace",
-        "servicediscovery:servicediscovery:CreatePrivateDnsNamespace",
-        "servicediscovery:servicediscovery:UpdatePrivateDnsNamespace",
+        "servicediscovery:CreatePrivateDnsNamespace",
+        "servicediscovery:UpdatePrivateDnsNamespace"
       ]
     )
     resources = [
