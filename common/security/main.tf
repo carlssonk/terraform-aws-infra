@@ -125,7 +125,7 @@ module "security_group_nginx_rules" {
       ip_protocol = "tcp"
       cidr_ipv6   = ip
     }],
-    [allow_http_anywhere_ipv4]
+    [local.allow_http_anywhere_ipv4]
   ])
   egress_rules = [local.allow_dns_anywhere, local.allow_http_anywhere_ipv4, local.allow_https_anywhere_ipv4]
 }
