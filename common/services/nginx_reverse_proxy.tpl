@@ -1,6 +1,6 @@
 #!/bin/bash
-apt-get update
-apt-get install -y nginx certbot python3-certbot-nginx
+yum update
+yum install -y nginx certbot python3-certbot-nginx
 
 # Create nginx config
 sudo tee /etc/nginx/nginx.conf <<EOF

@@ -79,3 +79,5 @@ IPv4 addresses
 Cloudflare -> Load Balancer (public subnets) -> Services (private subnets) -> NAT Gateway (public subnets) -> Internet
 IPv6 addresses
 Cloudflare -> Load Balancer (public subnets) -> Services (no need for public/private distinciton) -> Egress-only Internet Gateway -> Internet
+
+Debug ec2 instance: cat /var/log/cloud-init-output.log
