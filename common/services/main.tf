@@ -57,6 +57,12 @@ module "ec2_instance_nginx" {
   }
 }
 
+module "ec2_instance_nginx_eip" {
+  count       = var.reverse_proxy_type == "nginx" ? 1 : 0
+  source      = "../../modules/elastic-ip/default"
+  instance_id = module.ec2_instance_nginx.id
+}
+
 module "main_alb_access_logs_bucket" {
   count       = var.reverse_proxy_type == "alb" ? 1 : 0
   source      = "../../modules/s3/default"

@@ -114,13 +114,14 @@ module "fargate_services" {
   fargate_spot_percentage = try(each.value.fargate_spot_percentage, null)
 
   # ALB-specific attributes
-  alb_dns_name               = try(module.services.main_alb_dns_name, null)
-  alb_listener_arn           = try(module.services.main_alb_listener_arn, null)
+  alb_dns_name               = module.services.main_alb_dns_name
+  alb_listener_arn           = module.services.main_alb_listener_arn
   alb_listener_rule_priority = try(100 - index(keys(local.fargate-services), each.key), null)
   use_stickiness             = try(each.value.use_stickiness, null)
 
   # NGINX-specific attributes
-  service_discovery_namespace_arn = try(module.services.service_discovery_namespace_arn)
+  service_discovery_namespace_arn = module.services.service_discovery_namespace_arn
+  nginx_proxy_public_ip           = module.services.nginx_proxy_public_ip
 }
 
 module "fargate_services_policy" {

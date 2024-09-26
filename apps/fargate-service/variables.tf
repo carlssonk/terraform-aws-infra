@@ -94,3 +94,8 @@ variable "service_discovery_namespace_arn" {
   description = "ARN of service discovery http namespace"
   type        = string
 }
+
+variable "nginx_proxy_public_ip" {
+  description = "Static IP address of proxy server"
+  type        = string
+}
