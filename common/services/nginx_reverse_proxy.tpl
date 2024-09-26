@@ -1,11 +1,11 @@
 
 #!/bin/bash
 
-yum update -y
-yum install -y nginx certbot python3-certbot-nginx
+sudo yum update -y
+sudo yum install -y nginx certbot python3-certbot-nginx
 
 # Create nginx config
-tee /etc/nginx/nginx.conf <<EOF
+sudo tee /etc/nginx/nginx.conf <<EOF
 events {
     worker_connections 1024;
 }
@@ -52,16 +52,11 @@ http {
 EOF
 
 # Obtain SSL certificate
-certbot --nginx -d ${certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
+sudo certbot --nginx -d ${certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
 
 # Ensure Certbot auto-renewal is enabled
-systemctl enable certbot.timer
-systemctl start certbot.timer
+sudo systemctl enable certbot.timer
+sudo systemctl start certbot.timer
 
 # Restart NGINX to apply changes
-if systemctl is-active --quiet nginx; then
-    systemctl reload nginx
-else
-    systemctl start nginx
-    systemctl enable nginx
-fi
+sudo systemctl restart nginx
