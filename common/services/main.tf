@@ -47,7 +47,7 @@ data "cloudinit_config" "this" {
       sudo yum install -y nginx certbot python3-certbot-nginx
 
       # Obtain SSL certificate
-      sudo certbot --nginx -d carlssonk.com -d flagracer.carlssonk.com -d blackjack.carlssonk.com --non-interactive --agree-tos -m oliver@carlssonk.com
+      sudo certbot --nginx -d flagracer.carlssonk.com -d blackjack.carlssonk.com --non-interactive --agree-tos -m oliver@carlssonk.com
 
       # Create nginx config
       sudo tee /etc/nginx/nginx.conf <<'EOF'
@@ -65,13 +65,20 @@ data "cloudinit_config" "this" {
 
           server {
               listen 80;
-              server_name _;
-              return 301 https://$host$request_uri;
+              server_name blackjack.carlssonk.com flagracer.carlssonk.com;
+
+              location /.well-known/acme-challenge/ {
+                  root /var/www/html;
+              }
+
+              location / {
+                  return 301 https://$host$request_uri;
+              }
           }
 
           server {
               listen 443 ssl;
-              server_name carlssonk.com blackjack.carlssonk.com flagracer.carlssonk.com;
+              server_name blackjack.carlssonk.com flagracer.carlssonk.com;
 
               ssl_certificate /etc/letsencrypt/live/carlssonk.com/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/carlssonk.com/privkey.pem;
@@ -101,7 +108,7 @@ data "cloudinit_config" "this" {
   }
 }
 
-module "ec2_instance_nginx" {
+module "ec2_instance_nginx_proxy" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -138,7 +145,7 @@ module "ec2_instance_nginx" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx[0].id
+  instance_id = module.ec2_instance_nginx_proxy[0].id
 }
 
 module "main_alb_access_logs_bucket" {
