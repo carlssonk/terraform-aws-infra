@@ -22,7 +22,7 @@ locals {
 
   wildcard_root_domains = {
     for domain, value in var.root_domains :
-    "*.${domain}" => value
+    domain => "*.${value}"
   }
 
   certbot_domains = join(" -d ", concat(values(var.root_domains), values(local.wildcard_root_domains)))
