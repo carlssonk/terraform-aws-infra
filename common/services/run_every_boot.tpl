@@ -1,12 +1,21 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
 #cloud-config
 cloud_final_modules:
-  - [scripts-user, always]
+- [scripts-user, always]
 
-write_files:
-  - path: /var/lib/cloud/scripts/per-boot/user-script.sh
-    permissions: '0755'
-    content: |
-${indent(8, nginx_config)}
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
 
-runcmd:
-  - /var/lib/cloud/scripts/per-boot/user-script.sh
+${nginx_config}
+--//

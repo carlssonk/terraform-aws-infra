@@ -2,9 +2,7 @@
 #!/bin/bash
 
 yum update -y
-if ! rpm -q nginx certbot python3-certbot-nginx > /dev/null; then
-    yum install -y nginx certbot python3-certbot-nginx
-fi
+yum install -y nginx certbot python3-certbot-nginx
 
 # Create nginx config
 sudo tee /etc/nginx/nginx.conf <<EOF
@@ -14,7 +12,7 @@ events {
 
 http {
 
-    map $\http_host $\upstream {
+    map $http_host $upstream {
         hostnames;
         %{ for domain, backend in services_map ~}
         ${domain} ${backend};
@@ -25,7 +23,7 @@ http {
     server {
         listen 80;
         server_name _;
-        return 301 https://$\host$\request_uri;
+        return 301 https://$host$request_uri;
     }
 
     server {
@@ -43,22 +41,18 @@ http {
         ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
 
         location / {
-            proxy_pass http://$\upstream;
-            proxy_set_header Host $\host;
-            proxy_set_header X-Real-IP $\remote_addr;
-            proxy_set_header X-Forwarded-For $\proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $\scheme;
+            proxy_pass http://$upstream;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
 }
 EOF
 
 # Obtain SSL certificate
-if ! certbot certificates | grep -q "${certbot_domains}"; then
-    certbot --nginx -d ${certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
-else
-    certbot renew --nginx --non-interactive
-fi
+certbot --nginx -d ${certbot_domains} --non-interactive --agree-tos -m oliver@carlssonk.com
 
 # Ensure Certbot auto-renewal is enabled
 systemctl enable certbot.timer
