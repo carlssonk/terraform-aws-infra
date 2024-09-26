@@ -34,7 +34,76 @@ module "service_discovery_namespace" {
   namespace_name = module.globals.var.organization
 }
 
-module "ec2_instance_nginx" {
+data "cloudinit_config" "this" {
+  gzip          = false
+  base64_encode = false
+
+  part {
+    content_type = "text/x-shellscript"
+    content      = <<-EOT
+      #!/bin/bash
+
+      sudo yum update -y
+      sudo yum install -y nginx certbot python3-certbot-nginx
+
+      # Create nginx config
+      sudo tee /etc/nginx/nginx.conf <<EOF
+      events {
+          worker_connections 1024;
+      }
+
+      http {
+
+          map $http_host $upstream {
+              hostnames;
+              blackjack.carlssonk.com carlssonk/blackjack;
+              flagracer.carlssonk.com carlssonk/flagracer;
+              default default_backend;
+          }
+
+          server {
+              listen 80;
+              server_name _;
+              return 301 https://$host$request_uri;
+          }
+
+          server {
+              listen 443 ssl;
+              server_name _;
+
+              ssl_certificate /etc/letsencrypt/live/carlssonk.com/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/carlssonk.com/privkey.pem;
+
+              # Improve SSL settings
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_prefer_server_ciphers on;
+              ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+
+              location / {
+                  proxy_pass http://$upstream;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+      }
+      EOF
+
+      # Obtain SSL certificate
+      sudo certbot --nginx -d carlssonk.com -d *.carlssonk.com --non-interactive --agree-tos -m oliver@carlssonk.com
+
+      # Ensure Certbot auto-renewal is enabled
+      sudo systemctl enable certbot.timer
+      sudo systemctl start certbot.timer
+
+      # Restart NGINX to apply changes
+      sudo systemctl restart nginx
+      EOT
+  }
+}
+
+module "ec2_instance_nginx_proxy" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -43,14 +112,15 @@ module "ec2_instance_nginx" {
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_alb_id # Should have the same security group rules as alb
 
-  user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
-    services_map = {
-      "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
-      "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
-    }
-    root_domains    = var.root_domains
-    certbot_domains = local.certbot_domains
-  })
+  user_data = data.cloudinit_config.this.rendered
+  # user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
+  #   services_map = {
+  #     "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
+  #     "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
+  #   }
+  #   root_domains    = var.root_domains
+  #   certbot_domains = local.certbot_domains
+  # })
   # user_data = templatefile("${path.module}/run_every_boot.tpl", {
   #   nginx_config = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
   #     services_map = {
@@ -70,7 +140,7 @@ module "ec2_instance_nginx" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx[0].id
+  instance_id = module.ec2_instance_nginx_proxy[0].id
 }
 
 module "main_alb_access_logs_bucket" {
