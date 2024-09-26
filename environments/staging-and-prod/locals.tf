@@ -63,4 +63,6 @@ locals {
       }
     }
   }
+
+  apps = merge(local.s3-websites, local.fargate-services)
 }

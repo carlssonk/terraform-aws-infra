@@ -56,7 +56,7 @@ module "services" {
 
 module "cloudflare" {
   source      = "../../modules/cloudflare"
-  apps        = merge(local.s3-websites, local.fargate-services)
+  apps        = local.apps
   environment = var.environment
 }
 
