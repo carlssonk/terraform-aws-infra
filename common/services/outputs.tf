@@ -1,7 +1,7 @@
 output "policy_documents" {
   value = [
     try(module.service_discovery_namespace[0].policy_document, null),
-    try(module.ec2_instance_nginx[0].policy_document, null),
+    try(module.ec2_instance_nginx_proxy[0].policy_document, null),
     try(module.ec2_instance_nginx_eip[0].policy_document, null),
     try(module.main_alb[0].policy_document, null),
     try(module.main_alb_access_logs_bucket[0].policy_document, null),
