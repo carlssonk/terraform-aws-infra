@@ -127,21 +127,22 @@ module "security_group_nginx_rules" {
     }]
   ])
   egress_rules = flatten([
-    for port, _ in local.ecs_ports :
-    {
-      description                  = "Allow traffic to ECS tasks on port ${port}"
-      from_port                    = port
-      to_port                      = port
-      ip_protocol                  = "tcp"
-      referenced_security_group_id = module.security_group_ecs_tasks.id
-    }
+    [
+      for port, _ in local.ecs_ports :
+      {
+        description                  = "Allow traffic to ECS tasks on port ${port}"
+        from_port                    = port
+        to_port                      = port
+        ip_protocol                  = "tcp"
+        referenced_security_group_id = module.security_group_ecs_tasks.id
+      }
     ],
     [
       local.allow_dns_anywhere,
       local.allow_http_anywhere_ipv4,
       local.allow_https_anywhere_ipv4
     ]
-  )
+  ])
 }
 
 module "security_group_ecs_tasks_rules" {
