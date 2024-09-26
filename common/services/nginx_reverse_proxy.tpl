@@ -5,7 +5,7 @@ yum update -y
 yum install -y nginx certbot python3-certbot-nginx
 
 # Create nginx config
-sudo tee /etc/nginx/nginx.conf <<EOF
+tee /etc/nginx/nginx.conf <<EOF
 events {
     worker_connections 1024;
 }
@@ -63,4 +63,5 @@ if systemctl is-active --quiet nginx; then
     systemctl reload nginx
 else
     systemctl start nginx
+    systemctl enable nginx
 fi

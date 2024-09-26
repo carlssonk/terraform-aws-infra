@@ -34,7 +34,7 @@ module "service_discovery_namespace" {
   namespace_name = module.globals.var.organization
 }
 
-module "ec2_instance_nginx" {
+module "ec2_instance_nginx_proxy" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -43,16 +43,24 @@ module "ec2_instance_nginx" {
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_alb_id # Should have the same security group rules as alb
 
-  user_data = templatefile("${path.module}/run_every_boot.tpl", {
-    nginx_config = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
-      services_map = {
-        "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
-        "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
-      }
-      root_domains    = var.root_domains
-      certbot_domains = local.certbot_domains
-    })
+  user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
+    services_map = {
+      "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
+      "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
+    }
+    root_domains    = var.root_domains
+    certbot_domains = local.certbot_domains
   })
+  # user_data = templatefile("${path.module}/run_every_boot.tpl", {
+  #   nginx_config = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
+  #     services_map = {
+  #       "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
+  #       "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
+  #     }
+  #     root_domains    = var.root_domains
+  #     certbot_domains = local.certbot_domains
+  #   })
+  # })
 
   tags = {
     Name = "Nginx Reverse Proxy"
@@ -62,7 +70,7 @@ module "ec2_instance_nginx" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx[0].id
+  instance_id = module.ec2_instance_nginx_proxy[0].id
 }
 
 module "main_alb_access_logs_bucket" {
