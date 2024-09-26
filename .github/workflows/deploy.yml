@@ -8,7 +8,12 @@ on:
         description: "Promote to environment"
         required: true
         options:
+          - staging
           - prod
+      cleanup_policies:
+          description: "Cleanup IAM policies"
+          type: boolean
+          default: false
   schedule:
     - cron: "0 1 * * 1" # 1AM (UTC) every monday -- this run will clean up unused policies
   push:
@@ -125,7 +130,7 @@ jobs:
           python ./scripts/create_globals.py \
             "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
-            cleanup_policies=${{ github.event_name == 'schedule' }}
+            cleanup_policies=${{ github.event_name == 'schedule' || github.event.inputs.cleanup_policies == 'true' }}
 
           terraform workspace new ${{ needs.setup.outputs.env }}
           chmod +x ./scripts/retry_command.sh
