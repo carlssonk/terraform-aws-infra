@@ -126,7 +126,22 @@ module "security_group_nginx_rules" {
       cidr_ipv6   = ip
     }]
   ])
-  egress_rules = [local.allow_dns_anywhere, local.allow_http_anywhere_ipv4, local.allow_https_anywhere_ipv4]
+  egress_rules = flatten([
+    for port, _ in local.ecs_ports :
+    {
+      description                  = "Allow traffic to ECS tasks on port ${port}"
+      from_port                    = port
+      to_port                      = port
+      ip_protocol                  = "tcp"
+      referenced_security_group_id = module.security_group_ecs_tasks.id
+    }
+    ],
+    [
+      local.allow_dns_anywhere,
+      local.allow_http_anywhere_ipv4,
+      local.allow_https_anywhere_ipv4
+    ]
+  )
 }
 
 module "security_group_ecs_tasks_rules" {
@@ -136,11 +151,11 @@ module "security_group_ecs_tasks_rules" {
   ingress_rules = flatten([
     for port, _ in local.ecs_ports :
     {
-      description                  = "Allow traffic from ALB on port ${port}"
+      description                  = "Allow traffic from ${var.reverse_proxy_type == "alb" ? "ALB" : "NGINX"} on port ${port}"
       from_port                    = port
       to_port                      = port
       ip_protocol                  = "tcp"
-      referenced_security_group_id = module.security_group_alb.id
+      referenced_security_group_id = var.reverse_proxy_type == "alb" ? module.security_group_alb.id : module.security_group_nginx.id
     }
   ])
   egress_rules = flatten([

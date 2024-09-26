@@ -44,6 +44,7 @@ module "networking" {
 module "security" {
   source             = "../../common/security"
   networking_outputs = module.networking
+  reverse_proxy_type = var.reverse_proxy_type
 }
 
 module "services" {
