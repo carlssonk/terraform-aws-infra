@@ -11,6 +11,22 @@ locals {
     referenced_security_group_id = module.security_group_vpc_endpoints.id
   }
 
+  allow_outbound_dns_traffic = {
+    description = "Allow outbound DNS traffic"
+    from_port   = 53
+    to_port     = 53
+    ip_protocol = "udp"
+    cidr_ipv4   = "0.0.0.0/0"
+  }
+
+  allow_http_to_anywhere_ipv4 = {
+    description = "Allow HTTPS to any destination"
+    from_port   = 80
+    to_port     = 80
+    ip_protocol = "tcp"
+    cidr_ipv4   = "0.0.0.0/0"
+  }
+
   allow_https_to_anywhere_ipv4 = {
     description = "Allow HTTPS to any destination"
     from_port   = 443
@@ -37,6 +53,12 @@ locals {
 module "security_group_alb" {
   source = "../../modules/security-group/default"
   name   = "alb"
+  vpc_id = var.networking_outputs.main_vpc_id
+}
+
+module "security_group_nginx" {
+  source = "../../modules/security-group/default"
+  name   = "nginx"
   vpc_id = var.networking_outputs.main_vpc_id
 }
 
@@ -82,6 +104,29 @@ module "security_group_alb_rules" {
       referenced_security_group_id = module.security_group_ecs_tasks.id
     }
   ])
+}
+
+module "security_group_nginx_rules" {
+  source            = "../../modules/security-group-rules/default"
+  name              = "nginx"
+  security_group_id = module.security_group_nginx.id
+  ingress_rules = flatten([
+    [for ip in module.globals.var.cloudflare_ipv4_ranges : {
+      description = "Allow inbound HTTPS from Cloudflare IP: ${ip}"
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv4   = ip
+    }],
+    [for ip in module.globals.var.cloudflare_ipv6_ranges : {
+      description = "Allow inbound HTTPS from Cloudflare IP: ${ip}"
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      cidr_ipv6   = ip
+    }]
+  ])
+  egress_rules = [local.allow_outbound_dns_traffic, local.allow_http_to_anywhere_ipv4, local.allow_https_to_anywhere_ipv4]
 }
 
 module "security_group_ecs_tasks_rules" {

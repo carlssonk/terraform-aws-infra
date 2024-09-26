@@ -103,14 +103,14 @@ data "cloudinit_config" "this" {
   }
 }
 
-module "ec2_instance_nginx_proxy" {
+module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
   ami               = local.AmazonLinux2023AMI[module.globals.var.aws_region]
   instance_type     = "t3.micro"
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
-  security_group_id = var.security_outputs.security_group_alb_id # Should have the same security group rules as alb
+  security_group_id = var.security_outputs.security_group_nginx_id
 
   user_data = data.cloudinit_config.this.rendered
   # user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
@@ -140,7 +140,7 @@ module "ec2_instance_nginx_proxy" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx_proxy[0].id
+  instance_id = module.ec2_instance_nginx[0].id
 }
 
 module "main_alb_access_logs_bucket" {
