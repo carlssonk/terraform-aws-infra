@@ -11,32 +11,32 @@ locals {
     referenced_security_group_id = module.security_group_vpc_endpoints.id
   }
 
-  allow_outbound_dns_traffic = {
-    description = "Allow outbound DNS traffic"
+  allow_dns_anywhere = {
+    description = "Allow DNS"
     from_port   = 53
     to_port     = 53
     ip_protocol = "udp"
     cidr_ipv4   = "0.0.0.0/0"
   }
 
-  allow_http_to_anywhere_ipv4 = {
-    description = "Allow HTTPS to any destination"
+  allow_http_anywhere_ipv4 = {
+    description = "Allow HTTP"
     from_port   = 80
     to_port     = 80
     ip_protocol = "tcp"
     cidr_ipv4   = "0.0.0.0/0"
   }
 
-  allow_https_to_anywhere_ipv4 = {
-    description = "Allow HTTPS to any destination"
+  allow_https_anywhere_ipv4 = {
+    description = "Allow HTTPS"
     from_port   = 443
     to_port     = 443
     ip_protocol = "tcp"
     cidr_ipv4   = "0.0.0.0/0"
   }
 
-  allow_https_to_anywhere_ipv6 = {
-    description = "Allow HTTPS to any destination"
+  allow_https_anywhere_ipv6 = {
+    description = "Allow HTTPS"
     from_port   = 443
     to_port     = 443
     ip_protocol = "tcp"
@@ -45,7 +45,7 @@ locals {
 
   ecs_ports = {
     8080 = {
-      egress_rules = [local.allow_https_to_vpc_endpoints, local.allow_https_to_anywhere_ipv4, local.allow_https_to_anywhere_ipv6]
+      egress_rules = [local.allow_https_to_vpc_endpoints, local.allow_https_anywhere_ipv4, local.allow_https_anywhere_ipv6]
     }
   }
 }
@@ -124,9 +124,10 @@ module "security_group_nginx_rules" {
       to_port     = 443
       ip_protocol = "tcp"
       cidr_ipv6   = ip
-    }]
+    }],
+    [allow_http_anywhere_ipv4]
   ])
-  egress_rules = [local.allow_outbound_dns_traffic, local.allow_http_to_anywhere_ipv4, local.allow_https_to_anywhere_ipv4]
+  egress_rules = [local.allow_dns_anywhere, local.allow_http_anywhere_ipv4, local.allow_https_anywhere_ipv4]
 }
 
 module "security_group_ecs_tasks_rules" {
