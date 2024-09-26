@@ -8,7 +8,6 @@ on:
         description: "Promote to environment"
         required: true
         options:
-          - staging
           - prod
       cleanup_policies:
           description: "Cleanup IAM policies"
