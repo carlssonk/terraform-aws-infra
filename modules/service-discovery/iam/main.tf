@@ -1,17 +1,19 @@
+module "globals" {
+  source = "../../../globals"
+}
+
 data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "servicediscovery:CreateHttpNamespace",
         "servicediscovery:DeleteNamespace",
         "servicediscovery:GetNamespace",
-        "servicediscovery:UpdateHttpNamespace",
         "servicediscovery:UpdatePrivateDnsNamespace",
         "servicediscovery:CreatePrivateDnsNamespace"
       ]
     )
     resources = [
-      "arn:aws:servicediscovery:*:*:namespace/*"
+      "arn:aws:servicediscovery:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:*/*"
     ]
     effect = "Allow"
   }
