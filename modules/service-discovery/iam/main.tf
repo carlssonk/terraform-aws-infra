@@ -21,7 +21,8 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(
       [
-        "servicediscovery:ListNamespaces"
+        "servicediscovery:ListNamespaces",
+        "route53:CreateHostedZone"
       ]
     )
     resources = ["*"]
