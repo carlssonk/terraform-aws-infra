@@ -53,7 +53,7 @@ locals {
       app_name                = "flag-racer"
       root_domain             = local.root_domains.carlssonk_com
       subdomain               = "${local.env_subdomain_prefx}flagracer"
-      github_repo_name        = "carlssonk/flagracer"
+      github_repo_name        = "carlssonk/flag-racer"
       container_port          = 8080
       use_stickiness          = true
       assign_public_ip        = true
