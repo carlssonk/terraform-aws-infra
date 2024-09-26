@@ -82,6 +82,7 @@ jobs:
 
       - name: Check and Remove Resource from Terraform State
         run: |
+          terraform workspace select ${{ github.event.inputs.environment }}
           echo "Removing resource: ${{ inputs.tf-rm }}"
           terraform state rm '${{ inputs.tf-rm }}'
         working-directory: ${{ env.TF_ROOT_DIRECTORY }}
