@@ -6,7 +6,7 @@ write_files:
   - path: /var/lib/cloud/scripts/per-boot/user-script.sh
     permissions: '0755'
     content: |
-        ${nginx_config}
+${indent(8, nginx_config)}
 
 runcmd:
   - /var/lib/cloud/scripts/per-boot/user-script.sh
