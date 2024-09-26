@@ -59,14 +59,15 @@ data "cloudinit_config" "this" {
               blackjack.carlssonk.com blackjack.carlssonk:8080;
               flagracer.carlssonk.com flagracer.carlssonk:8080;
           }
-
+          
           server {
               listen 80;
               server_name blackjack.carlssonk.com flagracer.carlssonk.com;
 
+              resolver 10.0.0.2;
+
               location / {
-                  set $backend "http://$upstream";
-                  proxy_pass $backend;
+                  proxy_pass $upstream;
                   proxy_set_header Host $host;
                   proxy_set_header X-Real-IP $remote_addr;
                   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -82,7 +83,7 @@ data "cloudinit_config" "this" {
   }
 }
 
-module "ec2_instance_nginx_proxy" {
+module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -119,7 +120,7 @@ module "ec2_instance_nginx_proxy" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx_proxy[0].id
+  instance_id = module.ec2_instance_nginx[0].id
 }
 
 module "main_alb_access_logs_bucket" {

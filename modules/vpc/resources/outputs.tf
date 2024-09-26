@@ -17,3 +17,7 @@ output "private_route_table_ids" {
 output "public_route_table_ids" {
   value = aws_route_table.public[*].id
 }
+
+output "dns_resolver_ip" {
+  value = local.dns_resolver_ip
+}
