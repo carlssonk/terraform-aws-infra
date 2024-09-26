@@ -1,3 +1,4 @@
-resource "aws_service_discovery_http_namespace" "this" {
+resource "aws_service_discovery_private_dns_namespace" "this" {
   name = var.namespace_name
+  vpc  = var.vpc_id
 }

@@ -1,7 +1,7 @@
 output "policy_documents" {
   value = [
     try(module.service_discovery_namespace[0].policy_document, null),
-    try(module.ec2_instance_nginx[0].policy_document, null),
+    try(module.ec2_instance_nginx_proxy[0].policy_document, null),
     try(module.ec2_instance_nginx_eip[0].policy_document, null),
     try(module.main_alb[0].policy_document, null),
     try(module.main_alb_access_logs_bucket[0].policy_document, null),
@@ -17,8 +17,8 @@ output "main_alb_listener_arn" {
   value = try(module.main_alb[0].listener_arn, null)
 }
 
-output "service_discovery_namespace_arn" {
-  value = try(module.service_discovery_namespace[0].arn, null)
+output "service_discovery_namespace_id" {
+  value = try(module.service_discovery_namespace[0].id, null)
 }
 
 output "main_ecs_cluster_name" {

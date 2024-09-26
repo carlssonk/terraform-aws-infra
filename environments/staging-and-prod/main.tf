@@ -121,8 +121,8 @@ module "fargate_services" {
   use_stickiness             = try(each.value.use_stickiness, null)
 
   # NGINX-specific attributes
-  service_discovery_namespace_arn = module.services.service_discovery_namespace_arn
-  nginx_proxy_public_ip           = module.services.nginx_proxy_public_ip
+  service_discovery_namespace_id = module.services.service_discovery_namespace_id
+  nginx_proxy_public_ip          = module.services.nginx_proxy_public_ip
 }
 
 module "fargate_services_policy" {

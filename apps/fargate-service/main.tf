@@ -74,9 +74,9 @@ module "ecs_service" {
   container_name       = local.container_name
 
   # NGINX-specific attributes
-  port_name                       = local.port_name
-  discovery_name                  = var.subdomain
-  service_discovery_namespace_arn = var.service_discovery_namespace_arn
+  port_name                      = local.port_name
+  discovery_name                 = var.subdomain
+  service_discovery_namespace_id = var.service_discovery_namespace_id
 }
 
 module "cloudflare" {

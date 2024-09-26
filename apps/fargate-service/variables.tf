@@ -90,8 +90,8 @@ variable "fargate_spot_percentage" {
   }
 }
 
-variable "service_discovery_namespace_arn" {
-  description = "ARN of service discovery http namespace"
+variable "service_discovery_namespace_id" {
+  description = "ID of service discovery http namespace"
   type        = string
 }
 

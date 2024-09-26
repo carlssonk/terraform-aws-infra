@@ -5,6 +5,24 @@ locals {
   fargate_ondemand_weight = 100 - var.fargate_spot_percentage
 }
 
+resource "aws_service_discovery_service" "this" {
+  count = var.reverse_proxy_type == "nginx" ? 1 : 0
+  name  = var.discovery_name
+
+  dns_config {
+    namespace_id = var.service_discovery_namespace_id
+
+    dns_records {
+      type = "A"
+      ttl  = 60
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
 resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
   cluster         = var.cluster_id
@@ -34,15 +52,10 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  dynamic "service_connect_configuration" {
+  dynamic "service_registries" {
     for_each = var.reverse_proxy_type == "nginx" ? [1] : []
     content {
-      enabled   = true
-      namespace = var.service_discovery_namespace_arn
-      service {
-        port_name      = var.port_name
-        discovery_name = var.discovery_name
-      }
+      registry_arn = aws_service_discovery_service[0].this.arn
     }
   }
 

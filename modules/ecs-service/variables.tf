@@ -58,8 +58,8 @@ variable "discovery_name" {
   default     = null
 }
 
-variable "service_discovery_namespace_arn" {
-  description = "ARN of service discovery http namespace. Required if reverse_proxy_type is 'nginx'"
+variable "service_discovery_namespace_id" {
+  description = "ID of service discovery http namespace. Required if reverse_proxy_type is 'nginx'"
   type        = string
   default     = null
 }

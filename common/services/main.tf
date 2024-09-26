@@ -32,6 +32,7 @@ module "service_discovery_namespace" {
   count          = var.reverse_proxy_type == "nginx" ? 1 : 0
   source         = "../../modules/service-discovery/default"
   namespace_name = module.globals.var.organization
+  vpc_id         = var.networking_outputs.main_vpc_id
 }
 
 data "cloudinit_config" "this" {
@@ -55,8 +56,8 @@ data "cloudinit_config" "this" {
       http {
           map $http_host $upstream {
               hostnames;
-              blackjack.carlssonk.com blackjack.carlssonk.local;
-              flagracer.carlssonk.com flagracer.carlssonk.local;
+              blackjack.carlssonk.com blackjack.carlssonk;
+              flagracer.carlssonk.com flagracer.carlssonk;
           }
 
           server {
@@ -80,7 +81,7 @@ data "cloudinit_config" "this" {
   }
 }
 
-module "ec2_instance_nginx" {
+module "ec2_instance_nginx_proxy" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -117,7 +118,7 @@ module "ec2_instance_nginx" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx[0].id
+  instance_id = module.ec2_instance_nginx_proxy[0].id
 }
 
 module "main_alb_access_logs_bucket" {
