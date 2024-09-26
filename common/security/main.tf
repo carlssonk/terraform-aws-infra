@@ -113,19 +113,18 @@ module "security_group_nginx_rules" {
   ingress_rules = flatten([
     [for ip in module.globals.var.cloudflare_ipv4_ranges : {
       description = "Allow inbound HTTPS from Cloudflare IP: ${ip}"
-      from_port   = 443
-      to_port     = 443
+      from_port   = 80
+      to_port     = 80
       ip_protocol = "tcp"
       cidr_ipv4   = ip
     }],
     [for ip in module.globals.var.cloudflare_ipv6_ranges : {
       description = "Allow inbound HTTPS from Cloudflare IP: ${ip}"
-      from_port   = 443
-      to_port     = 443
+      from_port   = 80
+      to_port     = 80
       ip_protocol = "tcp"
       cidr_ipv6   = ip
-    }],
-    [local.allow_http_anywhere_ipv4]
+    }]
   ])
   egress_rules = [local.allow_dns_anywhere, local.allow_http_anywhere_ipv4, local.allow_https_anywhere_ipv4]
 }

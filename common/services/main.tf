@@ -46,9 +46,6 @@ data "cloudinit_config" "this" {
       sudo yum update -y
       sudo yum install -y nginx certbot python3-certbot-nginx
 
-      # Obtain SSL certificate
-      sudo certbot --nginx -d flagracer.carlssonk.com -d blackjack.carlssonk.com --non-interactive --agree-tos -m oliver@carlssonk.com
-
       # Create nginx config
       sudo tee /etc/nginx/nginx.conf <<'EOF'
       events {
@@ -67,27 +64,6 @@ data "cloudinit_config" "this" {
               listen 80;
               server_name blackjack.carlssonk.com flagracer.carlssonk.com;
 
-              location /.well-known/acme-challenge/ {
-                  root /var/www/html;
-              }
-
-              location / {
-                  return 301 https://$host$request_uri;
-              }
-          }
-
-          server {
-              listen 443 ssl;
-              server_name blackjack.carlssonk.com flagracer.carlssonk.com;
-
-              ssl_certificate /etc/letsencrypt/live/carlssonk.com/fullchain.pem;
-              ssl_certificate_key /etc/letsencrypt/live/carlssonk.com/privkey.pem;
-
-              # Improve SSL settings
-              ssl_protocols TLSv1.2 TLSv1.3;
-              ssl_prefer_server_ciphers on;
-              ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-
               location / {
                   proxy_pass http://$upstream;
                   proxy_set_header Host $host;
@@ -99,16 +75,13 @@ data "cloudinit_config" "this" {
       }
       EOF
 
-      # Ensure Certbot auto-renewal is enabled
-      sudo systemctl start certbot-renew.timer
-
       # Restart NGINX to apply changes
       sudo systemctl restart nginx
       EOT
   }
 }
 
-module "ec2_instance_nginx_proxy" {
+module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -145,7 +118,7 @@ module "ec2_instance_nginx_proxy" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx_proxy[0].id
+  instance_id = module.ec2_instance_nginx[0].id
 }
 
 module "main_alb_access_logs_bucket" {

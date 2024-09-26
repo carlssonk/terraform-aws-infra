@@ -45,6 +45,9 @@ locals {
       use_stickiness          = true
       assign_public_ip        = true
       fargate_spot_percentage = var.fargate_spot_percentage
+      cloudflare = {
+        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+      }
     }
     flagracer = {
       app_name                = "flag-racer"
@@ -55,6 +58,9 @@ locals {
       use_stickiness          = true
       assign_public_ip        = true
       fargate_spot_percentage = var.fargate_spot_percentage
+      cloudflare = {
+        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+      }
     }
   }
 }
