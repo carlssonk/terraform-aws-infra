@@ -19,9 +19,8 @@ resource "aws_service_discovery_service" "this" {
   }
 }
 
+# aws_service_discovery_service needs to become unregistered from service before it itself gets destroyed
 resource "null_resource" "wait_for_unregister" {
-  count = var.reverse_proxy_type == "nginx" ? 1 : 0
-
   triggers = {
     service_id = aws_service_discovery_service.this[0].id
   }
