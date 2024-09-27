@@ -16,8 +16,8 @@ module "fck-nat" {
   vpc_id             = module.main_vpc.id
   subnet_id          = module.main_vpc.public_subnet_ids[count.index]
   instance_type      = var.fck_nat_settings.instance_type
-  ha_mode            = try(var.fck_nat_settings.high_availability, false)
-  use_spot_instances = try(var.fck_nat_settings.use_spot, false)
+  ha_mode            = coalesce(try(var.fck_nat_settings.high_availability, false), false)
+  use_spot_instances = coalesce(try(var.fck_nat_settings.use_spot, false), false)
 
   update_route_tables = true
   route_tables_ids = {
