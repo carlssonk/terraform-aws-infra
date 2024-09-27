@@ -34,6 +34,10 @@ resource "null_resource" "deregister_instance_from_aws_service_discovery_service
     when    = destroy
     command = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_ecs_service" "this" {
