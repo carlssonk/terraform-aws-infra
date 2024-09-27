@@ -80,4 +80,6 @@ Cloudflare -> Load Balancer (public subnets) -> Services (private subnets) -> NA
 IPv6 addresses
 Cloudflare -> Load Balancer (public subnets) -> Services (no need for public/private distinciton) -> Egress-only Internet Gateway -> Internet
 
-Debug ec2 instance: cat /var/log/cloud-init-output.log
+Debug ec2 instance: 
+cat /var/log/cloud-init-output.log
+cat /var/log/cloud-init.log

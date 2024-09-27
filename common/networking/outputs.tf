@@ -21,3 +21,7 @@ output "main_vpc_private_route_table_ids" {
 output "main_vpc_public_route_table_ids" {
   value = module.main_vpc.public_route_table_ids
 }
+
+output "main_vpc_dns_resolver_ip" {
+  value = module.main_vpc.dns_resolver_ip
+}

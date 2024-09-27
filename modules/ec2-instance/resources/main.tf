@@ -13,3 +13,15 @@ resource "aws_instance" "this" {
     var.tags
   )
 }
+
+// By default the instance will stop every time we edit the user_data so tis will boot it again
+resource "null_resource" "reboot_trigger" {
+  triggers = {
+    instance_id = aws_instance.this.id
+    user_data   = var.user_data
+  }
+
+  provisioner "local-exec" {
+    command = "aws ec2 reboot-instances --instance-ids ${aws_instance.this.id}"
+  }
+}

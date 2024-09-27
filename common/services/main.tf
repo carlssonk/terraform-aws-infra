@@ -20,22 +20,29 @@ locals {
     eu-north-1 = "ami-0129bfde49ddb0ed6" // ami ID found in AWS console when creating a ec2 instance
   }
 
-  wildcard_root_domains = {
-    for domain, value in var.root_domains :
-    domain => "*.${value}"
-  }
+  nginx_server_name = join(" ", [
+    for _, config in var.fargate_services :
+    "${config.subdomain}.${config.root_domain}"
+  ])
 
-  certbot_domains = join(" -d ", concat(values(var.root_domains), values(local.wildcard_root_domains)))
+  namespace_name = module.globals.var.organization
+
+  // Expects that the ecs service discovery names are the same as their subdomains
+  services_map = {
+    for _, config in var.fargate_services :
+    "${config.subdomain}.${config.root_domain}" => "${config.subdomain}.${local.namespace_name}:${config.container_port}"
+  }
 }
 
 module "service_discovery_namespace" {
   count          = var.reverse_proxy_type == "nginx" ? 1 : 0
   source         = "../../modules/service-discovery/default"
-  namespace_name = module.globals.var.organization
+  namespace_name = local.namespace_name
   vpc_id         = var.networking_outputs.main_vpc_id
 }
 
 data "cloudinit_config" "this" {
+  count         = var.reverse_proxy_type == "nginx" ? 1 : 0
   gzip          = false
   base64_encode = false
 
@@ -51,27 +58,11 @@ data "cloudinit_config" "this" {
   part {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/nginx_proxy.tpl", {
-      services_map = {
-        "flagracer.carlssonk.com"  = "flagracer.carlssonk:8080", # TODO
-        "blackjackz.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
-      }
-      dns_resolver_ip = "10.0.0.2"
-      server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
+      services_map    = local.services_map
+      dns_resolver_ip = var.networking_outputs.dns_resolver_ip
+      server_name     = local.nginx_server_name
     })
   }
-  # part {
-  #   content_type = "text/x-shellscript"
-  #   content = templatefile("${path.module}/run_every_boot.tpl", {
-  #     nginx_config = templatefile("${path.module}/nginx_proxy.tpl", {
-  #       services_map = {
-  #         "flagracer.carlssonk.com" = "flagracer.carlssonk:8080", # TODO
-  #         "blackjack.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
-  #       }
-  #       dns_resolver_ip = "10.0.0.2"
-  #       server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
-  #     })
-  #   })
-  # }
 }
 
 module "ec2_instance_nginx" {
@@ -83,25 +74,7 @@ module "ec2_instance_nginx" {
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_nginx_id
 
-  user_data = data.cloudinit_config.this.rendered
-  # user_data = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
-  #   services_map = {
-  #     "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
-  #     "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
-  #   }
-  #   root_domains    = var.root_domains
-  #   certbot_domains = local.certbot_domains
-  # })
-  # user_data = templatefile("${path.module}/run_every_boot.tpl", {
-  #   nginx_config = templatefile("${path.module}/nginx_reverse_proxy.tpl", {
-  #     services_map = {
-  #       "flagracer.carlssonk.com" = "carlssonk/flagracer", # TODO
-  #       "blackjack.carlssonk.com" = "carlssonk/blackjack", # TODO
-  #     }
-  #     root_domains    = var.root_domains
-  #     certbot_domains = local.certbot_domains
-  #   })
-  # })
+  user_data = data.cloudinit_config.this[0].rendered
 
   tags = {
     Name = "Nginx Reverse Proxy"
