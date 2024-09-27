@@ -17,15 +17,10 @@ resource "aws_service_discovery_service" "this" {
       ttl  = 60
     }
   }
-
-  # instance needs to be deregistered from aws_service_discovery_service before destroying it
-  provisioner "local-exec" {
-    when    = destroy
-    command = "bash ${path.module}/deregister_instance.sh ${self.id} service-${var.app_name}"
-  }
 }
 
-resource "null_resource" "delete_venafi_cert" {
+# instance needs to be deregistered from aws_service_discovery_service before destroying it
+resource "null_resource" "deregister_instance_from_aws_service_discovery_service" {
   count = var.reverse_proxy_type == "nginx" ? 1 : 0
 
   triggers = {
