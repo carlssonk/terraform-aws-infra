@@ -14,43 +14,36 @@ resource "aws_lb" "this" {
   }
 }
 
-resource "aws_acm_certificate" "this" {
+module "acm_certificate" {
+  source                    = "../../acm-certificate/default"
   for_each                  = toset(var.domains_for_certificates)
   domain_name               = each.value
-  validation_method         = "DNS"
   subject_alternative_names = ["*.${each.value}"]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name = "acm-certificate-${each.value}"
-  }
 }
 
-# module "cloudflare" {
-#   for_each    = toset(var.domains_for_certificates)
-#   source      = "../../cloudflare-record"
-#   root_domain = each.value
-#   dns_records = {
-#     for idx, dvo in aws_acm_certificate.this[each.value].domain_validation_options :
-#     "validation_record_${substr(dvo.resource_record_name, 0, 32)}" => {
-#       name    = dvo.resource_record_name
-#       value   = dvo.resource_record_value
-#       type    = dvo.resource_record_type
-#       ttl     = 60
-#       proxied = false
-#     }
-#   }
-# }
+module "cloudflare" {
+  for_each    = toset(var.domains_for_certificates)
+  source      = "../../cloudflare-record"
+  root_domain = each.value
+  dns_records = {
+    for dvo in module.acm_certificate[each.value].domain_validation_options :
+    dvo.resource_record_name => {
+      name    = dvo.resource_record_name
+      value   = dvo.resource_record_value
+      type    = dvo.resource_record_type
+      ttl     = 60
+      proxied = false
+    }
+  }
+  depends_on = [module.acm_certificate]
+}
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.this.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_certificate.this[var.domains_for_certificates[0]].arn
+  certificate_arn   = module.acm_certificate[var.domains_for_certificates[0]].arn
 
 
   default_action {
@@ -74,5 +67,5 @@ resource "aws_lb_listener" "front_end" {
 resource "aws_lb_listener_certificate" "this" {
   count           = length(var.domains_for_certificates) > 1 ? length(var.domains_for_certificates) - 1 : 0
   listener_arn    = aws_lb_listener.front_end.arn
-  certificate_arn = aws_acm_certificate.this[var.domains_for_certificates[count.index + 1]].arn
+  certificate_arn = module.acm_certificate[var.domains_for_certificates[count.index + 1]].arn
 }
