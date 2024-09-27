@@ -2,13 +2,21 @@
 
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <service-id> <ecs-service-name>"
+    echo "Usage: $0 <discovery-name> <ecs-service-name>"
     exit 1
 fi
 
-SERVICE_ID="$1"
+DISCOVERY_NAME="$1"
 ECS_SERVICE_NAME="$2"
 CLUSTER_NAME="MainCluster"
+
+# Look up the service ID using the discovery name
+SERVICE_ID=$(aws servicediscovery list-services --filters Name="NAME",Values="$DISCOVERY_NAME",Condition="EQ" --query 'Services[0].Id' --output text)
+
+if [ -z "$SERVICE_ID" ]; then
+    echo "Failed to find service ID for discovery name: $DISCOVERY_NAME"
+    exit 1
+fi
 
 # Get the first task ARN for the ECS service
 TASK_ARN=$(aws ecs list-tasks --cluster "$CLUSTER_NAME" --service-name "$ECS_SERVICE_NAME" --query 'taskArns[0]' --output text)
@@ -40,4 +48,4 @@ fi
 # Deregister the instance
 aws servicediscovery deregister-instance --service-id "$SERVICE_ID" --instance-id "$INSTANCE_ID"
 
-echo "Deregistered instance $INSTANCE_ID from service $SERVICE_ID"
+echo "Deregistered instance $INSTANCE_ID from service $SERVICE_ID (Discovery name: $DISCOVERY_NAME)"

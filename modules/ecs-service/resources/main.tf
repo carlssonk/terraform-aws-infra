@@ -25,6 +25,21 @@ resource "aws_service_discovery_service" "this" {
   }
 }
 
+resource "null_resource" "delete_venafi_cert" {
+  count = var.reverse_proxy_type == "nginx" ? 1 : 0
+
+  triggers = {
+    discovery_name = var.discovery_name
+    service_name   = "service-${var.app_name}"
+  }
+
+  provisioner "local-exec" {
+    when       = destroy
+    command    = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
+    on_failure = continue
+  }
+}
+
 resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
   cluster         = var.cluster_id
