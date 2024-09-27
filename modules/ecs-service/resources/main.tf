@@ -17,6 +17,7 @@ resource "aws_service_discovery_service" "this" {
       ttl  = 60
     }
   }
+  depends_on = [null_resource.deregister_instance_from_aws_service_discovery_service]
 }
 
 # instance needs to be deregistered from aws_service_discovery_service before destroying it
