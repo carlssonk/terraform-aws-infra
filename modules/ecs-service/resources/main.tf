@@ -6,7 +6,7 @@ locals {
 }
 
 resource "aws_service_discovery_service" "this" {
-  count = var.reverse_proxy_type == "nginx" ? 1 : 0
+  count = var.reverse_proxy_type == "nginx" ? 1 : 1
   name  = var.discovery_name
 
   dns_config {
@@ -16,6 +16,10 @@ resource "aws_service_discovery_service" "this" {
       type = "A"
       ttl  = 60
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -49,13 +53,11 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "service_registries" {
-    for_each = var.reverse_proxy_type == "nginx" ? [1] : []
+    for_each = var.reverse_proxy_type == "nginx" ? [1] : [1]
     content {
       registry_arn = aws_service_discovery_service.this[0].arn
     }
   }
-
-  depends_on = [aws_service_discovery_service.this]
 
   force_delete = true
 }
