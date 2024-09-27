@@ -1,22 +1,17 @@
 import sys
 import json
 
-def parse_key_value(arg):
-    key, value = arg.split('=', 1)
-    return key.strip(), value.strip().strip('"')
-
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python script.py [key1=value1] [key2=value2] ...")
-        sys.exit(1)
+    data = {}
 
-    input_pairs = dict(parse_key_value(arg) for arg in sys.argv[1:])
+    for arg in sys.argv[1:]:
+        key, value = arg.split('=')
+        data[key] = value
 
-    output_filename = 'globals.json'
-    with open(output_filename, 'w') as outfile:
-        json.dump({**input_pairs}, outfile, indent=2)
+    with open('globals.json', 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
-    print(f"Merged key-value pairs have been written to {output_filename}")
+    print("JSON file 'globals.json' has been created successfully.")
 
 if __name__ == "__main__":
     main()

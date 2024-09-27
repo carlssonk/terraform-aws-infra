@@ -75,7 +75,6 @@ jobs:
       - name: Prepare Environment
         run: |
           python ./scripts/create_globals.py \
-            "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
