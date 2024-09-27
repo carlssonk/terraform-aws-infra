@@ -22,6 +22,6 @@ resource "null_resource" "reboot_trigger" {
   }
 
   provisioner "local-exec" {
-    command = "aws ec2 reboot-instances --instance-ids ${aws_instance.this.id}"
+    command = "aws ec2 start-instances --instance-ids ${aws_instance.this.id}"
   }
 }
