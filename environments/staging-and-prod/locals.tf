@@ -12,16 +12,18 @@ locals {
   }
 
   # Calculates spot_max_price based on spot_max_price_multiplier
-  ec2_instances = {
-    for _, settings in local.ec2_instances_without_spot_max_price : _ => merge(
+  ec2_services = {
+    for service, settings in local.ec2_instances_without_spot_max_price : service => merge(
       settings,
-      try(settings.use_spot, false) && try(settings.spot_max_price_multiplier, null) != null ? {
+      {
         spot_max_price = (
+          try(settings.use_spot, false) &&
+          try(settings.spot_max_price_percentage, null) != null &&
           contains(keys(local.ec2_on_demand_hourly_rate[var.aws_region]), settings.instance_type)
-          ? local.ec2_on_demand_hourly_rate[var.aws_region][settings.instance_type] * settings.spot_max_price_multiplier
+          ? local.ec2_on_demand_hourly_rate[var.aws_region][settings.instance_type] * settings.spot_max_price_percentage
           : null
         )
-      } : {}
+      }
     )
   }
 
