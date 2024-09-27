@@ -1,9 +1,8 @@
 
 
 locals {
-  fargate_spot_weight         = var.fargate_spot_percentage
-  fargate_ondemand_weight     = 100 - var.fargate_spot_percentage
-  deregister_instance_command = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
+  fargate_spot_weight     = var.fargate_spot_percentage
+  fargate_ondemand_weight = 100 - var.fargate_spot_percentage
 }
 
 resource "aws_service_discovery_service" "this" {
@@ -19,33 +18,28 @@ resource "aws_service_discovery_service" "this" {
     }
   }
 
-  provisioner "local-exec" {
-    when    = destroy
-    command = local.deregister_instance_command
-  }
-
-  # depends_on = [null_resource.deregister_instance_from_aws_service_discovery_service]
+  depends_on = [null_resource.deregister_instance_from_aws_service_discovery_service]
 }
 
 # instance needs to be deregistered from aws_service_discovery_service before destroying it
-# resource "null_resource" "deregister_instance_from_aws_service_discovery_service" {
-#   count = var.reverse_proxy_type == "nginx" ? 1 : 0
+resource "null_resource" "deregister_instance_from_aws_service_discovery_service" {
+  count = var.reverse_proxy_type == "nginx" ? 1 : 0
 
-#   triggers = {
-#     proxy_type     = var.reverse_proxy_type
-#     discovery_name = var.discovery_name
-#     service_name   = "service-${var.app_name}"
-#   }
+  triggers = {
+    proxy_type     = var.reverse_proxy_type
+    discovery_name = var.discovery_name
+    service_name   = "service-${var.app_name}"
+  }
 
-#   provisioner "local-exec" {
-#     when    = destroy
-#     command = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
-#   }
+  provisioner "local-exec" {
+    when    = destroy
+    command = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
+  }
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
