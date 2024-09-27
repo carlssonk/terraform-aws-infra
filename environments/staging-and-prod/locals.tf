@@ -10,8 +10,7 @@ locals {
   ec2_instances = {
     nginx_proxy_settings = merge(
       var.nginx_proxy_instance_settings,
-      # tflint-ignore: all
-      { spot_max_price = local.ec2_on_demand_hourly_rate[var.aws_region][var.nginx_proxy_instance_settings.instance_type] * var.nginx_proxy_instance_settings.spot_max_price_multiplier }
+      { spot_max_price = local.ec2_on_demand_hourly_rate[try(var.aws_region, "eu-north-1")][try(var.nginx_proxy_instance_settings.instance_type, "t4g.nano")] * var.nginx_proxy_instance_settings.spot_max_price_multiplier }
     )
   }
 
