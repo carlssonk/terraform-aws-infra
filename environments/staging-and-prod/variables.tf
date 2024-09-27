@@ -64,7 +64,9 @@ variable "nginx_proxy_instance_settings" {
     spot_max_price_multiplier = optional(number)
     spot_instance_type        = optional(string)
   })
-  default = {}
+  default = {
+    instance_type = "t4g.nano"
+  }
   validation {
     condition     = var.nginx_proxy_instance_settings.spot_max_price_multiplier >= 0 && var.nginx_proxy_instance_settings.spot_max_price_multiplier <= 1
     error_message = "spot_max_price_multiplier must be between 0 and 1."
@@ -78,5 +80,7 @@ variable "fck_nat_settings" {
     use_spot          = optional(bool)
     high_availability = optional(bool)
   })
-  default = {}
+  default = {
+    instance_type = "t4g.nano"
+  }
 }
