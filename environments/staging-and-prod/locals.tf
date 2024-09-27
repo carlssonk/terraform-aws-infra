@@ -7,22 +7,10 @@ locals {
     }
   }
 
-  ec2_instances_without_spot_max_price = {
-    nginx_proxy_settings = var.nginx_proxy_instance_settings
-  }
-
   ec2_instances = {
-    for service, settings in local.ec2_instances_without_spot_max_price : service => merge(
-      settings,
-      {
-        spot_max_price = (
-          lookup(settings, "use_spot", false) &&
-          lookup(settings, "spot_max_price_percentage", null) != null &&
-          contains(keys(lookup(local.ec2_on_demand_hourly_rate, var.aws_region, {})), lookup(settings, "instance_type", ""))
-          ? lookup(local.ec2_on_demand_hourly_rate, var.aws_region, {})[lookup(settings, "instance_type", "")] * lookup(settings, "spot_max_price_percentage", 0)
-          : null
-        )
-      }
+    nginx_proxy_settings = merge(
+      var.nginx_proxy_instance_settings,
+      { spot_max_price = local.ec2_on_demand_hourly_rate[var.aws_region][var.nginx_proxy_instance_settings.instance_type] * var.nginx_proxy_instance_settings.spot_max_price_multiplier }
     )
   }
 

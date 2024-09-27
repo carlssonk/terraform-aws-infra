@@ -38,6 +38,7 @@ terraform {
 ########################################################################
 
 module "networking" {
+  workflow_step     = var.workflow_step
   source            = "../../common/networking"
   use_single_subnet = var.use_single_subnet
   nat_type          = var.nat_type
