@@ -1,5 +1,5 @@
 output "policy_documents" {
-  value = [module.main_vpc.policy_document]
+  value = [module.main_vpc.policy_document, try(module.fck-nat[0].policy_document, null)]
 }
 
 output "main_vpc_id" {

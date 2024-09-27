@@ -28,6 +28,7 @@ data "aws_iam_policy_document" "this" {
         "ec2:RevokeSecurityGroupIngress",
         "ec2:RevokeSecurityGroupEgress",
         "ec2:ModifySecurityGroupRules",
+        "ec2:CreateNetworkInterface",
         "ec2:Describe*"
       ]
     )

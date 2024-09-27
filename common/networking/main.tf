@@ -8,23 +8,12 @@ module "main_vpc" {
 }
 
 module "fck-nat" {
-  source  = "RaJiska/fck-nat/aws"
-  version = "1.3.0"
-  count   = var.workflow_step == "resources" && var.nat_type == "fck-nat" ? module.main_vpc.subnet_count : 0
+  count                   = var.nat_type == "fck-nat" ? 1 : 0
+  source                  = "../../modules/nat/default"
+  subnet_count            = module.main_vpc.subnet_count
+  private_route_table_ids = module.main_vpc.private_route_table_ids
+  public_subnet_ids       = module.main_vpc.public_subnet_ids
+  vpc_id                  = module.main_vpc.id
 
-  name               = "main-fck-nat"
-  vpc_id             = module.main_vpc.id
-  subnet_id          = module.main_vpc.public_subnet_ids[count.index]
-  instance_type      = var.fck_nat_settings.instance_type
-  ha_mode            = coalesce(try(var.fck_nat_settings.high_availability, false), false)
-  use_spot_instances = coalesce(try(var.fck_nat_settings.use_spot, false), false)
-
-  update_route_tables = true
-  route_tables_ids = {
-    private = module.main_vpc.private_route_table_ids[count.index]
-  }
-
-  tags = {
-    Name = "main-fck-nat-${count.index}"
-  }
+  fck_nat_settings = var.fck_nat_settings
 }
