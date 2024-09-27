@@ -51,7 +51,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "service_registries" {
-    for_each = var.reverse_proxy_type == "nginx" ? [1] : [0]
+    for_each = var.reverse_proxy_type == "nginx" ? [1] : []
     content {
       registry_arn = aws_service_discovery_service.this[0].arn
     }
