@@ -2,7 +2,7 @@
 ![CI Pipeline Diagram](ci-pipeline-diagram.png)
 
 ## Guide
-> Note: Use `chmod +x ./scripts/symlink_modules.sh` and `./scripts/symlink_modules.sh` to create a symlinked default/ folder
+> Note: Use `chmod +x ./scripts/symlink_modules.sh` and `./scripts/symlink_modules.sh` to create a symlinked default/ folder. Needs to be done if installing repo for the first time or when adding new modules
 
 ### Set up and create infra on a new environment
 1. Create a new AWS account
@@ -10,8 +10,8 @@
 3. Enable `Allow GitHub Actions to create and approve pull requests` in Github Actions -> General (if you're using the `ad-m/github-push-action@master` step)
 4. Set up a new repository environment in Github
 5. Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets in the repository environment
-6. Create a new branch and make sure the name of the branch is the same as the name of the repository environment
-7. Push changes to new branch
+6. Push changes to main
+7. Trigger workflow_dispatch on "Deploy Infrastructure". If environment does not exist in dropdown you need to add it [here](https://github.com/carlssonk/terraform-aws-infra/blob/main/.github/workflows/deploy.yml#L10)
 8. Done
 
 ### Destroy infra for an environment
