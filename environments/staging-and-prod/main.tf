@@ -69,15 +69,25 @@ module "cloudflare" {
   environment = var.environment
 }
 
-module "common_policy" {
-  workflow_step = var.workflow_step
-  source        = "../../iam_policy"
-  name          = "common"
-  policy_documents = flatten([
-    module.networking.policy_documents,
-    module.security.policy_documents,
-    module.services.policy_documents
-  ])
+module "networking_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "networking"
+  policy_documents = module.networking.policy_documents
+}
+
+module "security_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "security"
+  policy_documents = module.security.policy_documents
+}
+
+module "services_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "services"
+  policy_documents = module.services.policy_documents
 }
 
 ########################################################################
