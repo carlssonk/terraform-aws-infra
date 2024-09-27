@@ -17,10 +17,21 @@ resource "aws_service_discovery_service" "this" {
       ttl  = 60
     }
   }
+  depends_on = [null_resource.service_discovery_destroyer]
+}
 
-  lifecycle {
-    create_before_destroy = true
+# This makes sure so the aws_service_discovery_service gets unregistered from the ecs service before aws_service_discovery_service gets destroyed
+resource "null_resource" "service_discovery_destroyer" {
+  triggers = {
+    service_discovery_id = aws_service_discovery_service.this.id
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "echo 'Waiting for ECS service to be updated or destroyed' && sleep 30" # Can use aws cli to wait for service to become unregistered for robustness
+  }
+
+  depends_on = [aws_ecs_service.this]
 }
 
 resource "aws_ecs_service" "this" {
