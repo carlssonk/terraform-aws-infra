@@ -22,7 +22,7 @@ resource "aws_service_discovery_service" "this" {
 # aws_service_discovery_service needs to become unregistered from service before it itself gets destroyed
 resource "null_resource" "wait_for_unregister" {
   triggers = {
-    service_id = aws_service_discovery_service.this[0].id
+    service_config = jsonencode(var.reverse_proxy_type == "nginx" ? aws_service_discovery_service.this[0] : {})
   }
 
   provisioner "local-exec" {
