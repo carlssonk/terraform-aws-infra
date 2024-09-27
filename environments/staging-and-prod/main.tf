@@ -53,6 +53,7 @@ module "services" {
   security_outputs   = module.security
   reverse_proxy_type = var.reverse_proxy_type
   root_domains       = local.root_domains
+  fargate_services   = local.fargate-services
 }
 
 module "cloudflare" {
