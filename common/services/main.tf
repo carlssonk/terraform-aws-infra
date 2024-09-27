@@ -74,7 +74,7 @@ module "ec2_instance_nginx" {
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_nginx_id
 
-  user_data = data.cloudinit_config.this[0].rendered
+  user_data = try(data.cloudinit_config.this[0].rendered, "")
 
   tags = {
     Name = "Nginx Reverse Proxy"
