@@ -43,14 +43,13 @@ module "cloudflare" {
     }
   }
 }
-# for dvo in module.acm_certificate[each.value].domain_validation_options :
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.this.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = module.acm_certificate[var.domains_for_certificates[0]].arn
+  certificate_arn   = module.acm_certificate["carlssonk.com"].arn
 
 
   default_action {
