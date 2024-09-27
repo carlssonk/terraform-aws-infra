@@ -21,7 +21,7 @@ resource "aws_service_discovery_service" "this" {
   # instance needs to be deregistered from aws_service_discovery_service before destroying it
   provisioner "local-exec" {
     when    = destroy
-    command = "bash ${path.module}/deregister_instance.sh ${self.id} ${aws_ecs_service.this.name}"
+    command = "bash ${path.module}/deregister_instance.sh ${self.id} service-${var.app_name}"
   }
 }
 
