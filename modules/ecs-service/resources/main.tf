@@ -6,8 +6,8 @@ locals {
 }
 
 resource "aws_service_discovery_service" "this" {
-  # count = var.reverse_proxy_type == "nginx" ? 1 : 0
-  name = var.discovery_name
+  count = var.reverse_proxy_type == "nginx" ? 1 : 0
+  name  = var.discovery_name
 
   dns_config {
     namespace_id = var.service_discovery_namespace_id
@@ -17,18 +17,11 @@ resource "aws_service_discovery_service" "this" {
       ttl  = 60
     }
   }
-  depends_on = [null_resource.service_discovery_destroyer]
-}
 
-# This makes sure so the aws_service_discovery_service gets unregistered from the ecs service before aws_service_discovery_service gets destroyed
-resource "null_resource" "service_discovery_destroyer" {
-  triggers = {
-    reverse_proxy_type = var.reverse_proxy_type
-  }
-
+  // Needs the services to become unregistered before destroying
   provisioner "local-exec" {
     when    = destroy
-    command = "echo 'Waiting for ECS service to be updated or destroyed' && sleep 30" # Can use aws cli to wait for service to become unregistered for robustness
+    command = "sleep 30 && echo 'Waited for 30 seconds, now destroying...'"
   }
 }
 
