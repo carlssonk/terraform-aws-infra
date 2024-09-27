@@ -35,7 +35,7 @@ module "cloudflare" {
   root_domain = each.value
   dns_records = {
     for idx, dvo in aws_acm_certificate.this[each.value].domain_validation_options :
-    "validation_record_${tostring(idx)}" => {
+    "validation_record_${substr(dvo.resource_record_name, 0, 32)}" => {
       name    = dvo.resource_record_name
       value   = dvo.resource_record_value
       type    = dvo.resource_record_type
