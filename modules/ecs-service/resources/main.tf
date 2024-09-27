@@ -25,6 +25,7 @@ resource "null_resource" "deregister_instance_from_aws_service_discovery_service
   count = var.reverse_proxy_type == "nginx" ? 1 : 0
 
   triggers = {
+    proxy_type     = var.reverse_proxy_type
     discovery_name = var.discovery_name
     service_name   = "service-${var.app_name}"
   }
