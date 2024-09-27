@@ -6,8 +6,8 @@ locals {
 }
 
 resource "aws_service_discovery_service" "this" {
-  count = var.reverse_proxy_type == "nginx" ? 1 : 0
-  name  = var.discovery_name
+  # count = var.reverse_proxy_type == "nginx" ? 1 : 0
+  name = var.discovery_name
 
   dns_config {
     namespace_id = var.service_discovery_namespace_id
