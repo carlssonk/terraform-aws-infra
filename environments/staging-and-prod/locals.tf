@@ -11,16 +11,15 @@ locals {
     nginx_proxy_settings = var.nginx_proxy_instance_settings
   }
 
-  # Calculates spot_max_price based on spot_max_price_multiplier
   ec2_instances = {
     for service, settings in local.ec2_instances_without_spot_max_price : service => merge(
       settings,
       {
         spot_max_price = (
-          try(settings.use_spot, false) &&
-          try(settings.spot_max_price_percentage, null) != null &&
-          contains(keys(local.ec2_on_demand_hourly_rate[var.aws_region]), settings.instance_type)
-          ? local.ec2_on_demand_hourly_rate[var.aws_region][settings.instance_type] * settings.spot_max_price_percentage
+          lookup(settings, "use_spot", false) &&
+          lookup(settings, "spot_max_price_percentage", null) != null &&
+          contains(keys(lookup(local.ec2_on_demand_hourly_rate, var.aws_region, {})), lookup(settings, "instance_type", ""))
+          ? lookup(local.ec2_on_demand_hourly_rate, var.aws_region, {})[lookup(settings, "instance_type", "")] * lookup(settings, "spot_max_price_percentage", 0)
           : null
         )
       }

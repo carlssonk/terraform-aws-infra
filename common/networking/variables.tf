@@ -1,3 +1,8 @@
+variable "workflow_step" {
+  description = "iam|resources"
+  type        = string
+}
+
 variable "use_single_subnet" {
   description = "Reduces costs associated with multiple NAT Gateways/instances and data transfer between AZs, but gives less availability/stability"
 }

@@ -10,7 +10,7 @@ module "main_vpc" {
 module "fck-nat" {
   source  = "RaJiska/fck-nat/aws"
   version = "1.3.0"
-  count   = var.nat_type == "fck-nat" ? module.main_vpc.subnet_count : 0
+  count   = var.workflow_step == "resources" && var.nat_type == "fck-nat" ? module.main_vpc.subnet_count : 0
 
   name               = "main-fck-nat"
   vpc_id             = module.main_vpc.id
