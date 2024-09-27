@@ -10,7 +10,8 @@ resource "aws_service_discovery_service" "this" {
   name  = var.discovery_name
 
   dns_config {
-    namespace_id = var.service_discovery_namespace_id
+    # namespace_id = var.service_discovery_namespace_id
+    namespace_id = "ns-z3sv7vzmfzak2frm"
 
     dns_records {
       type = "A"
