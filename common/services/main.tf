@@ -52,8 +52,8 @@ data "cloudinit_config" "this" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/nginx_proxy.tpl", {
       services_map = {
-        "flagracer.carlssonk.com" = "flagracer.carlssonk:8080", # TODO
-        "blackjack.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
+        "flagracer.carlssonk.com"  = "flagracer.carlssonk:8080", # TODO
+        "blackjackz.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
       }
       dns_resolver_ip = "10.0.0.2"
       server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
