@@ -29,8 +29,6 @@ terraform {
 }
 
 // TODO
-// Spin up a ec2 micro instance with nginx and proxypass (a more cost efficient alternative to application load balancer)
-// Change my farget services to Spot Fargate (Up to 70% cost reduction)
 // Set up a NAT instance for fck-nat and remove Assign public IP for my ecs services
 
 ########################################################################

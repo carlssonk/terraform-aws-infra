@@ -59,7 +59,7 @@ data "cloudinit_config" "this" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/nginx_proxy.tpl", {
       services_map    = local.services_map
-      dns_resolver_ip = var.networking_outputs.dns_resolver_ip
+      dns_resolver_ip = var.networking_outputs.main_vpc_dns_resolver_ip
       server_name     = local.nginx_server_name
     })
   }
