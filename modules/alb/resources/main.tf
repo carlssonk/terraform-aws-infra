@@ -29,21 +29,21 @@ resource "aws_acm_certificate" "this" {
   }
 }
 
-module "cloudflare" {
-  for_each    = toset(var.domains_for_certificates)
-  source      = "../../cloudflare-record"
-  root_domain = each.value
-  dns_records = {
-    for idx, dvo in aws_acm_certificate.this[each.value].domain_validation_options :
-    "validation_record_${substr(dvo.resource_record_name, 0, 32)}" => {
-      name    = dvo.resource_record_name
-      value   = dvo.resource_record_value
-      type    = dvo.resource_record_type
-      ttl     = 60
-      proxied = false
-    }
-  }
-}
+# module "cloudflare" {
+#   for_each    = toset(var.domains_for_certificates)
+#   source      = "../../cloudflare-record"
+#   root_domain = each.value
+#   dns_records = {
+#     for idx, dvo in aws_acm_certificate.this[each.value].domain_validation_options :
+#     "validation_record_${substr(dvo.resource_record_name, 0, 32)}" => {
+#       name    = dvo.resource_record_name
+#       value   = dvo.resource_record_value
+#       type    = dvo.resource_record_type
+#       ttl     = 60
+#       proxied = false
+#     }
+#   }
+# }
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.this.arn
