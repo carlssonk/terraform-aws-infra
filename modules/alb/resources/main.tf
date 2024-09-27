@@ -21,22 +21,28 @@ module "acm_certificate" {
   subject_alternative_names = ["*.${each.value}"]
 }
 
+locals {
+  acm_certificate_count = length(var.domains_for_certificates) * 2 # var.domains_for_certificates + subject_alternative_names
+}
+
+# Terraform cannot determine how many records will be created (in the planning phase of apply) which will cause error so we hardcode the values
 module "cloudflare" {
   for_each    = toset(var.domains_for_certificates)
   source      = "../../cloudflare-record"
   root_domain = each.value
   dns_records = {
-    for dvo in module.acm_certificate[each.value].domain_validation_options :
-    dvo.resource_record_name => {
-      name    = dvo.resource_record_name
-      value   = dvo.resource_record_value
-      type    = dvo.resource_record_type
+    for i in range(local.acm_certificate_count) :
+    module.acm_certificate[each.value].domain_validation_options[i].domain_name => {
+      name    = module.acm_certificate[each.value].domain_validation_options[i].resource_record_name
+      value   = module.acm_certificate[each.value].domain_validation_options[i].resource_record_value
+      type    = module.acm_certificate[each.value].domain_validation_options[i].resource_record_type
       ttl     = 60
       proxied = false
     }
   }
   depends_on = [module.acm_certificate]
 }
+# for dvo in module.acm_certificate[each.value].domain_validation_options :
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.this.arn
