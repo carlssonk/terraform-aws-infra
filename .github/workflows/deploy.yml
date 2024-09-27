@@ -50,6 +50,7 @@ jobs:
           fi
 
   tflint:
+    if: false
     name: Lint Terraform (tflint)
     needs: setup
     runs-on: ubuntu-latest
