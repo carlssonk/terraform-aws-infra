@@ -12,7 +12,7 @@ locals {
   }
 
   # Calculates spot_max_price based on spot_max_price_multiplier
-  ec2_services = {
+  ec2_instances = {
     for service, settings in local.ec2_instances_without_spot_max_price : service => merge(
       settings,
       {
