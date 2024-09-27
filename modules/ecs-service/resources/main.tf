@@ -30,9 +30,8 @@ resource "null_resource" "deregister_instance_from_aws_service_discovery_service
   }
 
   provisioner "local-exec" {
-    when       = destroy
-    command    = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
-    on_failure = continue
+    when    = destroy
+    command = "${path.module}/deregister_instance.sh ${self.triggers.discovery_name} ${self.triggers.service_name}"
   }
 }
 

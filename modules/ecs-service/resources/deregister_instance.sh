@@ -11,7 +11,7 @@ ECS_SERVICE_NAME="$2"
 CLUSTER_NAME="MainCluster"
 
 # Look up the service ID using the discovery name
-SERVICE_ID=$(aws servicediscovery list-services --filters Name="NAME",Values="$DISCOVERY_NAME",Condition="EQ" --query 'Services[0].Id' --output text)
+SERVICE_ID=$(aws servicediscovery list-services --query "Services[?Name=='$DISCOVERY_NAME'].Id" --output text)
 
 if [ -z "$SERVICE_ID" ]; then
     echo "Failed to find service ID for discovery name: $DISCOVERY_NAME"
