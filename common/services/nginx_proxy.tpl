@@ -24,7 +24,7 @@ http {
         resolver ${dns_resolver_ip};
 
         location / {
-            proxy_pass $upstream;
+            proxy_pass http://$upstream;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

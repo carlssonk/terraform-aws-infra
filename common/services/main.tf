@@ -39,6 +39,15 @@ data "cloudinit_config" "this" {
   gzip          = false
   base64_encode = false
 
+  part { // This will make sure that the config runs every time instance boots
+    content_type = "text/cloud-config"
+    content      = <<-EOF
+    #cloud-config
+    cloud_final_modules:
+      - [scripts-user, always]
+    EOF
+  }
+
   part {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/nginx_proxy.tpl", {
@@ -50,9 +59,22 @@ data "cloudinit_config" "this" {
       server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
     })
   }
+  # part {
+  #   content_type = "text/x-shellscript"
+  #   content = templatefile("${path.module}/run_every_boot.tpl", {
+  #     nginx_config = templatefile("${path.module}/nginx_proxy.tpl", {
+  #       services_map = {
+  #         "flagracer.carlssonk.com" = "flagracer.carlssonk:8080", # TODO
+  #         "blackjack.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
+  #       }
+  #       dns_resolver_ip = "10.0.0.2"
+  #       server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
+  #     })
+  #   })
+  # }
 }
 
-module "ec2_instance_nginx_proxy" {
+module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -89,7 +111,7 @@ module "ec2_instance_nginx_proxy" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx_proxy[0].id
+  instance_id = module.ec2_instance_nginx[0].id
 }
 
 module "main_alb_access_logs_bucket" {
