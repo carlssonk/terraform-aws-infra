@@ -5,11 +5,11 @@ variable "root_domain" {
 
 variable "dns_records" {
   description = "List of DNS records to create"
-  type = map({
+  type = map(object({
     name    = string
     value   = string
     type    = optional(string, "CNAME")
     ttl     = optional(number, 1)
     proxied = optional(bool, true)
-  })
+  }))
 }
