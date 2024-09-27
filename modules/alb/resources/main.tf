@@ -34,13 +34,6 @@ module "cloudflare" {
       ttl     = 60
       proxied = false
     }
-    "carlssonk_1" = {
-      name    = tolist(module.acm_certificate["carlssonk.com"].domain_validation_options)[1].resource_record_name
-      value   = tolist(module.acm_certificate["carlssonk.com"].domain_validation_options)[1].resource_record_value
-      type    = tolist(module.acm_certificate["carlssonk.com"].domain_validation_options)[1].resource_record_type
-      ttl     = 60
-      proxied = false
-    }
   }
 }
 
