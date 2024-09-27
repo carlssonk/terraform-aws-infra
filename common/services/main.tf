@@ -41,49 +41,18 @@ data "cloudinit_config" "this" {
 
   part {
     content_type = "text/x-shellscript"
-    content      = <<-EOT
-      #!/bin/bash
-
-      sudo yum update -y
-      sudo yum install -y nginx
-
-      # Create nginx config
-      sudo tee /etc/nginx/nginx.conf <<'EOF'
-      events {
-          worker_connections 1024;
+    content = templatefile("${path.module}/nginx_proxy.tpl", {
+      services_map = {
+        "flagracer.carlssonk.com" = "flagracer.carlssonk:8080", # TODO
+        "blackjack.carlssonk.com" = "blackjack.carlssonk:8080", # TODO
       }
-
-      http {
-          map $http_host $upstream {
-              hostnames;
-              blackjack.carlssonk.com blackjack.carlssonk:8080;
-              flagracer.carlssonk.com flagracer.carlssonk:8080;
-          }
-          
-          server {
-              listen 80;
-              server_name blackjack.carlssonk.com flagracer.carlssonk.com;
-
-              resolver 10.0.0.2;
-
-              location / {
-                  proxy_pass $upstream;
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-              }
-          }
-      }
-      EOF
-
-      # Restart NGINX to apply changes
-      sudo systemctl restart nginx
-      EOT
+      dns_resolver_ip = "10.0.0.2"
+      server_name     = "blackjack.carlssonk.com flagracer.carlssonk.com"
+    })
   }
 }
 
-module "ec2_instance_nginx" {
+module "ec2_instance_nginx_proxy" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
@@ -120,7 +89,7 @@ module "ec2_instance_nginx" {
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
   source      = "../../modules/elastic-ip/default"
-  instance_id = module.ec2_instance_nginx[0].id
+  instance_id = module.ec2_instance_nginx_proxy[0].id
 }
 
 module "main_alb_access_logs_bucket" {
