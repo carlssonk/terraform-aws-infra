@@ -33,13 +33,16 @@ module "cloudflare" {
   for_each    = toset(var.domains_for_certificates)
   source      = "../../cloudflare-record"
   root_domain = each.value
-  dns_records = distinct([for dvo in aws_acm_certificate.this[each.value].domain_validation_options : {
-    name    = dvo.resource_record_name
-    value   = dvo.resource_record_value
-    type    = dvo.resource_record_type
-    ttl     = 60
-    proxied = false
-  }])
+  dns_records = {
+    for idx, dvo in aws_acm_certificate.this[each.value].domain_validation_options :
+    "validation_record_${idx}" => {
+      name    = dvo.resource_record_name
+      value   = dvo.resource_record_value
+      type    = dvo.resource_record_type
+      ttl     = 60
+      proxied = false
+    }
+  }
 }
 
 resource "aws_lb_listener" "front_end" {

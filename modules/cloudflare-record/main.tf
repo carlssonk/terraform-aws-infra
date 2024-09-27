@@ -11,7 +11,7 @@ data "cloudflare_zone" "domain" {
 }
 
 resource "cloudflare_record" "dns_records" {
-  for_each = { for idx, record in var.dns_records : idx => record }
+  for_each = var.dns_records
   zone_id  = data.cloudflare_zone.domain.id
   name     = each.value.name
   content  = each.value.value

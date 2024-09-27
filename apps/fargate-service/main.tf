@@ -82,9 +82,11 @@ module "ecs_service" {
 module "cloudflare" {
   source      = "../../modules/cloudflare-record"
   root_domain = var.root_domain
-  dns_records = [{
-    name  = var.subdomain
-    value = var.reverse_proxy_type == "alb" ? var.alb_dns_name : var.nginx_proxy_public_ip
-    type  = var.reverse_proxy_type == "alb" ? "CNAME" : "A"
-  }]
+  dns_records = {
+    "${var.app_name}_record" = {
+      name  = var.subdomain
+      value = var.reverse_proxy_type == "alb" ? var.alb_dns_name : var.nginx_proxy_public_ip
+      type  = var.reverse_proxy_type == "alb" ? "CNAME" : "A"
+    }
+  }
 }

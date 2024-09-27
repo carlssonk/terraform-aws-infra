@@ -26,18 +26,18 @@ module "root_bucket" {
 module "cloudflare" {
   source      = "../../modules/cloudflare-record"
   root_domain = var.root_domain
-  dns_records = concat(
-    [
-      {
+  dns_records = merge(
+    {
+      "${var.app_name}_subdomain_record" = {
         name  = var.subdomain
         value = module.subdomain_bucket.website_endpoint
       }
-    ],
-    var.subdomain == "www" ? [
-      {
+    },
+    var.subdomain == "www" ? {
+      "${var.app_name}_root_record" = {
         name  = "@"
         value = module.root_bucket[0].website_endpoint
       }
-    ] : []
+    } : {}
   )
 }
