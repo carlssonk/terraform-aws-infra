@@ -2,6 +2,8 @@ module "globals" {
   source = "../../globals"
 }
 
+data "aws_region" "current" {}
+
 locals {
   allow_https_to_vpc_endpoints = {
     description                  = "Allow HTTPS to VPC endpoints"
@@ -182,8 +184,8 @@ module "vpc_endpoints_gateway" {
   source = "../../modules/vpc-endpoint/default"
   type   = "gateway"
   endpoints = [
-    "com.amazonaws.${module.globals.var.aws_region}.s3",
-    "com.amazonaws.${module.globals.var.aws_region}.dynamodb"
+    "com.amazonaws.${data.aws_region.current.name}.s3",
+    "com.amazonaws.${data.aws_region.current.name}.dynamodb"
   ]
   vpc_id          = var.networking_outputs.main_vpc_id
   route_table_ids = var.networking_outputs.main_vpc_private_route_table_ids
@@ -194,8 +196,8 @@ module "vpc_endpoints_gateway" {
 #   source = "../../modules/vpc-endpoint/default"
 #   type   = "interface"
 #   endpoints = [
-#     "com.amazonaws.${module.globals.var.aws_region}.ecr.api",
-#     "com.amazonaws.${module.globals.var.aws_region}.ecr.dkr",
+#     "com.amazonaws.${data.aws_region.current.name}.ecr.api",
+#     "com.amazonaws.${data.aws_region.current.name}.ecr.dkr",
 #   ]
 #   vpc_id            = var.networking_outputs.main_vpc_id
 #   subnet_ids        = var.networking_outputs.main_vpc_private_subnet_ids

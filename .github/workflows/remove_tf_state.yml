@@ -28,6 +28,7 @@ concurrency:
 
 env:
   TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  TF_VAR_organization: ${{ vars.ORGANIZATION }}
   TF_VAR_workflow_step: ${{ github.event.inputs.state_bucket }}
 
 jobs:
@@ -75,6 +76,7 @@ jobs:
           python ./scripts/create_globals.py \
             "${{ env.TF_ROOT_DIRECTORY }}/${{ env.TFVARS_FILE_NAME }}.tfvars" \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
+            organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
 
           terraform workspace new ${{ github.event.inputs.environment }}

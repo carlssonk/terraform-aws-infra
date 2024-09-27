@@ -9,6 +9,8 @@ terraform {
 module "globals" {
   source = "../../globals"
 }
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 locals {
   main_alb_access_logs_bucket_name = "${module.globals.var.organization}-main-alb-logs"
@@ -69,7 +71,7 @@ module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
-  ami               = local.AmazonLinux2023AMI[module.globals.var.aws_region]
+  ami               = local.AmazonLinux2023AMI[data.aws_region.current.name]
   instance_type     = var.ec2_instances.nginx_proxy_settings.instance_type
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_nginx_id
@@ -98,10 +100,10 @@ module "main_alb_access_logs_bucket" {
   custom_bucket_policy = {
     Effect = "Allow",
     Principal = {
-      AWS = "arn:aws:iam::${local.elb_account_ids[module.globals.var.aws_region]}:root"
+      AWS = "arn:aws:iam::${local.elb_account_ids[data.aws_region.current.name]}:root"
     },
     Action   = "s3:PutObject",
-    Resource = "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${module.globals.var.aws_account_id}/*"
+    Resource = "arn:aws:s3:::${local.main_alb_access_logs_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
   }
   force_destroy = true
 }

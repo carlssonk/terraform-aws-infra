@@ -1,6 +1,5 @@
-module "globals" {
-  source = "../../../globals"
-}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "this" {
   statement {
@@ -15,7 +14,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:servicediscovery:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:*/*"
+      "arn:aws:servicediscovery:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*"
     ]
     effect = "Allow"
   }

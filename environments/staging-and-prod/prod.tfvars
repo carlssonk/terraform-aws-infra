@@ -1,7 +1,5 @@
-environment    = "prod"
-aws_region     = "eu-north-1"
-aws_account_id = "752502408032"
-organization   = "carlssonk"
+environment = "prod"
+aws_region  = "eu-north-1"
 
 use_single_subnet  = true
 reverse_proxy_type = "nginx"

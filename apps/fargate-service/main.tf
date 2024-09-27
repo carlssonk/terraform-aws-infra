@@ -1,6 +1,5 @@
-module "globals" {
-  source = "../../globals"
-}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 locals {
   domain_name    = "${var.app_name}.${var.root_domain}"
@@ -20,7 +19,7 @@ module "ecs_task_definition" {
   memory   = 512
   container_definitions = jsonencode([{
     name  = local.container_name
-    image = "${module.globals.var.aws_account_id}.dkr.ecr.${module.globals.var.aws_region}.amazonaws.com/repo-${var.app_name}:latest"
+    image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${data.aws_region.current.name}.amazonaws.com/repo-${var.app_name}:latest"
     portMappings = [{
       containerPort = var.container_port
       hostPort      = var.container_port
@@ -36,7 +35,7 @@ module "ecs_task_definition" {
       logDriver = "awslogs"
       options = {
         awslogs-group         = "/ecs/${var.app_name}"
-        awslogs-region        = module.globals.var.aws_region
+        awslogs-region        = data.aws_region.current.name
         awslogs-stream-prefix = "ecs"
       }
     }

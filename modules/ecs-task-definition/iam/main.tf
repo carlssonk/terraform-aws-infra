@@ -1,6 +1,5 @@
-module "globals" {
-  source = "../../../globals"
-}
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "this" {
   statement {
@@ -14,8 +13,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:task-definition/task-${var.app_name}",
-      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:task-definition/task-${var.app_name}:*"
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:task-definition/task-${var.app_name}",
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:task-definition/task-${var.app_name}:*"
     ]
     effect = "Allow"
   }
@@ -27,7 +26,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:iam::${module.globals.var.aws_account_id}:role/ecsTaskExecutionRole"
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole"
     ]
     effect = "Allow"
   }

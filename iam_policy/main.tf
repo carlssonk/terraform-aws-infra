@@ -2,13 +2,15 @@ module "globals" {
   source = "../globals"
 }
 
+data "aws_region" "current" {}
+
 data "terraform_remote_state" "previous" {
   count   = var.workflow_step == "iam" ? 1 : 0
   backend = "s3"
   config = {
     bucket = "${module.globals.var.organization}-terraform-state-bucket-${terraform.workspace}"
     key    = "env:/${terraform.workspace}/iam/terraform.tfstate"
-    region = module.globals.var.aws_region
+    region = data.aws_region.current.name
   }
 }
 

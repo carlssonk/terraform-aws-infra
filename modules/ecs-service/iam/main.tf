@@ -1,6 +1,8 @@
 module "globals" {
   source = "../../../globals"
 }
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "this" {
   statement {
@@ -15,8 +17,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/service-${var.app_name}",
-      "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/service-${var.app_name}/*"
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/MainCluster/service-${var.app_name}",
+      "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/MainCluster/service-${var.app_name}/*"
     ]
     effect = "Allow"
   }
@@ -32,8 +34,8 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/repo-${var.app_name}",
-      "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/repo-${var.app_name}/*"
+      "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/repo-${var.app_name}",
+      "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/repo-${var.app_name}/*"
     ]
     effect = "Allow"
   }
@@ -48,7 +50,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:servicediscovery:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:*/*"
+      "arn:aws:servicediscovery:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*/*"
     ]
     effect = "Allow"
   }

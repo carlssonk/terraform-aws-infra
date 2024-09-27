@@ -31,7 +31,6 @@ terraform {
 // TODO
 // Set up a NAT instance for fck-nat and remove Assign public IP for my ecs services
 // Use SPOT instances for EC2
-// Change to data "aws_region" "current" {} and account id to data.aws_caller_identity.current.account_id
 // Simplify module structure (remove iam/ and resource/ folders)
 
 ########################################################################

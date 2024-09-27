@@ -1,10 +1,8 @@
-module "globals" {
-  source = "../../globals"
-}
-
 locals {
   oidc_domain = "token.actions.githubusercontent.com"
 }
+
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "this" {
   count = var.workflow_step == "resources" ? 1 : 0
@@ -16,7 +14,7 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${module.globals.var.aws_account_id}:oidc-provider/${local.oidc_domain}"
+        Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_domain}"
       }
       Condition = {
         StringEquals = {

@@ -1,7 +1,3 @@
-module "globals" {
-  source = "../../../globals"
-}
-
 data "aws_iam_policy_document" "this" {
   statement {
     actions = concat(

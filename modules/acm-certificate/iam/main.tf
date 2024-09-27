@@ -1,6 +1,4 @@
-module "globals" {
-  source = "../../../globals"
-}
+data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "this" {
   statement {
@@ -10,7 +8,7 @@ data "aws_iam_policy_document" "this" {
       ]
     )
     resources = [
-      "arn:aws:acm:eu-north-1:${module.globals.var.aws_account_id}:certificate/*"
+      "arn:aws:acm:eu-north-1:${data.aws_caller_identity.current.account_id}:certificate/*"
     ]
     effect = "Allow"
   }

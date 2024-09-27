@@ -2,6 +2,9 @@ locals {
   oidc_domain = "token.actions.githubusercontent.com"
 }
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_role" "this" {
   count = var.workflow_step == "resources" ? 1 : 0
   name  = "${var.app_name}-deploy-role"
@@ -12,7 +15,7 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${module.globals.var.aws_account_id}:oidc-provider/${local.oidc_domain}"
+        Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_domain}"
       }
       Condition = {
         StringEquals = {
@@ -52,8 +55,8 @@ resource "aws_iam_policy" "this" {
           "ecr:PutImage"
         ]
         Resource = [
-          "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/${module.ecs_service.repo_name}",
-          "arn:aws:ecr:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:repository/${module.ecs_service.repo_name}/*"
+          "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${module.ecs_service.repo_name}",
+          "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/${module.ecs_service.repo_name}/*"
         ]
       },
       {
@@ -74,8 +77,8 @@ resource "aws_iam_policy" "this" {
           "ecs:UpdateService"
         ]
         Resource = [
-          "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/${module.ecs_service.service_name}",
-          "arn:aws:ecs:${module.globals.var.aws_region}:${module.globals.var.aws_account_id}:service/MainCluster/${module.ecs_service.service_name}/*"
+          "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/MainCluster/${module.ecs_service.service_name}",
+          "arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:service/MainCluster/${module.ecs_service.service_name}/*"
         ]
       },
       {
