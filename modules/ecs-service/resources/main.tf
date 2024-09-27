@@ -18,7 +18,9 @@ resource "aws_service_discovery_service" "this" {
     }
   }
 
-  force_destroy = true
+  lifecycle {
+    create_before_destroy = false
+  }
 }
 
 resource "aws_ecs_service" "this" {
