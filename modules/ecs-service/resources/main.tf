@@ -18,8 +18,10 @@ resource "aws_service_discovery_service" "this" {
     }
   }
 
-  lifecycle {
-    create_before_destroy = false
+  # instance needs to be deregistered from aws_service_discovery_service before destroying it
+  provisioner "local-exec" {
+    when    = destroy
+    command = "bash ${path.module}/deregister_instance.sh ${aws_service_discovery_service.this.id} ${aws_ecs_service.this.name}"
   }
 }
 
