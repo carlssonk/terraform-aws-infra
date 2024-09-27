@@ -37,5 +37,5 @@ http {
 }
 EOF
 
-# Restart NGINX to apply changes
+# Restart NGINX to apply changes!
 sudo systemctl restart nginx
