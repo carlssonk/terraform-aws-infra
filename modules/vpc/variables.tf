@@ -7,10 +7,6 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-locals {
-  # The DNS server for a VPC is always at the base of the VPC network range, plus 2
-  dns_resolver_ip = cidrhost(var.vpc_cidr, 2) // eg. 10.0.0.0/16 -> 10.0.0.2
-}
 
 variable "public_subnet_cidrs" {
   description = "CIDR blocks for the public subnets"
