@@ -19,20 +19,6 @@ resource "aws_service_discovery_service" "this" {
   }
 }
 
-# aws_service_discovery_service needs to become unregistered from service before it itself gets destroyed
-resource "null_resource" "wait_for_unregister" {
-  triggers = {
-    service_config = jsonencode(var.reverse_proxy_type == "nginx" ? aws_service_discovery_service.this[0] : {})
-  }
-
-  provisioner "local-exec" {
-    when    = destroy
-    command = "sleep 30 && echo 'Waited for 30 seconds, now destroying...'"
-  }
-
-  depends_on = [aws_service_discovery_service.this]
-}
-
 resource "aws_ecs_service" "this" {
   name            = "service-${var.app_name}"
   cluster         = var.cluster_id
@@ -68,6 +54,8 @@ resource "aws_ecs_service" "this" {
       registry_arn = aws_service_discovery_service.this[0].arn
     }
   }
+
+  depends_on = [aws_service_discovery_service.this]
 
   force_delete = true
 }
