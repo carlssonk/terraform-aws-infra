@@ -39,6 +39,7 @@ module "cloudflare" {
       ttl     = 60
       proxied = false
     }
+    if i < length(module.acm_certificate[each.value].domain_validation_options)
   }
   depends_on = [module.acm_certificate]
 }
