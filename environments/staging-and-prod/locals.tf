@@ -1,11 +1,37 @@
 locals {
+
+  # Update as needed
+  ec2_on_demand_hourly_rate = {
+    eu-north-1 = {
+      "t4g.nano" = 0.0043
+    }
+  }
+
+  ec2_instances_without_spot_max_price = {
+    nginx_proxy_settings = var.nginx_proxy_instance_settings
+  }
+
+  # Calculates spot_max_price based on spot_max_price_multiplier
+  ec2_instances = {
+    for _, settings in local.ec2_instances_without_spot_max_price : _ => merge(
+      settings,
+      try(settings.use_spot, false) && try(settings.spot_max_price_multiplier, null) != null ? {
+        spot_max_price = (
+          contains(keys(local.ec2_on_demand_hourly_rate[var.aws_region]), settings.instance_type)
+          ? local.ec2_on_demand_hourly_rate[var.aws_region][settings.instance_type] * settings.spot_max_price_multiplier
+          : null
+        )
+      } : {}
+    )
+  }
+
   root_domains = {
     carlssonk_com = "carlssonk.com"
   }
 
   env_subdomain_prefx = var.environment == "prod" ? "" : "${var.environment}."
 
-  s3-websites = {
+  s3_websites = {
     portfolio = {
       app_name         = "portfolio"
       root_domain      = local.root_domains.carlssonk_com
@@ -35,7 +61,7 @@ locals {
     }
   }
 
-  fargate-services = {
+  fargate_services = {
     blackjack = {
       app_name                = "blackjack"
       root_domain             = local.root_domains.carlssonk_com
@@ -64,5 +90,5 @@ locals {
     }
   }
 
-  apps = merge(local.s3-websites, local.fargate-services)
+  apps = merge(local.s3_websites, local.fargate_services)
 }

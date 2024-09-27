@@ -70,9 +70,13 @@ module "ec2_instance_nginx" {
   name              = "nginx-reverse-proxy"
   source            = "../../modules/ec2-instance/default"
   ami               = local.AmazonLinux2023AMI[module.globals.var.aws_region]
-  instance_type     = "t3.micro"
+  instance_type     = var.ec2_instances.nginx_proxy_settings.instance_type
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
   security_group_id = var.security_outputs.security_group_nginx_id
+
+  use_spot           = var.ec2_instances.nginx_proxy_settings.use_spot
+  spot_max_price     = var.ec2_instances.nginx_proxy_settings.spot_max_price
+  spot_instance_type = var.ec2_instances.nginx_proxy_settings.spot_instance_type
 
   user_data = try(data.cloudinit_config.this[0].rendered, "")
 

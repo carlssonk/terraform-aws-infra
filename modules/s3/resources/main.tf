@@ -8,14 +8,14 @@ resource "aws_s3_bucket_website_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   dynamic "index_document" {
-    for_each = var.website_config.is_website ? [1] : []
+    for_each = var.website_config.is_website ? ["x"] : []
     content {
       suffix = "index.html"
     }
   }
 
   dynamic "redirect_all_requests_to" {
-    for_each = var.website_config.redirect_to != null ? [1] : []
+    for_each = var.website_config.redirect_to != null ? ["x"] : []
     content {
       host_name = var.website_config.redirect_to
       protocol  = "https"

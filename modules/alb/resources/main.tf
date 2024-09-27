@@ -6,7 +6,7 @@ resource "aws_lb" "this" {
   subnets            = var.subnet_ids
 
   dynamic "access_logs" {
-    for_each = var.access_logs_bucket_name != "" ? [1] : []
+    for_each = var.access_logs_bucket_name != "" ? ["x"] : []
     content {
       bucket  = var.access_logs_bucket_name
       enabled = var.access_logs_enabled

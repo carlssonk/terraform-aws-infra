@@ -2,6 +2,10 @@ output "id" {
   value = aws_vpc.this.id
 }
 
+output "subnet_count" {
+  value = local.subnet_count
+}
+
 output "private_subnet_ids" {
   value = aws_subnet.private[*].id
 }

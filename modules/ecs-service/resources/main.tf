@@ -63,7 +63,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "load_balancer" {
-    for_each = var.reverse_proxy_type == "alb" ? [1] : []
+    for_each = var.reverse_proxy_type == "alb" ? ["x"] : []
     content {
       target_group_arn = var.alb_target_group_arn
       container_name   = var.container_name
@@ -72,7 +72,7 @@ resource "aws_ecs_service" "this" {
   }
 
   dynamic "service_registries" {
-    for_each = var.reverse_proxy_type == "nginx" ? [1] : []
+    for_each = var.reverse_proxy_type == "nginx" ? ["x"] : []
     content {
       registry_arn = aws_service_discovery_service.this[0].arn
     }

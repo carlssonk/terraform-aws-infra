@@ -34,3 +34,27 @@ variable "security_group_id" {
   description = "ID of Security Group"
   type        = string
 }
+
+variable "use_spot" {
+  description = "Spot is cheaper than on-demand but is less available"
+  type        = bool
+  default     = false
+}
+
+variable "spot_max_price" {
+  description = "Max bid price for spot, should not be above regulare on-demand price and not be too low since it will cause lower availability. null will set it to same as on-demand price"
+  type        = number
+  default     = null
+}
+
+variable "spot_instance_type" {
+  description = "Instance type"
+  type        = string
+  default     = null
+}
+
+variable "spot_instance_interruption_behavior" {
+  description = "terminate,hibernate,stop"
+  type        = string
+  default     = null
+}

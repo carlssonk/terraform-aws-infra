@@ -27,3 +27,18 @@ variable "fargate_services" {
   description = "Configuration for fargate services"
   type        = map(any)
 }
+
+variable "ec2_instances" {
+  description = "Set spot_max_price_multiplier to about 0.5-0.7 (50-70%) of the On-Demand price. This balances cost savings with availability."
+  type = map(object({
+    instance_type             = string
+    use_spot                  = optional(bool)
+    spot_max_price_multiplier = optional(number)
+    spot_max_price            = optional(number)
+    spot_instance_type        = optional(string)
+  }))
+  validation {
+    condition     = var.nginx_proxy_instance_settings.spot_max_price_multiplier >= 0 && var.nginx_proxy_instance_settings.spot_max_price_multiplier <= 1
+    error_message = "spot_max_price_multiplier must be between 0 and 1."
+  }
+}

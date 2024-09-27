@@ -12,7 +12,7 @@ resource "aws_lb_target_group" "this" {
   }
 
   dynamic "stickiness" {
-    for_each = var.use_stickiness ? [1] : [0]
+    for_each = var.use_stickiness ? ["x"] : []
     content {
       type            = "lb_cookie"
       cookie_duration = 86400

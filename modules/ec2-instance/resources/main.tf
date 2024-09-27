@@ -4,6 +4,18 @@ resource "aws_instance" "this" {
   subnet_id              = var.subnet_ids[0]
   vpc_security_group_ids = [var.security_group_id]
 
+  dynamic "instance_market_options" {
+    for_each = var.use_spot ? ["x"] : []
+    content {
+      market_type = "spot"
+      spot_options {
+        max_price                      = try(tostring(var.spot_max_price), null)
+        spot_instance_type             = try(var.spot_instance_type, null)
+        instance_interruption_behavior = try(var.spot_instance_interruption_behavior, null)
+      }
+    }
+  }
+
   user_data = var.user_data
 
   tags = merge(

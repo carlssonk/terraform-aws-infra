@@ -30,18 +30,24 @@ terraform {
 
 // TODO
 // Set up a NAT instance for fck-nat and remove Assign public IP for my ecs services
+// Use SPOT instances for EC2
+// Change to data "aws_region" "current" {} and account id to data.aws_caller_identity.current.account_id
+// Simplify module structure (remove iam/ and resource/ folders)
 
 ########################################################################
 ######################## COMMON INFRASTRUCTURE #########################
 ########################################################################
 
 module "networking" {
-  source = "../../common/networking"
+  source            = "../../common/networking"
+  use_single_subnet = var.use_single_subnet
+  nat_type          = var.nat_type
 }
 
 module "security" {
   source             = "../../common/security"
   networking_outputs = module.networking
+
   reverse_proxy_type = var.reverse_proxy_type
 }
 
@@ -50,9 +56,11 @@ module "services" {
   source             = "../../common/services"
   networking_outputs = module.networking
   security_outputs   = module.security
+
   reverse_proxy_type = var.reverse_proxy_type
   root_domains       = local.root_domains
-  fargate_services   = local.fargate-services
+  fargate_services   = local.fargate_services
+  ec2_instances      = local.ec2_instances
 }
 
 module "cloudflare" {
@@ -77,7 +85,7 @@ module "common_policy" {
 ########################################################################
 
 module "s3_websites" {
-  for_each         = local.s3-websites
+  for_each         = local.s3_websites
   workflow_step    = var.workflow_step
   source           = "../../apps/s3-website"
   app_name         = each.value.app_name
@@ -96,7 +104,7 @@ module "s3_websites_policy" {
 ########################################################################
 
 module "fargate_services" {
-  for_each = local.fargate-services
+  for_each = local.fargate_services
   source   = "../../apps/fargate-service"
 
   # Common attributes
@@ -117,7 +125,7 @@ module "fargate_services" {
   # ALB-specific attributes
   alb_dns_name               = module.services.main_alb_dns_name
   alb_listener_arn           = module.services.main_alb_listener_arn
-  alb_listener_rule_priority = try(100 - index(keys(local.fargate-services), each.key), null)
+  alb_listener_rule_priority = try(100 - index(keys(local.fargate_services), each.key), null)
   use_stickiness             = try(each.value.use_stickiness, null)
 
   # NGINX-specific attributes
