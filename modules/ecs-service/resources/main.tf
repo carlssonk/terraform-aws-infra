@@ -17,12 +17,21 @@ resource "aws_service_discovery_service" "this" {
       ttl  = 60
     }
   }
+}
 
-  // Needs the services to become unregistered before destroying
+resource "null_resource" "wait_for_unregister" {
+  count = var.reverse_proxy_type == "nginx" ? 1 : 0
+
+  triggers = {
+    service_id = aws_service_discovery_service.this[0].id
+  }
+
   provisioner "local-exec" {
     when    = destroy
     command = "sleep 30 && echo 'Waited for 30 seconds, now destroying...'"
   }
+
+  depends_on = [aws_service_discovery_service.this]
 }
 
 resource "aws_ecs_service" "this" {
