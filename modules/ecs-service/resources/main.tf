@@ -30,8 +30,6 @@ resource "null_resource" "service_discovery_destroyer" {
     when    = destroy
     command = "echo 'Waiting for ECS service to be updated or destroyed' && sleep 30" # Can use aws cli to wait for service to become unregistered for robustness
   }
-
-  depends_on = [aws_ecs_service.this]
 }
 
 resource "aws_ecs_service" "this" {
