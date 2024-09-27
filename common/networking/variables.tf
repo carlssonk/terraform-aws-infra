@@ -15,5 +15,7 @@ variable "fck_nat_settings" {
     use_spot          = optional(bool)
     high_availability = optional(bool)
   })
-  default = {}
+  default = {
+    instance_type = "t4g.nano"
+  }
 }

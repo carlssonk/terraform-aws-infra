@@ -37,8 +37,4 @@ variable "ec2_instances" {
     spot_max_price            = optional(number)
     spot_instance_type        = optional(string)
   }))
-  validation {
-    condition     = var.nginx_proxy_instance_settings.spot_max_price_multiplier >= 0 && var.nginx_proxy_instance_settings.spot_max_price_multiplier <= 1
-    error_message = "spot_max_price_multiplier must be between 0 and 1."
-  }
 }
