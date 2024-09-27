@@ -23,7 +23,7 @@ resource "aws_service_discovery_service" "this" {
 # This makes sure so the aws_service_discovery_service gets unregistered from the ecs service before aws_service_discovery_service gets destroyed
 resource "null_resource" "service_discovery_destroyer" {
   triggers = {
-    service_discovery_id = aws_service_discovery_service.this.id
+    reverse_proxy_type = var.reverse_proxy_type
   }
 
   provisioner "local-exec" {
