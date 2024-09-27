@@ -1,3 +1,8 @@
+variable "workflow_step" {
+  description = "iam|resources"
+  type        = string
+}
+
 variable "networking_outputs" {
   description = "All outputs from the networking module"
   type        = any

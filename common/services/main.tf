@@ -42,7 +42,7 @@ module "service_discovery_namespace" {
 }
 
 data "cloudinit_config" "this" {
-  count         = var.reverse_proxy_type == "nginx" ? 1 : 0
+  count         = var.workflow_step == "resources" && var.reverse_proxy_type == "nginx" ? 1 : 0
   gzip          = false
   base64_encode = false
 

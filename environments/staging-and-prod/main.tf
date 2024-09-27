@@ -46,6 +46,7 @@ module "security" {
 }
 
 module "services" {
+  workflow_step      = var.workflow_step
   source             = "../../common/services"
   networking_outputs = module.networking
   security_outputs   = module.security
