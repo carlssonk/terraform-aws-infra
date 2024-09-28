@@ -9,6 +9,7 @@ data "aws_iam_policy_document" "this" {
       "iam:DeleteRole",
       "iam:TagRole",
       "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
       "iam:PassRole",
       "iam:Get*",
       "iam:List*"
