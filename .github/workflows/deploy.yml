@@ -5,9 +5,11 @@ on:
     inputs:
       environment:
         type: choice
-        description: "Promote to environment"
+        description: "Build/Promote to environment"
         required: true
         options:
+          - dev
+          - staging
           - prod
       cleanup_policies:
           description: "Cleanup IAM policies"
