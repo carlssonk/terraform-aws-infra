@@ -1,15 +1,18 @@
 ## Pipeline Overview
 ![CI Pipeline Diagram](ci-pipeline-diagram.png)
 
+### Repository setup
+1. If using `ad-m/github-push-action@master` in a workflow. Enable `Allow GitHub Actions to create and approve pull requests` in Github Actions -> General
+2. Add `AWS_REGION` and `ORGANIZATION` to repository variables
+
 ### Set up and create infra on a new environment
 1. Create a new AWS account
 2. Create a new IAM bootstrap user and add [this](bootstrap/README.md) as inline policy
-3. Enable `Allow GitHub Actions to create and approve pull requests` in Github Actions -> General (if you're using the `ad-m/github-push-action@master` step)
-4. Set up a new repository environment in Github
-5. Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets in the repository environment
-6. Push changes to main
-7. Trigger workflow_dispatch on "Deploy Infrastructure". If environment does not exist in dropdown you need to add it [here](https://github.com/carlssonk/terraform-aws-infra/blob/main/.github/workflows/deploy.yml#L10)
-8. Done
+3. Set up a new repository environment in Github
+4. Create secret access key from the bootstrap user and add `BOOTSTRAP_AWS_ACCESS_KEY` and `BOOTSTRAP_AWS_ACCESS_SECRET` as secrets for the environment
+5. Go to Actions and run the Bootstrap workflow
+6. Trigger workflow_dispatch on "Deploy Infrastructure". If environment does not exist in dropdown you need to add it [here](https://github.com/carlssonk/terraform-aws-infra/blob/main/.github/workflows/deploy.yml#L10)
+7. Done.
 
 ### Destroy infra for an environment
 1. Run Destroy Infrastructure workflow manually in Github Actions
