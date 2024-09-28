@@ -11,8 +11,9 @@
 3. Set up a new repository environment in Github
 4. Create secret access key from the bootstrap user and add `BOOTSTRAP_AWS_ACCESS_KEY` and `BOOTSTRAP_AWS_ACCESS_SECRET` as secrets for the environment
 5. Go to Actions and run the Bootstrap workflow
-6. Trigger workflow_dispatch on "Deploy Infrastructure". If environment does not exist in dropdown you need to add it [here](https://github.com/carlssonk/terraform-aws-infra/blob/main/.github/workflows/deploy.yml#L10)
-7. Done.
+6. Make sure the configuration in environments/ is how you want it
+7. Trigger workflow_dispatch on "Deploy Infrastructure". If environment does not exist in dropdown you need to add it [here](https://github.com/carlssonk/terraform-aws-infra/blob/main/.github/workflows/deploy.yml#L10)
+8. Done.
 
 ### Destroy infra for an environment
 1. Run Destroy Infrastructure workflow manually in Github Actions
