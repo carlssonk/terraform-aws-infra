@@ -22,7 +22,7 @@ jobs:
   bootstrap:
     name: Bootstrap
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
