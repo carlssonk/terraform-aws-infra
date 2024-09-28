@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "this" {
       "iam:Get*",
       "iam:List*"
     ]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/fck-nat-*"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/fck-nat-instance-*"]
     effect    = "Allow"
   }
 
@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "this" {
     actions = [
       "iam:*InstanceProfile"
     ]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/fck-nat-*"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/fck-nat-instance-*"]
     effect    = "Allow"
   }
   # dynamic "statement" {
