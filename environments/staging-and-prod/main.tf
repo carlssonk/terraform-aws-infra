@@ -29,7 +29,6 @@ terraform {
 }
 
 // TODO
-// Simplify module structure (remove iam/ and resource/ folders)
 // Setup and test staging environment
 // Set up a separate aws account for storing artifacts
 // Create a script merging iam policies together
