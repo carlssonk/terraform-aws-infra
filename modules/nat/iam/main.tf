@@ -6,7 +6,8 @@ data "aws_iam_policy_document" "this" {
       "iam:CreateRole",
       "iam:DeleteRole",
       "iam:TagRole",
-      "iam:PutRolePolicy"
+      "iam:PutRolePolicy",
+      "iam:GetRole"
     ]
     resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/main-fck-nat-*"]
     effect    = "Allow"
