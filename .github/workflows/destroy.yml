@@ -84,7 +84,7 @@ jobs:
 
       - name: Terraform Destroy
         run: |
-          if ! ../../scripts/ci_retry_command.sh "terraform destroy -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'"; then
+          if ! ../../scripts/ci_retry_command.sh "terraform destroy -lock=false -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
