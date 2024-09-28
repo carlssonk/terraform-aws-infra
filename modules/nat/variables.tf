@@ -1,13 +1,10 @@
 variable "fck_nat_settings" {
   description = "Settings for fck-nat module https://registry.terraform.io/modules/RaJiska/fck-nat/aws/latest"
   type = object({
-    instance_type     = string
+    instance_type     = optional(string)
     use_spot          = optional(bool)
     high_availability = optional(bool)
   })
-  default = {
-    instance_type = "t4g.nano"
-  }
 }
 
 variable "subnet_count" {
