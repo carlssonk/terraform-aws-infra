@@ -16,10 +16,9 @@ locals {
   }
 
   ruleset_rules = {
-    for env in var.environments : env => {
-      for root_domain, apps in local.apps_grouped_by_root_domain :
-      root_domain => flatten([
-        for app in apps :
+    for root_domain, apps in local.apps_grouped_by_root_domain : root_domain => flatten([
+      for app in apps : flatten([
+        for env in var.var.environments :
         try(app.cloudflare.ssl_mode, null) != null ? [{
           action = "set_config"
           action_parameters = {
@@ -29,7 +28,7 @@ locals {
           description = "Cloudflare rules for ${app.app_name} (${env})"
         }] : []
       ])
-    }
+    ])
   }
 }
 
