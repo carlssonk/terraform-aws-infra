@@ -135,12 +135,12 @@ jobs:
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=${{ github.event_name == 'schedule' || github.event.inputs.cleanup_policies == 'true' }}
 
-          terraform workspace new ${{ needs.setup.outputs.env }}
+          terraform workspace select ${{ needs.setup.outputs.env }} || terraform workspace new ${{ needs.setup.outputs.env }}
           chmod +x ./scripts/ci_retry_command.sh
 
       - name: ${{ (github.event_name == 'pull_request' && format('Terraform Plan{0}', matrix.step == 'iam' && ' & Apply' || '')) || 'Terraform Apply' }}
         run: |
-          terraform workspace select ${{ needs.setup.outputs.env }}
+          terraform workspace select ${{ needs.setup.outputs.env }} || terraform workspace new ${{ needs.setup.outputs.env }}
           if [ ${{ github.event_name }} == 'pull_request' ]; then
             if [ ${{ matrix.step }} == 'iam' ]; then
               terraform plan -lock=false

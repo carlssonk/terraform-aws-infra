@@ -79,7 +79,7 @@ jobs:
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
 
-          terraform workspace new ${{ github.event.inputs.environment }}
+          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
           chmod +x ./scripts/ci_retry_command.sh
 
       - name: Terraform Destroy
