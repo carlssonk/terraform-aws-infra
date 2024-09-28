@@ -1,1 +1,0 @@
-../deregister_instance.sh

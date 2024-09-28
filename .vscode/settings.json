@@ -1,6 +1,0 @@
-{
-  "files.exclude": {
-    "modules/*/default/": true,
-    "modules/*/*/variables.tf": true
-  }
-}
