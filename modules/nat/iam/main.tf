@@ -4,7 +4,6 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = [
       "iam:CreateRole",
-      "iam:CreateInstanceProfile",
       "iam:DeleteRole",
       "iam:TagRole",
       "iam:PutRolePolicy",
@@ -12,6 +11,15 @@ data "aws_iam_policy_document" "this" {
       "iam:List*"
     ]
     resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/main-fck-nat-*"]
+    effect    = "Allow"
+  }
+
+  statement {
+    actions = [
+      "iam:CreateInstanceProfile",
+      "iam:DeleteInstanceProfile"
+    ]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/main-fck-nat-*"]
     effect    = "Allow"
   }
   # dynamic "statement" {
