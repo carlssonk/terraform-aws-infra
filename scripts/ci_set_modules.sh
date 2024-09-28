@@ -24,7 +24,7 @@ for module_dir in "$MODULES_DIR"/*; do
             done
 
             output_file="$module_dir/outputs.tf"
-            if [ -f "$output_file" ] then;
+            if [ -f "$output_file" ]; then
                 echo "    Setting outputs.tf values to null to prevent 'Error: Unsupported attribute'"
                 sed -i -E 's/value = .*/value = null/' "$output_file"
             fi
