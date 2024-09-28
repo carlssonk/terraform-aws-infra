@@ -31,6 +31,13 @@ data "aws_iam_policy_document" "this" {
     resources = ["arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:launch-template/*"]
     effect    = "Allow"
   }
+  statement {
+    actions = [
+      "iam:DeleteRolePolicy" # temporary
+    ]
+    resources = ["*"]
+    effect    = "Allow"
+  }
   # dynamic "statement" {
   #   for_each = var.nat_type == "fck-nat" ? ["x"] : []
   #   content {
