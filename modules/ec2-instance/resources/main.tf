@@ -25,6 +25,8 @@ resource "aws_instance" "this" {
     },
     var.tags
   )
+
+  depends_on = [null_resource.create_service_linked_role_spot]
 }
 
 // By default the instance will stop every time we edit the user_data so tis will boot it again
@@ -36,5 +38,14 @@ resource "null_resource" "reboot_trigger" {
 
   provisioner "local-exec" {
     command = "aws ec2 start-instances --instance-ids ${aws_instance.this.id}"
+  }
+}
+
+# Sets IAM permission by creating service linked role
+resource "null_resource" "create_service_linked_role_spot" {
+  count = var.use_spot == true ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "aws iam create-service-linked-role --aws-service-name spot.amazonaws.com"
   }
 }
