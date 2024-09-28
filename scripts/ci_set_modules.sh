@@ -14,6 +14,7 @@ for module_dir in "$MODULES_DIR"/*; do
     if [ -d "$module_dir" ]; then
         module_name=$(basename "$module_dir")
         echo "Processing module: $module_name"
+
         if [ "$STEP_NAME" = "iam" ]; then
             echo "    Removing everything except for iam.tf, variables.tf"
             for file in "$module_dir"/*; do
@@ -21,6 +22,12 @@ for module_dir in "$MODULES_DIR"/*; do
                     rm -rf $file
                 fi
             done
+
+            output_file="$module_dir/outputs.tf"
+            if [ -f "$output_file" ] then;
+                echo "    Setting outputs.tf values to null to prevent 'Error: Unsupported attribute'"
+                sed -i -E 's/value = .*/value = null/' "$output_file"
+            fi
             echo "    Done"
         elif [ "$STEP_NAME" = "resources" ]; then
             rm -rf "$module_dir/iam.tf"
