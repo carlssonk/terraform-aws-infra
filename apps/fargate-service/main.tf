@@ -8,12 +8,12 @@ locals {
 }
 
 module "cloudwatch" {
-  source         = "../../modules/cloudwatch/default"
+  source         = "../../modules/cloudwatch"
   log_group_name = "/ecs/${var.app_name}"
 }
 
 module "ecs_task_definition" {
-  source   = "../../modules/ecs-task-definition/default"
+  source   = "../../modules/ecs-task-definition"
   app_name = var.app_name
   cpu      = 256
   memory   = 512
@@ -44,7 +44,7 @@ module "ecs_task_definition" {
 
 module "alb_target_group" {
   count                  = var.reverse_proxy_type == "alb" ? 1 : 0
-  source                 = "../../modules/alb-target/default"
+  source                 = "../../modules/alb-target"
   app_name               = var.app_name
   container_port         = var.container_port
   vpc_id                 = var.vpc_id
@@ -55,7 +55,7 @@ module "alb_target_group" {
 }
 
 module "ecs_service" {
-  source             = "../../modules/ecs-service/default"
+  source             = "../../modules/ecs-service"
   reverse_proxy_type = var.reverse_proxy_type
 
   # Common attributes

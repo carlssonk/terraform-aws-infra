@@ -5,7 +5,7 @@ locals {
 }
 
 module "subdomain_bucket" {
-  source      = "../../modules/s3/default"
+  source      = "../../modules/s3"
   bucket_name = local.domain_name
   website_config = {
     is_website = true
@@ -15,7 +15,7 @@ module "subdomain_bucket" {
 
 module "root_bucket" {
   count       = var.subdomain == "www" ? 1 : 0
-  source      = "../../modules/s3/default"
+  source      = "../../modules/s3"
   bucket_name = var.root_domain
   website_config = {
     redirect_to = local.domain_name

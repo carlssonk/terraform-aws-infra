@@ -1,5 +1,5 @@
 module "main_vpc" {
-  source               = "../../modules/vpc/default"
+  source               = "../../modules/vpc"
   name                 = "main"
   use_single_subnet    = var.use_single_subnet
   vpc_cidr             = "10.0.0.0/16"
@@ -9,7 +9,7 @@ module "main_vpc" {
 
 module "fck-nat" {
   count                   = var.nat_type == "fck-nat" ? 1 : 0
-  source                  = "../../modules/nat/default"
+  source                  = "../../modules/nat"
   subnet_count            = module.main_vpc.subnet_count
   private_route_table_ids = module.main_vpc.private_route_table_ids
   public_subnet_ids       = module.main_vpc.public_subnet_ids

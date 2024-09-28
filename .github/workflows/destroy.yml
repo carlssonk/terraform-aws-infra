@@ -56,10 +56,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Symlink modules
+      - name: Set modules
         run: |
-          chmod +x ./scripts/symlink_modules.sh
-          ./scripts/symlink_modules.sh ${{ matrix.step }} true
+          chmod +x ./scripts/ci_set_modules.sh
+          ./scripts/ci_set_modules.sh ${{ matrix.step }}
 
       - name: Terraform Init
         run: |
@@ -74,17 +74,17 @@ jobs:
 
       - name: Prepare Environment
         run: |
-          python ./scripts/create_globals.py \
+          python ./scripts/ci_create_globals.py \
             workflow_step=${{ env.TF_VAR_workflow_step }} \
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
 
           terraform workspace new ${{ github.event.inputs.environment }}
-          chmod +x ./scripts/retry_command.sh
+          chmod +x ./scripts/ci_retry_command.sh
 
       - name: Terraform Destroy
         run: |
-          if ! ./scripts/retry_command.sh "terraform destroy -auto-approve"; then
+          if ! ./scripts/ci_retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi

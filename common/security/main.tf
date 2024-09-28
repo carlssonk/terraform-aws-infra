@@ -53,31 +53,31 @@ locals {
 }
 
 module "security_group_alb" {
-  source = "../../modules/security-group/default"
+  source = "../../modules/security-group"
   name   = "alb"
   vpc_id = var.networking_outputs.main_vpc_id
 }
 
 module "security_group_nginx" {
-  source = "../../modules/security-group/default"
+  source = "../../modules/security-group"
   name   = "nginx"
   vpc_id = var.networking_outputs.main_vpc_id
 }
 
 module "security_group_ecs_tasks" {
-  source = "../../modules/security-group/default"
+  source = "../../modules/security-group"
   name   = "ecs-tasks"
   vpc_id = var.networking_outputs.main_vpc_id
 }
 
 module "security_group_vpc_endpoints" {
-  source = "../../modules/security-group/default"
+  source = "../../modules/security-group"
   name   = "vpc-endpoints"
   vpc_id = var.networking_outputs.main_vpc_id
 }
 
 module "security_group_alb_rules" {
-  source            = "../../modules/security-group-rules/default"
+  source            = "../../modules/security-group-rules"
   name              = "alb"
   security_group_id = module.security_group_alb.id
   ingress_rules = flatten([
@@ -109,7 +109,7 @@ module "security_group_alb_rules" {
 }
 
 module "security_group_nginx_rules" {
-  source            = "../../modules/security-group-rules/default"
+  source            = "../../modules/security-group-rules"
   name              = "nginx"
   security_group_id = module.security_group_nginx.id
   ingress_rules = flatten([
@@ -148,7 +148,7 @@ module "security_group_nginx_rules" {
 }
 
 module "security_group_ecs_tasks_rules" {
-  source            = "../../modules/security-group-rules/default"
+  source            = "../../modules/security-group-rules"
   name              = "ecs_tasks"
   security_group_id = module.security_group_ecs_tasks.id
   ingress_rules = flatten([
@@ -167,7 +167,7 @@ module "security_group_ecs_tasks_rules" {
 }
 
 module "security_group_vpc_endpoints_rules" {
-  source            = "../../modules/security-group-rules/default"
+  source            = "../../modules/security-group-rules"
   name              = "vpc_endpoints"
   security_group_id = module.security_group_vpc_endpoints.id
   ingress_rules = [{
@@ -181,7 +181,7 @@ module "security_group_vpc_endpoints_rules" {
 
 // Gateway endpoints are free
 module "vpc_endpoints_gateway" {
-  source = "../../modules/vpc-endpoint/default"
+  source = "../../modules/vpc-endpoint"
   type   = "gateway"
   endpoints = [
     "com.amazonaws.${data.aws_region.current.name}.s3",
@@ -193,7 +193,7 @@ module "vpc_endpoints_gateway" {
 
 // Commented out for cost optimization
 # module "vpc_endpoints_interface" {
-#   source = "../../modules/vpc-endpoint/default"
+#   source = "../../modules/vpc-endpoint"
 #   type   = "interface"
 #   endpoints = [
 #     "com.amazonaws.${data.aws_region.current.name}.ecr.api",

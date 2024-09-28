@@ -38,7 +38,7 @@ locals {
 
 module "service_discovery_namespace" {
   count          = var.reverse_proxy_type == "nginx" ? 1 : 0
-  source         = "../../modules/service-discovery/default"
+  source         = "../../modules/service-discovery"
   namespace_name = local.namespace_name
   vpc_id         = var.networking_outputs.main_vpc_id
 }
@@ -70,7 +70,7 @@ data "cloudinit_config" "this" {
 module "ec2_instance_nginx" {
   count             = var.reverse_proxy_type == "nginx" ? 1 : 0
   name              = "nginx-reverse-proxy"
-  source            = "../../modules/ec2-instance/default"
+  source            = "../../modules/ec2-instance"
   ami               = local.AmazonLinux2023AMI[data.aws_region.current.name]
   instance_type     = var.ec2_instances.nginx_proxy_settings.instance_type
   subnet_ids        = var.networking_outputs.main_vpc_public_subnet_ids
@@ -89,13 +89,13 @@ module "ec2_instance_nginx" {
 
 module "ec2_instance_nginx_eip" {
   count       = var.reverse_proxy_type == "nginx" ? 1 : 0
-  source      = "../../modules/elastic-ip/default"
+  source      = "../../modules/elastic-ip"
   instance_id = module.ec2_instance_nginx[0].id
 }
 
 module "main_alb_access_logs_bucket" {
   count       = var.reverse_proxy_type == "alb" ? 1 : 0
-  source      = "../../modules/s3/default"
+  source      = "../../modules/s3"
   bucket_name = local.main_alb_access_logs_bucket_name
   custom_bucket_policy = {
     Effect = "Allow",
@@ -110,7 +110,7 @@ module "main_alb_access_logs_bucket" {
 
 module "main_alb" {
   count                    = var.reverse_proxy_type == "alb" ? 1 : 0
-  source                   = "../../modules/alb/default"
+  source                   = "../../modules/alb"
   name                     = "main"
   vpc_id                   = var.networking_outputs.main_vpc_id
   subnet_ids               = var.networking_outputs.main_vpc_public_subnet_ids
@@ -121,6 +121,6 @@ module "main_alb" {
 }
 
 module "main_ecs_cluster" {
-  source       = "../../modules/ecs-cluster/default"
+  source       = "../../modules/ecs-cluster"
   cluster_name = "MainCluster"
 }
