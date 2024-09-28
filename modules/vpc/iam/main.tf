@@ -29,6 +29,7 @@ data "aws_iam_policy_document" "this" {
         "ec2:RevokeSecurityGroupEgress",
         "ec2:ModifySecurityGroupRules",
         "ec2:CreateNetworkInterface",
+        "ec2:DetachNetworkInterface",
         "ec2:Describe*"
       ]
     )
