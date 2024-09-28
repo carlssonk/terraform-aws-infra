@@ -29,6 +29,7 @@ terraform {
 }
 
 // TODO
+// Fix non-prod subdomains to this format: www -> [env].example.com | subdomain-[env].example.com
 // Setup and test staging environment
 // Set up a separate aws account for storing artifacts
 // Create a script merging iam policies together

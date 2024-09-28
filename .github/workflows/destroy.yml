@@ -84,7 +84,7 @@ jobs:
 
       - name: Terraform Destroy
         run: |
-          if ! ./scripts/ci_retry_command.sh "terraform destroy -auto-approve"; then
+          if ! ../../scripts/ci_retry_command.sh "terraform destroy -auto-approve"; then
             echo "Terraform failed after all retry attempts"
             exit 1
           fi
