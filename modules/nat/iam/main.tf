@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "this" {
 
   statement {
     actions = [
-      "ec2:*LaunchTemplate"
+      "ec2:*LaunchTemplate*"
     ]
     resources = ["arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:launch-template/*"]
     effect    = "Allow"
