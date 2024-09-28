@@ -33,7 +33,7 @@ for module_dir in "$MODULES_DIR"/*; do
         elif [ "$STEP_NAME" = "resources" ]; then
             rm -rf "$module_dir/iam.tf"
             echo "    Removed iam.tf"
-            echo '\noutput "policy_document" { value = null }' >> outputs.tf
+            echo 'output "policy_document" { value = null }' >> outputs.tf
             echo "    Added null output policy_document to outputs.tf"
         fi
     fi
