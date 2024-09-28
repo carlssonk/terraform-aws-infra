@@ -29,8 +29,6 @@ terraform {
 }
 
 // TODO
-// Set up a NAT instance for fck-nat and remove Assign public IP for my ecs services
-// Use SPOT instances for EC2
 // Simplify module structure (remove iam/ and resource/ folders)
 
 ########################################################################
@@ -42,6 +40,7 @@ module "networking" {
   source            = "../../common/networking"
   use_single_subnet = var.use_single_subnet
   nat_type          = var.nat_type
+  fck_nat_settings  = var.fck_nat_settings
 }
 
 module "security" {
