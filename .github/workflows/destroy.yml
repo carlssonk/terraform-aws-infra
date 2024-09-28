@@ -79,12 +79,11 @@ jobs:
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
 
-          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
           chmod +x ./scripts/ci_retry_command.sh
 
       - name: Terraform Destroy
         run: |
-          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
+          terraform workspace select ${{ github.event.inputs.environment }} 2>/dev/null || terraform workspace new ${{ github.event.inputs.environment }}
           if ! ../../scripts/ci_retry_command.sh "terraform destroy -lock=false -auto-approve -var-file='${{ env.TFVARS_FILE_NAME }}.tfvars'"; then
             echo "Terraform failed after all retry attempts"
             exit 1

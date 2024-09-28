@@ -55,7 +55,7 @@ jobs:
         if: steps.check_backend.outputs.backend_exists == 'false'
         run: |
           terraform init
-          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
+          terraform workspace select ${{ github.event.inputs.environment }} 2>/dev/null || terraform workspace new ${{ github.event.inputs.environment }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-backend
 
@@ -72,6 +72,6 @@ jobs:
             -backend-config="dynamodb_table=${{ vars.ORGANIZATION }}-terraform-lock-table-${{ github.event.inputs.environment }}" \
             -backend-config="key=bootstrap/terraform.tfstate"
 
-          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
+          terraform workspace select ${{ github.event.inputs.environment }} 2>/dev/null || terraform workspace new ${{ github.event.inputs.environment }}
           terraform apply -auto-approve
         working-directory: ./bootstrap/setup-oidc
