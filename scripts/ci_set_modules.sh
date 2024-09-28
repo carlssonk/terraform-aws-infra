@@ -15,6 +15,8 @@ for module_dir in "$MODULES_DIR"/*; do
         module_name=$(basename "$module_dir")
         echo "Processing module: $module_name"
 
+        output_file="$module_dir/outputs.tf"
+
         if [ "$STEP_NAME" = "iam" ]; then
             echo "    Removing everything except for iam.tf, variables.tf, outputs.tf"
             for file in "$module_dir"/*; do
@@ -22,8 +24,7 @@ for module_dir in "$MODULES_DIR"/*; do
                     rm -rf $file
                 fi
             done
-
-            output_file="$module_dir/outputs.tf"
+            
             if [ -f "$output_file" ]; then
                 echo "    Setting outputs.tf values to null to prevent 'Error: Unsupported attribute'"
                 modified_content=$(sed -E 's/value = .*/value = null/' "$output_file")
@@ -33,7 +34,7 @@ for module_dir in "$MODULES_DIR"/*; do
         elif [ "$STEP_NAME" = "resources" ]; then
             rm -rf "$module_dir/iam.tf"
             echo "    Removed iam.tf"
-            echo 'output "policy_document" { value = null }' >> outputs.tf
+            echo 'output "policy_document" { value = null }' >> "$output_file"
             echo "    Added null output policy_document to outputs.tf"
         fi
     fi
