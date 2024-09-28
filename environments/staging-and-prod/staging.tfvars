@@ -1,4 +1,4 @@
-environment = "prod"
+environment = "staging"
 aws_region  = "eu-north-1"
 
 use_single_subnet  = true
