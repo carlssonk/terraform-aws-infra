@@ -19,7 +19,7 @@ locals {
   }
 
   AmazonLinux2023AMI = {
-    eu-north-1 = "ami-0129bfde49ddb0ed6" // ami ID found in AWS console when creating a ec2 instance
+    eu-north-1 = "ami-0d916634f7eb5727f" // ami ID found in AWS console when creating a ec2 instance (ARM64 based)
   }
 
   nginx_server_name = join(" ", [
