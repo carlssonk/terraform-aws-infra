@@ -3,7 +3,7 @@ aws_region  = "eu-north-1"
 
 use_single_subnet  = true
 reverse_proxy_type = "nginx"
-# nat_type           = "fck-nat"
+nat_type           = "fck-nat"
 
 fargate_spot_percentage = 100
 

@@ -58,7 +58,6 @@ locals {
       github_repo_name        = "carlssonk/Blackjack-Game-Multiplayer"
       container_port          = 8080
       use_stickiness          = true
-      assign_public_ip        = true
       fargate_spot_percentage = var.fargate_spot_percentage
       cloudflare = {
         ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
@@ -71,7 +70,6 @@ locals {
       github_repo_name        = "carlssonk/flag-racer"
       container_port          = 8080
       use_stickiness          = true
-      assign_public_ip        = true
       fargate_spot_percentage = var.fargate_spot_percentage
       cloudflare = {
         ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
