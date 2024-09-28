@@ -1,5 +1,8 @@
 locals {
 
+  # Active environments
+  environments = ["prod", "staging"]
+
   # Update as needed
   ec2_on_demand_hourly_rate = {
     eu-north-1 = {
@@ -18,13 +21,12 @@ locals {
     carlssonk_com = "carlssonk.com"
   }
 
-  env_subdomain_prefx = var.environment == "prod" ? "" : "${var.environment}."
 
-  s3_websites = {
+  s3_websites_config = {
     portfolio = {
       app_name         = "portfolio"
       root_domain      = local.root_domains.carlssonk_com
-      subdomain        = var.environment == "prod" ? "www" : var.environment
+      subdomain        = "www"
       github_repo_name = "carlssonk/website"
       cloudflare = {
         ssl_mode = "flexible"
@@ -33,7 +35,7 @@ locals {
     fps = {
       app_name         = "first-person-shooter"
       root_domain      = local.root_domains.carlssonk_com
-      subdomain        = "${local.env_subdomain_prefx}fps"
+      subdomain        = "fps"
       github_repo_name = "carlssonk/fps"
       cloudflare = {
         ssl_mode = "flexible"
@@ -42,7 +44,7 @@ locals {
     terraform = {
       app_name         = "terraform-diagram"
       root_domain      = local.root_domains.carlssonk_com
-      subdomain        = "${local.env_subdomain_prefx}terraform"
+      subdomain        = "terraform"
       github_repo_name = "carlssonk/terraform-diagram"
       cloudflare = {
         ssl_mode = "flexible"
@@ -50,11 +52,11 @@ locals {
     }
   }
 
-  fargate_services = {
+  fargate_services_config = {
     blackjack = {
       app_name                = "blackjack"
       root_domain             = local.root_domains.carlssonk_com
-      subdomain               = "${local.env_subdomain_prefx}blackjack"
+      subdomain               = "blackjack"
       github_repo_name        = "carlssonk/Blackjack-Game-Multiplayer"
       container_port          = 8080
       use_stickiness          = true
@@ -66,7 +68,7 @@ locals {
     flagracer = {
       app_name                = "flag-racer"
       root_domain             = local.root_domains.carlssonk_com
-      subdomain               = "${local.env_subdomain_prefx}flagracer"
+      subdomain               = "flagracer"
       github_repo_name        = "carlssonk/flag-racer"
       container_port          = 8080
       use_stickiness          = true
@@ -77,5 +79,22 @@ locals {
     }
   }
 
-  apps = merge(local.s3_websites, local.fargate_services)
+  env_subdomain_prefix = var.environment == "prod" ? "" : "${var.environment}."
+
+  # Apply subdomain prefix
+  s3_websites = {
+    for _, config in local.s3_websites_config :
+    _ => merge(config, {
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : local.env_subdomain_prefix : "${local.env_subdomain_prefix}${config.subdomain}"
+    })
+  }
+  fargate_services = {
+    for _, config in local.fargate_services_config :
+    _ => merge(config, {
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : local.env_subdomain_prefix : "${local.env_subdomain_prefix}${config.subdomain}"
+    })
+  }
+
+  apps_without_env = merge(local.s3_websites_config, local.fargate_services_config)
+  apps             = merge(local.s3_websites, local.fargate_services)
 }

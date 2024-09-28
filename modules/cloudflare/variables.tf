@@ -3,7 +3,7 @@ variable "apps" {
   type        = any
 }
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
+variable "environments" {
+  description = "All environments that uses cloudflare"
+  type        = list(string)
 }

@@ -64,10 +64,12 @@ module "services" {
   ec2_instances      = local.ec2_instances
 }
 
+# Cloudflare is shared across all environments
 module "cloudflare" {
-  source      = "../../modules/cloudflare"
-  apps        = local.apps
-  environment = var.environment
+  count        = var.environment == "prod" ? 1 : 0
+  source       = "../../modules/cloudflare"
+  apps         = local.apps_without_env
+  environments = local.environments
 }
 
 module "networking_policy" {

@@ -16,18 +16,20 @@ locals {
   }
 
   ruleset_rules = {
-    for root_domain, apps in local.apps_grouped_by_root_domain :
-    root_domain => flatten([
-      for app in apps :
-      try(app.cloudflare.ssl_mode, null) != null ? [{
-        action = "set_config"
-        action_parameters = {
-          ssl = app.cloudflare.ssl_mode
-        }
-        expression  = app.subdomain == "www" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain}.${app.root_domain}\")"
-        description = "Cloudflare rules for ${app.app_name} (${var.environment})"
-      }] : []
-    ])
+    for env in var.environments : env => {
+      for root_domain, apps in local.apps_grouped_by_root_domain :
+      root_domain => flatten([
+        for app in apps :
+        try(app.cloudflare.ssl_mode, null) != null ? [{
+          action = "set_config"
+          action_parameters = {
+            ssl = app.cloudflare.ssl_mode
+          }
+          expression  = app.subdomain == "www" && env == "prod" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${env == "prod" ? "" : "${env}."}${app.subdomain}.${app.root_domain}\")"
+          description = "Cloudflare rules for ${app.app_name} (${env})"
+        }] : []
+      ])
+    }
   }
 }
 
@@ -36,9 +38,8 @@ data "cloudflare_zone" "domain" {
   name     = each.key
 }
 
-# Shared resource
 resource "cloudflare_zone_settings_override" "this" {
-  for_each = var.environment == "prod" ? local.apps_grouped_by_root_domain : {}
+  for_each = local.apps_grouped_by_root_domain
   zone_id  = data.cloudflare_zone.domain[each.key].id
 
   settings {
@@ -50,8 +51,8 @@ resource "cloudflare_zone_settings_override" "this" {
 resource "cloudflare_ruleset" "this" {
   for_each    = local.apps_grouped_by_root_domain
   zone_id     = data.cloudflare_zone.domain[each.key].id
-  name        = "Dynamic Main Ruleset (${var.environment})"
-  description = "Dynamic ruleset for managing app settings (${var.environment})"
+  name        = "Dynamic Main Ruleset"
+  description = "Dynamic ruleset for managing app settings"
   kind        = "zone"
   phase       = "http_config_settings"
 
