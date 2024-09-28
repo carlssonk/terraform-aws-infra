@@ -118,7 +118,7 @@ jobs:
 
   create-release-tag:
     name: Create Release Tag
-    needs: [setup, terraform-operation]
+    needs: [terraform-operation]
     if: github.event.inputs.environment == 'prod'
     runs-on: ubuntu-latest
     permissions:
