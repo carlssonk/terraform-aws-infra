@@ -37,16 +37,15 @@ data "cloudflare_zone" "domain" {
   name     = each.key
 }
 
-resource "cloudflare_zone_settings_override" "this" {
-  for_each = local.apps_grouped_by_root_domain
-  zone_id  = data.cloudflare_zone.domain[each.key].id
+# resource "cloudflare_zone_settings_override" "this" {
+#   for_each = local.apps_grouped_by_root_domain
+#   zone_id  = data.cloudflare_zone.domain[each.key].id
 
-  settings {
-    ssl                 = "full"
-    always_use_https    = "on"
-    replace_insecure_js = "off"
-  }
-}
+#   settings {
+#     ssl              = "full"
+#     always_use_https = "on"
+#   }
+# }
 
 resource "cloudflare_ruleset" "this" {
   for_each    = local.apps_grouped_by_root_domain
