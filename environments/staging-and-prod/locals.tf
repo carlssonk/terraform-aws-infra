@@ -85,13 +85,13 @@ locals {
   s3_websites = {
     for _, config in local.s3_websites_config :
     _ => merge(config, {
-      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : local.env_subdomain_prefix : "${local.env_subdomain_prefix}${config.subdomain}"
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${local.env_subdomain_prefix}${config.subdomain}"
     })
   }
   fargate_services = {
     for _, config in local.fargate_services_config :
     _ => merge(config, {
-      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : local.env_subdomain_prefix : "${local.env_subdomain_prefix}${config.subdomain}"
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${local.env_subdomain_prefix}${config.subdomain}"
     })
   }
 

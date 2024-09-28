@@ -24,7 +24,7 @@ locals {
           action_parameters = {
             ssl = app.cloudflare.ssl_mode
           }
-          expression  = app.subdomain == "www" && env == "prod" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${env == "prod" ? "" : "${env}."}${app.subdomain}.${app.root_domain}\")"
+          expression  = app.subdomain == "www" && env == "prod" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain == "www" ? "${env}.${app.root_domain}" : "${env}.${app.subdomain}.${app.root_domain}"}\")"
           description = "Cloudflare rules for ${app.app_name} (${env})"
         }] : []
       ])
