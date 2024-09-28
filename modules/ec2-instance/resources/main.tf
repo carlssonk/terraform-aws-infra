@@ -12,6 +12,7 @@ resource "aws_instance" "this" {
         max_price          = try(tostring(var.spot_max_price), null)
         spot_instance_type = try(var.spot_instance_type, null)
         # instance_interruption_behavior = try(var.spot_instance_interruption_behavior, null) -> InvalidParameterCombination: The terminate InstanceInterruptionBehavior is not supported when requestType is set to persistent
+        instance_interruption_behavior = "stop"
       }
     }
   }
