@@ -15,9 +15,9 @@ for module_dir in "$MODULES_DIR"/*; do
         module_name=$(basename "$module_dir")
         echo "Processing module: $module_name"
         if [ "$STEP_NAME" = "iam" ]; then
-            echo "    Removing everything except for iam.tf, variables.tf, outputs.tf"
+            echo "    Removing everything except for iam.tf, variables.tf"
             for file in "$module_dir"/*; do
-                if [[ "$(basename "$file")" != "iam.tf" && "$(basename "$file")" != "variables.tf" && "$(basename "$file")" != "outputs.tf" ]]; then
+                if [[ "$(basename "$file")" != "iam.tf" && "$(basename "$file")" != "variables.tf" ]]; then
                     rm -rf $file
                 fi
             done
