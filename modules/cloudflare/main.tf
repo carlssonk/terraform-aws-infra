@@ -25,7 +25,7 @@ locals {
           ssl = app.cloudflare.ssl_mode
         }
         expression  = app.subdomain == "www" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain}.${app.root_domain}\")"
-        description = "Cloudflare rules for ${app.app_name}"
+        description = "Cloudflare rules for ${app.app_name} (${var.environment})"
       }] : []
     ])
   }
@@ -50,8 +50,8 @@ resource "cloudflare_zone_settings_override" "this" {
 resource "cloudflare_ruleset" "this" {
   for_each    = local.apps_grouped_by_root_domain
   zone_id     = data.cloudflare_zone.domain[each.key].id
-  name        = "Dynamic Main Ruleset"
-  description = "Dynamic ruleset for managing app settings"
+  name        = "Dynamic Main Ruleset (${var.environment})"
+  description = "Dynamic ruleset for managing app settings (${var.environment})"
   kind        = "zone"
   phase       = "http_config_settings"
 
