@@ -4,6 +4,7 @@ data "aws_iam_policy_document" "this" {
   statement {
     actions = [
       "iam:CreateRole",
+      "iam:CreateInstanceProfile",
       "iam:DeleteRole",
       "iam:TagRole",
       "iam:PutRolePolicy",
