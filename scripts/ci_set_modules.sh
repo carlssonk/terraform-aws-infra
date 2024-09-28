@@ -26,7 +26,8 @@ for module_dir in "$MODULES_DIR"/*; do
             output_file="$module_dir/outputs.tf"
             if [ -f "$output_file" ]; then
                 echo "    Setting outputs.tf values to null to prevent 'Error: Unsupported attribute'"
-                sed -i -E 's/value = .*/value = null/' "$output_file"
+                modified_content=$(sed -E 's/value = .*/value = null/' "$output_file")
+                echo -e "$modified_content" > "$output_file"
             fi
             echo "    Done"
         elif [ "$STEP_NAME" = "resources" ]; then
