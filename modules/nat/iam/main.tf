@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "this" {
       "iam:Get*",
       "iam:List*"
     ]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/main-fck-nat-*"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/fck-nat-*"]
     effect    = "Allow"
   }
 
@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "this" {
     actions = [
       "iam:*InstanceProfile"
     ]
-    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/main-fck-nat-*"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/fck-nat-*"]
     effect    = "Allow"
   }
   # dynamic "statement" {
@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "this" {
   #       "iam:CreateRole",
   #       "iam:DeleteRole",
   #     ]
-  #     resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/main-fck-nat-*"]
+  #     resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/fck-nat-*"]
   #     effect    = "Allow"
   #   }
   # }
