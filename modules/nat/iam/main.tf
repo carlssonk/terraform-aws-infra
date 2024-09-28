@@ -16,9 +16,7 @@ data "aws_iam_policy_document" "this" {
 
   statement {
     actions = [
-      "iam:CreateInstanceProfile",
-      "iam:DeleteInstanceProfile",
-      "iam:TagInstanceProfile"
+      "iam:*InstanceProfile"
     ]
     resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/main-fck-nat-*"]
     effect    = "Allow"
