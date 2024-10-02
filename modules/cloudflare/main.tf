@@ -18,14 +18,13 @@ locals {
   ruleset_rules = {
     for root_domain, apps in local.apps_grouped_by_root_domain : root_domain => flatten([
       for app in apps : flatten([
-        for env in var.environments :
         try(app.cloudflare.ssl_mode, null) != null ? [{
           action = "set_config"
           action_parameters = {
             ssl = app.cloudflare.ssl_mode
           }
-          expression  = app.subdomain == "www" && env == "prod" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain == "www" ? "${env}.${app.root_domain}" : "${env != "prod" ? "${env}." : ""}${app.subdomain}.${app.root_domain}"}\")"
-          description = "Cloudflare rules for ${app.app_name} (${env})"
+          expression  = app.subdomain == "www" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain}.${app.root_domain}\")"
+          description = "Cloudflare rules for ${app.app_name} (${terraform.workspace})"
         }] : []
       ])
     ])
