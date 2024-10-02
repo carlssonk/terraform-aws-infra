@@ -91,7 +91,7 @@ locals {
   fargate_services = {
     for _, config in local.fargate_services_config :
     _ => merge(config, {
-      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${config.subdomain}-${local.env_subdomain_suffix}"
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${config.subdomain}${local.env_subdomain_suffix}"
     })
   }
 
