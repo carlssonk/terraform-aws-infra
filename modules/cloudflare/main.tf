@@ -54,8 +54,8 @@ resource "null_resource" "cloudflare_zone_settings_override" {
   triggers = {
     cloudflare_api_token = var.cloudflare_api_token
     zone_id              = data.cloudflare_zone.domain[each.key].id
-    ssl                  = "flexible"
-    always_use_https     = "off"
+    ssl                  = "full"
+    always_use_https     = "on"
   }
 
   provisioner "local-exec" {
@@ -96,23 +96,23 @@ resource "null_resource" "cloudflare_zone_settings_override" {
 #   }
 # }
 
-# resource "null_resource" "cloudflare_ruleset" {
-#   for_each = local.apps_grouped_by_root_domain
+resource "null_resource" "cloudflare_ruleset" {
+  for_each = local.apps_grouped_by_root_domain
 
-#   triggers = {
-#     zone_id       = data.cloudflare_zone.domain[each.key].id
-#     kind          = "zone"
-#     phase         = "http_config_settings"
-#     ruleset_rules = local.ruleset_rules
-#   }
+  triggers = {
+    zone_id       = data.cloudflare_zone.domain[each.key].id
+    kind          = "zone"
+    phase         = "http_config_settings"
+    ruleset_rules = local.ruleset_rules
+  }
 
-#   provisioner "local-exec" {
-#     command = "${path.module}/cloudflare_ruleset.sh"
-#     environment = {
-#       ZONE_ID       = self.triggers.zone_id
-#       KIND          = self.triggers.kind
-#       PHASE         = self.triggers.phase
-#       RULESET_RULES = self.triggers.ruleset_rules
-#     }
-#   }
-# }
+  provisioner "local-exec" {
+    command = "${path.module}/cloudflare_ruleset.sh"
+    environment = {
+      ZONE_ID       = self.triggers.zone_id
+      KIND          = self.triggers.kind
+      PHASE         = self.triggers.phase
+      RULESET_RULES = self.triggers.ruleset_rules
+    }
+  }
+}
