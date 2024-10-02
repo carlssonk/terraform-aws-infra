@@ -102,6 +102,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Allow Bash Scripts
         run: find . -type f -name "*.sh" -exec chmod +x {} +
 
       - name: Configure AWS Credentials (OIDC)
