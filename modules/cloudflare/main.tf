@@ -54,8 +54,8 @@ resource "null_resource" "cloudflare_zone_settings_override" {
   triggers = {
     cloudflare_api_token = var.cloudflare_api_token
     zone_id              = data.cloudflare_zone.domain[each.key].id
-    ssl                  = "full"
-    always_use_https     = "on"
+    ssl                  = "flexible"
+    always_use_https     = "off"
   }
 
   provisioner "local-exec" {
