@@ -49,9 +49,11 @@ data "cloudflare_zone" "domain" {
 # }
 
 resource "null_resource" "cloudflare_zone_settings_override" {
+  for_each = local.apps_grouped_by_root_domain
+
   triggers = {
     cloudflare_api_token = var.cloudflare_api_token
-    zone_ids             = join(",", data.cloudflare_zone.domain[*].id)
+    zone_id              = data.cloudflare_zone.domain[each.key].id
     ssl                  = "full"
     always_use_https     = "on"
   }
@@ -60,7 +62,7 @@ resource "null_resource" "cloudflare_zone_settings_override" {
     command = "${path.module}/cloudflare_zone_settings_override.sh"
     environment = {
       CLOUDFLARE_API_TOKEN = self.triggers.cloudflare_api_token
-      ZONE_IDS             = self.triggers.zone_ids
+      ZONE_ID              = self.triggers.zone_id
       SSL                  = self.triggers.ssl
       ALWAYS_USE_HTTPS     = self.triggers.always_use_https
     }
