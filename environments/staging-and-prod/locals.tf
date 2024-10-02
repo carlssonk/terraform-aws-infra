@@ -79,13 +79,13 @@ locals {
     }
   }
 
-  env_subdomain_suffix = var.environment == "prod" ? "" : "${var.environment}"
+  env_subdomain_suffix = var.environment == "prod" ? "" : "-${var.environment}"
 
   # Apply subdomain prefix
   s3_websites = {
     for _, config in local.s3_websites_config :
     _ => merge(config, {
-      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${config.subdomain}-${local.env_subdomain_suffix}"
+      subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${config.subdomain}${local.env_subdomain_suffix}"
     })
   }
   fargate_services = {
