@@ -45,6 +45,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        run: find . -type f -name "*.sh" -exec chmod +x {} +
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -56,9 +57,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Set modules
-        run: |
-          chmod +x ./scripts/ci_set_modules.sh
-          ./scripts/ci_set_modules.sh ${{ env.TF_VAR_workflow_step }}
+        run: ./scripts/ci_set_modules.sh ${{ env.TF_VAR_workflow_step }}
 
       - name: Terraform Init
         run: |
@@ -77,8 +76,6 @@ jobs:
             workflow_step=${{ env.TF_VAR_workflow_step }} \
             organization=${{ env.TF_VAR_organization }} \
             cleanup_policies=true
-
-          chmod +x ./scripts/ci_retry_command.sh
 
       - name: Check and Remove Resource from Terraform State
         run: |
