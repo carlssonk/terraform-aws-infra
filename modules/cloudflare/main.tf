@@ -52,8 +52,8 @@ resource "null_resource" "cloudflare_zone_settings_override" {
   for_each = local.apps_grouped_by_root_domain
 
   triggers = {
-    cloudflare_api_token = var.cloudflare_api_token
     zone_id              = data.cloudflare_zone.domain[each.key].id
+    cloudflare_api_token = var.cloudflare_api_token
     ssl                  = "full"
     always_use_https     = "on"
   }
@@ -103,7 +103,7 @@ resource "null_resource" "cloudflare_ruleset" {
     zone_id       = data.cloudflare_zone.domain[each.key].id
     kind          = "zone"
     phase         = "http_config_settings"
-    ruleset_rules = local.ruleset_rules
+    ruleset_rules = jsonencode(local.ruleset_rules[each.key])
   }
 
   provisioner "local-exec" {
