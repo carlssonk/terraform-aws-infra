@@ -26,10 +26,10 @@ resource "aws_s3_bucket_website_configuration" "this" {
 resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
 
-  block_public_acls       = var.block_public_acls != null ? block_public_acls : var.is_public ? false : true
-  block_public_policy     = var.block_public_policy != null ? block_public_policy : var.is_public ? false : true
-  ignore_public_acls      = var.ignore_public_acls != null ? ignore_public_acls : var.is_public ? false : true
-  restrict_public_buckets = var.restrict_public_buckets != null ? restrict_public_buckets : var.is_public ? false : true
+  block_public_acls       = var.block_public_acls != null ? var.block_public_acls : var.is_public ? false : true
+  block_public_policy     = var.block_public_policy != null ? var.block_public_policy : var.is_public ? false : true
+  ignore_public_acls      = var.ignore_public_acls != null ? var.ignore_public_acls : var.is_public ? false : true
+  restrict_public_buckets = var.restrict_public_buckets != null ? var.restrict_public_buckets : var.is_public ? false : true
 }
 
 module "globals" {
