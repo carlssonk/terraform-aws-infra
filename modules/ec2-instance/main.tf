@@ -50,6 +50,13 @@ resource "null_resource" "create_service_linked_role_spot" {
   count = var.use_spot == true ? 1 : 0
 
   provisioner "local-exec" {
-    command = "aws iam create-service-linked-role --aws-service-name spot.amazonaws.com"
+    command = <<-EOT
+      role_exists=$(aws iam get-role --role-name AWSServiceRoleForEC2Spot 2>&1 | grep -c 'NoSuchEntity')
+      if [ $role_exists -eq 1 ]; then
+        aws iam create-service-linked-role --aws-service-name spot.amazonaws.com
+      else
+        echo "Service-linked role for EC2 Spot already exists"
+      fi
+    EOT
   }
 }
