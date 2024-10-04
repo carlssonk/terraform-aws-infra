@@ -24,6 +24,34 @@ variable "is_public" {
   default     = false
 }
 
+variable "block_public_acls" {
+  description = "Property of aws_s3_bucket_public_access_block"
+  type        = optional(bool)
+  nullable    = true
+  default     = null
+}
+
+variable "block_public_policy" {
+  description = "Property of aws_s3_bucket_public_access_block"
+  type        = optional(bool)
+  nullable    = true
+  default     = null
+}
+
+variable "ignore_public_acls" {
+  description = "Property of aws_s3_bucket_public_access_block"
+  type        = optional(bool)
+  nullable    = true
+  default     = null
+}
+
+variable "restrict_public_buckets" {
+  description = "Property of aws_s3_bucket_public_access_block"
+  type        = optional(bool)
+  nullable    = true
+  default     = null
+}
+
 variable "custom_bucket_policy" {
   description = "Bucket policy document"
   type        = any
