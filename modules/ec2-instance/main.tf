@@ -37,7 +37,11 @@ resource "null_resource" "reboot_trigger" {
   }
 
   provisioner "local-exec" {
-    command = "aws ec2 start-instances --instance-ids ${self.triggers.instance_id}"
+    command = <<-EOT
+      aws ec2 describe-instances --instance-ids ${self.triggers.instance_id} --query 'Reservations[].Instances[].State.Name' --output text | grep -q 'stopped' && \
+      aws ec2 start-instances --instance-ids ${self.triggers.instance_id} || \
+      echo "Instance is not in 'stopped' state, skipping start operation"
+    EOT
   }
 }
 
