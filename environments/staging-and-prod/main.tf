@@ -67,10 +67,8 @@ module "services" {
 
 # Cloudflare is shared across all environments
 module "cloudflare" {
-  count                = var.environment == "prod" ? 1 : 0
-  source               = "../../modules/cloudflare"
-  apps                 = local.apps
-  cloudflare_api_token = var.cloudflare_api_token
+  source = "../../modules/cloudflare"
+  apps   = local.apps
 }
 
 module "networking_policy" {
@@ -113,6 +111,24 @@ module "s3_websites_policy" {
   source           = "../../iam_policy"
   name             = "s3_websites"
   policy_documents = flatten(values(module.s3_websites)[*].policy_documents)
+}
+
+########################################################################
+
+module "s3_media" {
+  for_each      = local.s3_media
+  workflow_step = var.workflow_step
+  source        = "../../apps/s3-media"
+  bucket_name   = each.value.bucket_name
+  root_domain   = each.value.root_domain
+  subdomain     = each.value.subdomain
+}
+
+module "s3_media_policy" {
+  workflow_step    = var.workflow_step
+  source           = "../../iam_policy"
+  name             = "s3_media"
+  policy_documents = flatten(values(module.s3_media)[*].policy_documents)
 }
 
 ########################################################################
