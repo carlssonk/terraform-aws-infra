@@ -77,18 +77,18 @@ locals {
         ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
       }
     }
-    # flare = {
-    #   app_name                = "flare-messenger"
-    #   root_domain             = local.root_domains.carlssonk_com
-    #   subdomain               = "messenger"
-    #   github_repo_name        = "carlssonk/flare-messenger"
-    #   container_port          = 8080
-    #   use_stickiness          = true
-    #   fargate_spot_percentage = var.fargate_spot_percentage
-    #   cloudflare = {
-    #     ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
-    #   }
-    # }
+    flare = {
+      app_name                = "flare-messenger"
+      root_domain             = local.root_domains.carlssonk_com
+      subdomain               = "messenger"
+      github_repo_name        = "carlssonk/flare-messenger"
+      container_port          = 8080
+      use_stickiness          = true
+      fargate_spot_percentage = var.fargate_spot_percentage
+      cloudflare = {
+        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+      }
+    }
   }
 
   s3_media_config = {
