@@ -5,17 +5,13 @@ data "aws_iam_policy_document" "this" {
         "s3:CreateBucket",
         "s3:DeleteBucket",
         "s3:Get*",
-        "s3:List*"
+        "s3:List*",
+        "s3:*PublicAccessBlock",
+        "s3:*BucketPolicy"
       ],
       var.website_config.is_website || var.website_config.redirect_to != null ? [
         "s3:*BucketWebsite",
-      ] : [],
-      var.is_public == true ? [
-        "s3:*PublicAccessBlock"
-      ] : [],
-      [
-        "s3:*BucketPolicy"
-      ]
+      ] : []
     )
     resources = [
       "arn:aws:s3:::${var.bucket_name}",
