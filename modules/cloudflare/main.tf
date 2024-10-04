@@ -104,6 +104,7 @@ resource "null_resource" "cloudflare_ruleset" {
     kind                 = "zone"
     phase                = "http_config_settings"
     ruleset_rules        = jsonencode(local.ruleset_rules[each.key])
+    temp                 = true
   }
 
   provisioner "local-exec" {
