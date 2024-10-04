@@ -3,5 +3,5 @@ output "website_endpoint" {
 }
 
 output "bucket_regional_domain_name" {
-  value = try(aws_s3_bucket.this[0].bucket_regional_domain_name, null)
+  value = try(aws_s3_bucket.this.bucket_regional_domain_name, null)
 }
