@@ -33,8 +33,8 @@ variable "custom_bucket_policy" {
 variable "bucket_policy" {
   description = "Predefined bucket policies"
   type = object({
-    name        = string
-    permissions = list(string)
+    name        = optional(string)
+    permissions = optional(list(string))
   })
   default = {}
 }
