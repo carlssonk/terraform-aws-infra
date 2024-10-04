@@ -43,13 +43,19 @@ locals {
       Effect    = "Allow"
       Principal = "*"
       Action    = try(var.bucket_policy.permissions, [])
-      Resource  = "${aws_s3_bucket.this.arn}/*"
+      Resource = [
+        aws_s3_bucket.this.arn,
+        "${aws_s3_bucket.this.arn}/*"
+      ]
     }
     cloudflare = {
       Effect    = "Allow"
       Principal = "*"
       Action    = try(var.bucket_policy.permissions, [])
-      Resource  = "${aws_s3_bucket.this.arn}/*"
+      Resource = [
+        aws_s3_bucket.this.arn,
+        "${aws_s3_bucket.this.arn}/*"
+      ]
       Condition = {
         IpAddress = {
           "aws:SourceIp" = module.globals.var.cloudflare_all_ip_ranges
