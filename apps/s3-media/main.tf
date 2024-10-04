@@ -15,8 +15,10 @@ module "bucket" {
 module "cloudflare" {
   source      = "../../modules/cloudflare-record"
   root_domain = var.root_domain
-  dns_records = [{
-    name  = var.subdomain
-    value = module.bucket.bucket_regional_domain_name
-  }]
+  dns_records = {
+    "${var.subdomain}_record" = {
+      name  = var.subdomain
+      value = module.bucket.bucket_regional_domain_name
+    }
+  }
 }
