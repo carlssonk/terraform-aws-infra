@@ -42,13 +42,13 @@ locals {
     public = {
       Effect    = "Allow"
       Principal = "*"
-      Action    = var.bucket_policy.permissions
+      Action    = try(var.bucket_policy.permissions, [])
       Resource  = "${aws_s3_bucket.this.arn}/*"
     }
     cloudflare = {
       Effect    = "Allow"
       Principal = "*"
-      Action    = var.bucket_policy.permissions
+      Action    = try(var.bucket_policy.permissions, [])
       Resource  = "${aws_s3_bucket.this.arn}/*"
       Condition = {
         IpAddress = {
@@ -59,7 +59,7 @@ locals {
     default = null
   }
 
-  policy_statement = lookup(local.policy_types, coalesce(var.bucket_policy.name, "default"), null)
+  policy_statement = lookup(local.policy_types, coalesce(try(var.bucket_policy.name, null), "default"), null)
 
   policy_statement_combined = concat(
     local.policy_statement != null ? [local.policy_statement] : [],

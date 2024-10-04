@@ -117,7 +117,7 @@ locals {
   apps = merge(local.s3_websites, local.fargate_services)
 
   s3_media = {
-    for _, config in local.fargate_services_config :
+    for _, config in local.s3_media_config :
     _ => merge(config, {
       subdomain = var.environment == "prod" ? config.subdomain : "${config.subdomain}${local.env_subdomain_suffix}"
     })
