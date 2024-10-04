@@ -48,7 +48,7 @@ resource "cloudflare_zone_settings_override" "this" {
 }
 
 resource "cloudflare_ruleset" "prod" {
-  for_each    = terraform.workspace == "prod" ? local.apps_grouped_by_root_domain : []
+  for_each    = terraform.workspace == "prod" ? local.apps_grouped_by_root_domain : {}
   zone_id     = data.cloudflare_zone.domain[each.key].id
   name        = "Dynamic Main Ruleset PROD"
   description = "Dynamic ruleset for managing app settings"
@@ -78,7 +78,7 @@ resource "cloudflare_ruleset" "prod" {
 }
 
 resource "cloudflare_ruleset" "staging" {
-  for_each    = terraform.workspace == "staging" ? local.apps_grouped_by_root_domain : []
+  for_each    = terraform.workspace == "staging" ? local.apps_grouped_by_root_domain : {}
   zone_id     = data.cloudflare_zone.domain[each.key].id
   name        = "Dynamic Main Ruleset STAGING"
   description = "Dynamic ruleset for managing app settings"
