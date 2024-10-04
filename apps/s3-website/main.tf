@@ -10,7 +10,11 @@ module "subdomain_bucket" {
   website_config = {
     is_website = true
   }
-  bucket_access_and_policy = "cloudflare"
+  bucket_policy = {
+    name        = "cloudflare"
+    permissions = ["s3:GetObject"]
+  }
+  is_public = true
 }
 
 module "root_bucket" {

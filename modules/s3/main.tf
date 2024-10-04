@@ -24,7 +24,7 @@ resource "aws_s3_bucket_website_configuration" "this" {
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
-  count  = var.bucket_access_and_policy == "public" || var.bucket_access_and_policy == "cloudflare" ? 1 : 0
+  count  = var.is_public ? 1 : 0
   bucket = aws_s3_bucket.this.id
 
   block_public_acls       = false
@@ -42,13 +42,13 @@ locals {
     public = {
       Effect    = "Allow"
       Principal = "*"
-      Action    = "s3:GetObject"
+      Action    = var.bucket_policy.permissions
       Resource  = "${aws_s3_bucket.this.arn}/*"
     }
     cloudflare = {
       Effect    = "Allow"
       Principal = "*"
-      Action    = "s3:GetObject"
+      Action    = var.bucket_policy.permissions
       Resource  = "${aws_s3_bucket.this.arn}/*"
       Condition = {
         IpAddress = {
@@ -59,7 +59,7 @@ locals {
     default = null
   }
 
-  policy_statement = lookup(local.policy_types, coalesce(var.bucket_access_and_policy, "default"), null)
+  policy_statement = lookup(local.policy_types, coalesce(var.bucket_policy.name, "default"), null)
 
   policy_statement_combined = concat(
     local.policy_statement != null ? [local.policy_statement] : [],

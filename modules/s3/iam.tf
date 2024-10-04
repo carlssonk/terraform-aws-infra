@@ -10,11 +10,10 @@ data "aws_iam_policy_document" "this" {
       var.website_config.is_website || var.website_config.redirect_to != null ? [
         "s3:*BucketWebsite",
       ] : [],
-      var.bucket_access_and_policy != null ? [
-        "s3:*PublicAccessBlock",
-        "s3:*BucketPolicy"
+      var.is_public == true ? [
+        "s3:*PublicAccessBlock"
       ] : [],
-      var.custom_bucket_policy != null ? [
+      var.custom_bucket_policy || var.bucket_policy != null ? [
         "s3:*BucketPolicy"
       ] : []
     )

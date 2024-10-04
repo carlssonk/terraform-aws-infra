@@ -77,6 +77,26 @@ locals {
         ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
       }
     }
+    # flare = {
+    #   app_name                = "flare-messenger"
+    #   root_domain             = local.root_domains.carlssonk_com
+    #   subdomain               = "messenger"
+    #   github_repo_name        = "carlssonk/flare-messenger"
+    #   container_port          = 8080
+    #   use_stickiness          = true
+    #   fargate_spot_percentage = var.fargate_spot_percentage
+    #   cloudflare = {
+    #     ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+    #   }
+    # }
+  }
+
+  s3_media_config = {
+    flare = {
+      bucket_name = "${var.organization}-${local.fargate_services_config.flare.app_name}-media"
+      subdomain   = "messenger-cdn"
+      root_domain = local.root_domains.carlssonk_com
+    }
   }
 
   env_subdomain_suffix = var.environment == "prod" ? "" : "-${var.environment}"
@@ -94,6 +114,13 @@ locals {
       subdomain = config.subdomain == "www" ? var.environment == "prod" ? config.subdomain : var.environment : "${config.subdomain}${local.env_subdomain_suffix}"
     })
   }
-
   apps = merge(local.s3_websites, local.fargate_services)
+
+  s3_media = {
+    for _, config in local.fargate_services_config :
+    _ => merge(config, {
+      subdomain = var.environment == "prod" ? config.subdomain : "${config.subdomain}${local.env_subdomain_suffix}"
+    })
+  }
+
 }

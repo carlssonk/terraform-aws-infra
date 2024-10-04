@@ -18,15 +18,23 @@ variable "website_config" {
   default = {}
 }
 
-variable "bucket_access_and_policy" {
-  description = "Specify who can access the bucket. Can one of 'public', 'cloudflare'"
-  type        = string
-  default     = null
-  nullable    = true
+variable "is_public" {
+  description = "If true all props in access block will be set to false"
+  type        = bool
+  default     = false
 }
 
 variable "custom_bucket_policy" {
   description = "Bucket policy document"
   type        = any
   default     = null
+}
+
+variable "bucket_policy" {
+  description = "Predefined bucket policies"
+  type = object({
+    name        = string
+    permissions = list(string)
+  })
+  default = {}
 }
