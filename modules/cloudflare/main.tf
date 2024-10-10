@@ -25,14 +25,13 @@ locals {
         }
         expression = app.subdomain == "www" ? (
           format(
-            "(http.host eq \"%s\" or http.host eq \"%s.%s\" or %s)",
-            app.root_domain,
-            app.subdomain,
-            app.root_domain,
-            join(" or ", [for env in var.environments :
+            "(%s%s)",
+            format("http.host eq \"%s\" or http.host eq \"%s.%s\"", app.root_domain, app.subdomain, app.root_domain),
+            length([for env in var.environments : env if env != "prod"]) > 0 ?
+            format(" or %s", join(" or ", [for env in var.environments :
               format("http.host eq \"%s.%s\"", env, app.root_domain)
               if env != "prod"
-            ])
+            ])) : ""
           )
           ) : join(" or ", [for env in var.environments :
             env == "prod" ?
