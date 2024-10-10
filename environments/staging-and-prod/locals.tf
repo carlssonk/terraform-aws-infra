@@ -94,13 +94,9 @@ locals {
 
   s3_media_config = {
     flare_media = {
-      app_name    = "flare-messenger-media"
       bucket_name = "${var.organization}-${local.fargate_services_config.flare.app_name}-media"
       subdomain   = "messenger-cdn"
       root_domain = local.root_domains.carlssonk_com
-      cloudflare = {
-        ssl_mode = "flexible"
-      }
     }
   }
 
@@ -126,5 +122,5 @@ locals {
     })
   }
 
-  cloudflare_app_settings = merge(local.s3_websites_config, local.fargate_services_config, local.s3_media_config)
+  cloudflare_app_settings = merge(local.s3_websites_config, local.fargate_services_config)
 }
