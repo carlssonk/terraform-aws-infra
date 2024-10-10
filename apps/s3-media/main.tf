@@ -10,7 +10,6 @@ module "bucket" {
       "s3:ListBucket"
     ]
   }
-  block_public_policy = false
 }
 
 module "cloudflare" {
