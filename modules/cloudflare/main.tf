@@ -24,9 +24,9 @@ locals {
           ssl = app.cloudflare.ssl_mode
         }
         expression = format(
-          "(http.host eq \"%s\" %s or http.host eq \"%s.%s\")",
+          "(http.host eq \"%s\" or %s or http.host eq \"%s.%s\")",
           app.root_domain,
-          join(" or http.host eq ", [for env in var.environments : "${env}.${app.root_domain}"]),
+          join(" or ", [for env in var.environments : format("http.host eq \"%s.%s\"", env, app.root_domain)]),
           app.subdomain,
           app.root_domain
         )
