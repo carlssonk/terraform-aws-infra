@@ -1,7 +1,8 @@
 locals {
 
   # Active environments
-  environments = ["prod", "staging"]
+  environments = ["prod"]
+  # environments = ["prod", "staging"]
 
   # Update as needed
   ec2_on_demand_hourly_rate = {
