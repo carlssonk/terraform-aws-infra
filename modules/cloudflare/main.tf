@@ -30,10 +30,9 @@ locals {
             app.subdomain,
             app.root_domain,
             join(" or ", [for env in var.environments :
-              env == "prod" ?
-              format("http.host eq \"%s.%s\"", app.subdomain, app.root_domain) :
-              format("http.host eq \"%s-%s.%s\"", app.subdomain, env, app.root_domain)
-            ]),
+              format("http.host eq \"%s.%s\"", env, app.root_domain)
+              if env != "prod"
+            ])
           )
           ) : join(" or ", [for env in var.environments :
             env == "prod" ?
