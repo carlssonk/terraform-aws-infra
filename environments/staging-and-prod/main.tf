@@ -67,8 +67,10 @@ module "services" {
 
 # Cloudflare is shared across all environments
 module "cloudflare" {
-  source = "../../modules/cloudflare"
-  apps   = local.apps
+  count        = var.environment == "prod" ? 1 : 0
+  source       = "../../modules/cloudflare"
+  apps         = local.apps
+  environments = local.environments
 }
 
 module "networking_policy" {

@@ -10,23 +10,28 @@ locals {
   apps_grouped_by_root_domain = {
     for root_domain in distinct(values(var.apps)[*].root_domain) :
     root_domain => [
-      for _, app_config in var.apps : app_config
+      for app_config in var.apps : app_config
       if app_config.root_domain == root_domain
     ]
   }
 
   ruleset_rules = {
     for root_domain, apps in local.apps_grouped_by_root_domain : root_domain => flatten([
-      for app in apps : flatten([
-        try(app.cloudflare.ssl_mode, null) != null ? [{
-          action = "set_config"
-          action_parameters = {
-            ssl = app.cloudflare.ssl_mode
-          }
-          expression  = app.subdomain == "www" ? "(http.host eq \"${app.root_domain}\" or http.host eq \"${app.subdomain}.${app.root_domain}\")" : "(http.host eq \"${app.subdomain}.${app.root_domain}\")"
-          description = "Cloudflare rules for ${app.app_name} (${terraform.workspace})"
-        }] : []
-      ])
+      for app in apps :
+      can(app.cloudflare.ssl_mode) ? [{
+        action = "set_config"
+        action_parameters = {
+          ssl = app.cloudflare.ssl_mode
+        }
+        expression = format(
+          "(http.host eq \"%s\" %s or http.host eq \"%s.%s\")",
+          app.root_domain,
+          join(" or http.host eq ", [for env in var.environments : "${env}.${app.root_domain}"]),
+          app.subdomain,
+          app.root_domain
+        )
+        description = "Cloudflare rules for ${app.app_name}"
+      }] : []
     ])
   }
 }
@@ -36,7 +41,6 @@ data "cloudflare_zone" "domain" {
   name     = each.key
 }
 
-// Resource will affect all environments
 resource "cloudflare_zone_settings_override" "this" {
   for_each = local.apps_grouped_by_root_domain
   zone_id  = data.cloudflare_zone.domain[each.key].id
@@ -47,10 +51,9 @@ resource "cloudflare_zone_settings_override" "this" {
   }
 }
 
-resource "cloudflare_ruleset" "prod" {
-  for_each    = terraform.workspace == "prod" ? local.apps_grouped_by_root_domain : {}
+resource "cloudflare_ruleset" "this" {
   zone_id     = data.cloudflare_zone.domain[each.key].id
-  name        = "Dynamic Main Ruleset PROD"
+  name        = "Dynamic Main Ruleset"
   description = "Dynamic ruleset for managing app settings"
   kind        = "zone"
   phase       = "http_config_settings"
@@ -71,38 +74,4 @@ resource "cloudflare_ruleset" "prod" {
       description = rules.value.description
     }
   }
-
-  # lifecycle {
-  #   ignore_changes = terraform.workspace == "prod" ? all : []
-  # }
-}
-
-resource "cloudflare_ruleset" "staging" {
-  for_each    = terraform.workspace == "staging" ? local.apps_grouped_by_root_domain : {}
-  zone_id     = data.cloudflare_zone.domain[each.key].id
-  name        = "Dynamic Main Ruleset STAGING"
-  description = "Dynamic ruleset for managing app settings"
-  kind        = "zone"
-  phase       = "http_config_settings"
-
-  dynamic "rules" {
-    for_each = local.ruleset_rules[each.key]
-    content {
-      action = rules.value.action
-
-      dynamic "action_parameters" {
-        for_each = rules.value.action_parameters.ssl != null ? [rules.value.action_parameters.ssl] : []
-        content {
-          ssl = action_parameters.value
-        }
-      }
-
-      expression  = rules.value.expression
-      description = rules.value.description
-    }
-  }
-
-  # lifecycle {
-  #   ignore_changes = terraform.workspace == "staging" ? all : []
-  # }
 }
