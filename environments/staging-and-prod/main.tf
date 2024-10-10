@@ -69,7 +69,7 @@ module "services" {
 module "cloudflare" {
   count        = var.environment == "prod" ? 1 : 0
   source       = "../../modules/cloudflare"
-  apps         = local.apps
+  apps         = local.cloudflare_app_settings
   environments = local.environments
 }
 

@@ -23,7 +23,9 @@ locals {
         action_parameters = {
           ssl = app.cloudflare.ssl_mode
         }
-        expression = format(
+        expression = app.subdomain != "www" ? (
+          join(" or ", [for env in var.environments : format("http.host eq \"%s.%s\"", env, app.root_domain)])
+          ) : format(
           "(http.host eq \"%s\" or %s or http.host eq \"%s.%s\")",
           app.root_domain,
           join(" or ", [for env in var.environments : format("http.host eq \"%s.%s\"", env, app.root_domain)]),
