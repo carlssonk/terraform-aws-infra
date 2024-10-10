@@ -94,7 +94,7 @@ locals {
 
   s3_media_config = {
     flare_media = {
-      bucket_name = "${var.organization}-${local.fargate_services_config.flare.app_name}-media"
+      bucket_name = "messenger-cdn.${local.root_domains.carlssonk_com}"
       subdomain   = "messenger-cdn"
       root_domain = local.root_domains.carlssonk_com
     }
