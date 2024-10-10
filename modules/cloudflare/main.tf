@@ -23,15 +23,23 @@ locals {
         action_parameters = {
           ssl = app.cloudflare.ssl_mode
         }
-        expression = app.subdomain != "www" ? (
-          join(" or ", [for env in var.environments : format("http.host eq \"%s.%s\"", env, app.root_domain)])
-          ) : format(
-          "(http.host eq \"%s\" or %s or http.host eq \"%s.%s\")",
-          app.root_domain,
-          join(" or ", [for env in var.environments : format("http.host eq \"%s.%s\"", env, app.root_domain)]),
-          app.subdomain,
-          app.root_domain
-        )
+        expression = app.subdomain == "www" ? (
+          format(
+            "(http.host eq \"%s\" or http.host eq \"%s.%s\" or %s)",
+            app.root_domain,
+            app.subdomain,
+            app.root_domain,
+            join(" or ", [for env in var.environments :
+              env == "prod" ?
+              format("http.host eq \"%s.%s\"", app.subdomain, app.root_domain) :
+              format("http.host eq \"%s-%s.%s\"", app.subdomain, env, app.root_domain)
+            ]),
+          )
+          ) : join(" or ", [for env in var.environments :
+            env == "prod" ?
+            format("http.host eq \"%s.%s\"", app.subdomain, app.root_domain) :
+            format("http.host eq \"%s-%s.%s\"", app.subdomain, env, app.root_domain)
+        ])
         description = "Cloudflare rules for ${app.app_name}"
       }] : []
     ])
