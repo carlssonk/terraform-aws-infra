@@ -42,62 +42,71 @@ locals {
         ssl_mode = "flexible"
       }
     }
-    terraform = {
-      app_name         = "terraform-diagram"
+    fast-web-nextjs = {
+      app_name         = "fast-web-nextjs"
       root_domain      = local.root_domains.carlssonk_com
-      subdomain        = "terraform"
-      github_repo_name = "carlssonk/terraform-diagram"
+      subdomain        = "fast-web-nextjs"
+      github_repo_name = "carlssonk/fast-web"
       cloudflare = {
         ssl_mode = "flexible"
       }
     }
+    # terraform = {
+    #   app_name         = "terraform-diagram"
+    #   root_domain      = local.root_domains.carlssonk_com
+    #   subdomain        = "terraform"
+    #   github_repo_name = "carlssonk/terraform-diagram"
+    #   cloudflare = {
+    #     ssl_mode = "flexible"
+    #   }
+    # }
   }
 
   fargate_services_config = {
-    blackjack = {
-      app_name                = "blackjack"
-      root_domain             = local.root_domains.carlssonk_com
-      subdomain               = "blackjack"
-      github_repo_name        = "carlssonk/Blackjack-Game-Multiplayer"
-      container_port          = 8080
-      use_stickiness          = true
-      fargate_spot_percentage = var.fargate_spot_percentage
-      cloudflare = {
-        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
-      }
-    }
-    flagracer = {
-      app_name                = "flag-racer"
-      root_domain             = local.root_domains.carlssonk_com
-      subdomain               = "flagracer"
-      github_repo_name        = "carlssonk/flag-racer"
-      container_port          = 8080
-      use_stickiness          = true
-      fargate_spot_percentage = var.fargate_spot_percentage
-      cloudflare = {
-        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
-      }
-    }
-    flare = {
-      app_name                = "flare-messenger"
-      root_domain             = local.root_domains.carlssonk_com
-      subdomain               = "messenger"
-      github_repo_name        = "carlssonk/flare-messenger"
-      container_port          = 8080
-      use_stickiness          = true
-      fargate_spot_percentage = var.fargate_spot_percentage
-      cloudflare = {
-        ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
-      }
-    }
+    # blackjack = {
+    #   app_name                = "blackjack"
+    #   root_domain             = local.root_domains.carlssonk_com
+    #   subdomain               = "blackjack"
+    #   github_repo_name        = "carlssonk/Blackjack-Game-Multiplayer"
+    #   container_port          = 8080
+    #   use_stickiness          = true
+    #   fargate_spot_percentage = var.fargate_spot_percentage
+    #   cloudflare = {
+    #     ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+    #   }
+    # }
+    # flagracer = {
+    #   app_name                = "flag-racer"
+    #   root_domain             = local.root_domains.carlssonk_com
+    #   subdomain               = "flagracer"
+    #   github_repo_name        = "carlssonk/flag-racer"
+    #   container_port          = 8080
+    #   use_stickiness          = true
+    #   fargate_spot_percentage = var.fargate_spot_percentage
+    #   cloudflare = {
+    #     ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+    #   }
+    # }
+    # flare = {
+    #   app_name                = "flare-messenger"
+    #   root_domain             = local.root_domains.carlssonk_com
+    #   subdomain               = "messenger"
+    #   github_repo_name        = "carlssonk/flare-messenger"
+    #   container_port          = 8080
+    #   use_stickiness          = true
+    #   fargate_spot_percentage = var.fargate_spot_percentage
+    #   cloudflare = {
+    #     ssl_mode = var.reverse_proxy_type == "nginx" ? "flexible" : null
+    #   }
+    # }
   }
 
   s3_media_config = {
-    flare_media = {
-      bucket_name = "messenger-cdn.${local.root_domains.carlssonk_com}"
-      subdomain   = "messenger-cdn"
-      root_domain = local.root_domains.carlssonk_com
-    }
+    # flare_media = {
+    #   bucket_name = "messenger-cdn.${local.root_domains.carlssonk_com}"
+    #   subdomain   = "messenger-cdn"
+    #   root_domain = local.root_domains.carlssonk_com
+    # }
   }
 
   env_subdomain_suffix = var.environment == "prod" ? "" : "-${var.environment}"
