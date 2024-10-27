@@ -114,6 +114,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.7
 
       - name: Set modules
         run: ./scripts/ci_set_modules.sh ${{ matrix.step }}
