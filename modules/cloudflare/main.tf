@@ -67,15 +67,20 @@ resource "cloudflare_ruleset" "this" {
   kind        = "zone"
   phase       = "http_config_settings"
 
-  rules = [
-    for rule in local.ruleset_rules[each.key] : {
-      action      = rule.action
-      expression  = rule.expression
-      description = rule.description
+  dynamic "rules" {
+    for_each = local.ruleset_rules[each.key]
+    content {
+      action = rules.value.action
 
-      action_parameters = rule.action_parameters.ssl != null ? {
-        ssl = rule.action_parameters.ssl
-      } : {}
+      dynamic "action_parameters" {
+        for_each = rules.value.action_parameters.ssl != null ? [rules.value.action_parameters.ssl] : []
+        content {
+          ssl = action_parameters.value
+        }
+      }
+
+      expression  = rules.value.expression
+      description = rules.value.description
     }
-  ]
+  }
 }
