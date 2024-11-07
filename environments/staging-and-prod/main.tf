@@ -108,6 +108,7 @@ module "s3_websites" {
 }
 
 module "s3_websites_policy" {
+  count            = length(local.s3_websites) > 0 ? 1 : 0
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
   name             = "s3_websites"
@@ -126,6 +127,7 @@ module "s3_media" {
 }
 
 module "s3_media_policy" {
+  count            = length(local.s3_media) > 0 ? 1 : 0
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
   name             = "s3_media"
@@ -165,6 +167,7 @@ module "fargate_services" {
 }
 
 module "fargate_services_policy" {
+  count            = length(local.fargate_services) > 0 ? 1 : 0
   workflow_step    = var.workflow_step
   source           = "../../iam_policy"
   name             = "fargate_services"
