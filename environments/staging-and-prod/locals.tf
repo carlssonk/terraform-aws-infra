@@ -42,15 +42,6 @@ locals {
         ssl_mode = "flexible"
       }
     }
-    fast-web-nextjs = {
-      app_name         = "fast-web-nextjs"
-      root_domain      = local.root_domains.carlssonk_com
-      subdomain        = "fast-web-nextjs"
-      github_repo_name = "carlssonk/fast-web"
-      cloudflare = {
-        ssl_mode = "flexible"
-      }
-    }
     # terraform = {
     #   app_name         = "terraform-diagram"
     #   root_domain      = local.root_domains.carlssonk_com
@@ -107,6 +98,11 @@ locals {
     #   subdomain   = "messenger-cdn"
     #   root_domain = local.root_domains.carlssonk_com
     # }
+    react_ppr_assets = {
+      bucket_name = "react-ppr-assets.${local.root_domains.carlssonk_com}"
+      subdomain   = "react-ppr-assets"
+      root_domain = local.root_domains.carlssonk_com
+    }
   }
 
   env_subdomain_suffix = var.environment == "prod" ? "" : "-${var.environment}"
