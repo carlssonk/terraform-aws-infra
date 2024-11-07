@@ -1,6 +1,7 @@
 module "bucket" {
-  source      = "../../modules/s3"
-  bucket_name = var.bucket_name
+  source              = "../../modules/s3"
+  bucket_name         = var.bucket_name
+  block_public_policy = false
   bucket_policy = {
     name = "cloudflare"
     permissions = [
