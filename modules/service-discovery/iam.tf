@@ -6,11 +6,13 @@ data "aws_iam_policy_document" "this" {
     actions = concat(
       [
         "servicediscovery:DeleteNamespace",
-        "servicediscovery:GetNamespace",
         "servicediscovery:UpdatePrivateDnsNamespace",
         "servicediscovery:CreatePrivateDnsNamespace",
         "servicediscovery:CreateService",
-        "servicediscovery:DeleteService"
+        "servicediscovery:DeleteService",
+        "servicediscovery:Get*",
+        "servicediscovery:List*",
+        "servicediscovery:Describe*"
       ]
     )
     resources = [
