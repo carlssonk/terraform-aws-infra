@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -15,6 +15,8 @@ terraform {
   backend "s3" {}
 }
 
+data "aws_caller_identity" "current" {}
+
 locals {
   oidc_domain           = "token.actions.githubusercontent.com"
   terraform_base_policy = "terraform-base-policy"
@@ -24,6 +26,14 @@ resource "aws_iam_openid_connect_provider" "github_actions" {
   url             = "https://${local.oidc_domain}"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+
+  tags = {
+    Name        = "github-actions-oidc-provider"
+    Environment = terraform.workspace
+    Purpose     = "github-actions-oidc"
+    ManagedBy   = "terraform"
+    Component   = "bootstrap"
+  }
 }
 
 resource "aws_iam_role" "terraform_execution_role" {
@@ -43,25 +53,36 @@ resource "aws_iam_role" "terraform_execution_role" {
             "${local.oidc_domain}:aud" : "sts.amazonaws.com"
           }
           StringLike = {
-            "${local.oidc_domain}:sub" : "repo:${var.organization}/${var.repository}:*"
+            "${local.oidc_domain}:sub" : [
+              "repo:${var.organization}/${var.repository}:ref:refs/heads/main",
+              "repo:${var.organization}/${var.repository}:environment:production"
+            ]
           }
-        }
-      },
-      {
-        // Used for running automation execution documents
-        Effect = "Allow"
-        Action = "sts:AssumeRole"
-        Principal = {
-          Service = "ssm.amazonaws.com"
         }
       }
     ]
   })
+
+  tags = {
+    Name        = "terraform-execution-role"
+    Environment = terraform.workspace
+    Purpose     = "terraform-execution"
+    ManagedBy   = "terraform"
+    Component   = "bootstrap"
+  }
 }
 
 resource "aws_iam_policy" "terraform_base_policy" {
   name        = local.terraform_base_policy
   description = "Policy for initial setup and self-update capabilities"
+
+  tags = {
+    Name        = local.terraform_base_policy
+    Environment = terraform.workspace
+    Purpose     = "terraform-base-permissions"
+    ManagedBy   = "terraform"
+    Component   = "bootstrap"
+  }
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -95,7 +116,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
         Action = [
           "iam:GetOpenIDConnectProvider",
         ],
-        Resource = "arn:aws:iam::*:oidc-provider/${local.oidc_domain}"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${local.oidc_domain}"
       },
       {
         // Enables terraform-execution-role to create and manage terraform-*-policy and *-deploy-policy
@@ -110,8 +131,8 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:DeletePolicyVersion"
         ],
         Resource = [
-          "arn:aws:iam::*:policy/terraform-*-policy",
-          "arn:aws:iam::*:policy/*-deploy-policy"
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/terraform-*-policy",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/*-deploy-policy"
         ]
       },
       {
@@ -143,7 +164,7 @@ resource "aws_iam_policy" "terraform_base_policy" {
           "iam:ListAttachedRolePolicies",
           "iam:ListRolePolicies"
         ],
-        Resource = "arn:aws:iam::*:role/*-deploy-role"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/*-deploy-role"
       },
       {
         Effect = "Allow"
